@@ -19,8 +19,17 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      docker:
+        image: docker:latest
+        options: --privileged
+
     steps:
     - uses: actions/checkout@v4
+    - name: Set up latest Docker client
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:

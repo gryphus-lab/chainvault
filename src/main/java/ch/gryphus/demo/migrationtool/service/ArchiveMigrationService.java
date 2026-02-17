@@ -160,12 +160,14 @@ public class ArchiveMigrationService {
             manifest.put("payloadHash", ctx.getPayloadHash());
 
             // optional: snapshot of source metadata
-            manifest.put("sourceMetadata", Map.of(
-                    "docId", sourceMetadata.getDocId(),
-                    "title", sourceMetadata.getTitle(),
-                    "creationDate", sourceMetadata.getCreationDate(),
-                    "clientId", sourceMetadata.getClientId()
-            ));
+            if (sourceMetadata != null) {
+                manifest.put("sourceMetadata", Map.of(
+                        "docId", sourceMetadata.getDocId(),
+                        "title", sourceMetadata.getTitle(),
+                        "creationDate", sourceMetadata.getCreationDate(),
+                        "clientId", sourceMetadata.getClientId()
+                ));
+            }
 
             String manifestJson = new ObjectMapper().writerWithDefaultPrettyPrinter()
                     .writeValueAsString(manifest);

@@ -5,6 +5,7 @@ import ch.gryphus.demo.migrationtool.domain.ArchivalMetadata;
 import ch.gryphus.demo.migrationtool.domain.MigrationContext;
 import ch.gryphus.demo.migrationtool.domain.SourceMetadata;
 import ch.gryphus.demo.migrationtool.domain.TiffPage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @Service
@@ -159,8 +162,19 @@ public class ArchiveMigrationService {
         return pages;
     }
 
-    public Path zipPages(String s, List<byte[]> fakePages, Object o) {
-        return null;
+    public Path zipPages(String id, List<byte[]> pages, Map m) throws IOException {
+        var p = Path.of("/tmp/" + id + "-c.zip");
+        try (var zos = new ZipOutputStream(Files.newOutputStream(p))) {
+            for (int i = 0; i < pages.size(); i++) {
+                zos.putNextEntry(new ZipEntry("p" + (i+1) + ".tif"));
+                zos.write(pages.get(i));
+                zos.closeEntry();
+            }
+            zos.putNextEntry(new ZipEntry("meta.json"));
+            zos.write(new ObjectMapper().writeValueAsBytes(m));
+            zos.closeEntry();
+        }
+        return p;
     }
 
     public void migrate(String docId) {

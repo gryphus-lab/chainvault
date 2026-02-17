@@ -29,9 +29,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -58,7 +57,7 @@ public class ArchiveMigrationService {
             ctx.setPayloadHash(sha256(payload));
 
             // 2. Extract pages
-            List<TiffPage> pages = extractPages(payload, ctx);
+            List<TiffPage> pages = extractTiffPages(payload, ctx);
 
             // 3. Chain ZIP
             Path zip = createChainZip(docId, pages, meta, ctx);
@@ -75,7 +74,7 @@ public class ArchiveMigrationService {
             String folder = sftpCfg.getRemoteDirectory() + "/" + docId;
             sftp.execute(s -> {
                 s.mkdir(folder);
-                s.write(Files.newInputStream(zip.toFile().toPath()), folder + "/" + docId + "_chain.zip");
+                s.write(Files.newInputStream(Objects.requireNonNull(zip).toFile().toPath()), folder + "/" + docId + "_chain.zip");
                 s.write(Files.newInputStream(pdf.toFile().toPath()), folder + "/" + docId + ".pdf");
                 s.write(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), folder + "/" + docId + "_meta.xml");
                 return null;
@@ -97,7 +96,7 @@ public class ArchiveMigrationService {
         return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(data));
     }
 
-    private List<TiffPage> extractPages(byte[] payload, MigrationContext ctx) throws IOException, NoSuchAlgorithmException {
+    private List<TiffPage> extractTiffPages(byte[] payload, MigrationContext ctx) throws IOException, NoSuchAlgorithmException {
         List<TiffPage> pages = new ArrayList<>();
 
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(payload))) {
@@ -114,8 +113,52 @@ public class ArchiveMigrationService {
         return pages;
     }
 
-    private Path createChainZip(String id, List<TiffPage> pages, SourceMetadata meta, MigrationContext ctx) {
-        return null;
+    private Path createChainZip(String docId, List<TiffPage> pages, SourceMetadata meta, MigrationContext ctx)
+            throws IOException, NoSuchAlgorithmException {
+
+        Path zipPath = Files.createTempFile("chain-" + docId + "-", ".zip");
+
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
+
+            // 1. Add all TIFF pages
+            for (int i = 0; i < pages.size(); i++) {
+                TiffPage page = pages.get(i);
+                String entryName = String.format("page-%03d_%s", i + 1, page.name());
+
+                zos.putNextEntry(new ZipEntry(entryName));
+                zos.write(page.data());
+                zos.closeEntry();
+            }
+
+            // 2. Add manifest.json
+            Map<String, Object> manifest = new LinkedHashMap<>();
+            manifest.put("docId", docId);
+            manifest.put("timestamp", Instant.now().toString());
+            manifest.put("pageCount", pages.size());
+            manifest.put("pageHashes", ctx.getPageHashes());
+            manifest.put("payloadHash", ctx.getPayloadHash());
+
+            // optional: snapshot of source metadata
+            manifest.put("sourceMetadata", Map.of(
+                    "docId", meta.getDocId(),
+                    "title", meta.getTitle(),
+                    "creationDate", meta.getCreationDate(),
+                    "clientId", meta.getClientId()
+            ));
+
+            String manifestJson = new ObjectMapper().writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(manifest);
+
+            zos.putNextEntry(new ZipEntry("manifest.json"));
+            zos.write(manifestJson.getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+        }
+
+        // Optional: log final hash for audit trail
+        String zipHash = sha256(zipPath);
+        log.info("Chain ZIP created: {} | hash = {}", zipPath.getFileName(), zipHash);
+
+        return zipPath;
     }
 
     private Path mergeTiffToPdf(List<TiffPage> pages, String docId) throws IOException {
@@ -175,8 +218,5 @@ public class ArchiveMigrationService {
             zos.closeEntry();
         }
         return p;
-    }
-
-    public void migrate(String docId) {
     }
 }

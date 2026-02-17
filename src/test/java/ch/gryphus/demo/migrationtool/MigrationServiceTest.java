@@ -1,5 +1,7 @@
 package ch.gryphus.demo.migrationtool;
 
+import ch.gryphus.demo.migrationtool.domain.MigrationContext;
+import ch.gryphus.demo.migrationtool.domain.SourceMetadata;
 import ch.gryphus.demo.migrationtool.domain.TiffPage;
 import ch.gryphus.demo.migrationtool.service.ArchiveMigrationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +21,7 @@ import org.springframework.web.client.RestClient;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -44,6 +47,9 @@ class MigrationServiceTest {
 
     @Mock
     private SftpRemoteFileTemplate sftp;
+
+    @Mock
+    private MigrationContext context;
 
     @InjectMocks
     private ArchiveMigrationService service;
@@ -102,8 +108,13 @@ class MigrationServiceTest {
         String xml = "<doc><id>123</id></doc>";
         String docId = "doc-abc";
 
+        SourceMetadata testSourceMetadata = createTestSourceMetadata(docId);
+        when(responseSpec.body(SourceMetadata.class)).thenReturn(testSourceMetadata);
+        byte[] testZip = createTestZipWithTwoTiffs();
+        when(responseSpec.body(byte[].class)).thenReturn(testZip);
+
         // Act
-        service.migrate(docId);  // full flow – but we mock internals if needed
+        service.migrateDocument(docId);  // full flow – but we mock internals if needed
 
         // Assert
         verify(sftp).execute(any());
@@ -151,5 +162,14 @@ class MigrationServiceTest {
             zos.finish();
             return baos.toByteArray();
         }
+    }
+
+    private SourceMetadata createTestSourceMetadata(String docId) {
+        SourceMetadata metadata = new SourceMetadata();
+        metadata.setDocId(docId);
+        metadata.setTitle("title");
+        metadata.setCreationDate(Instant.now().toString());
+        metadata.setClientId("clientId");
+        return metadata;
     }
 }

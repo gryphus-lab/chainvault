@@ -82,10 +82,13 @@ class MigrationServiceTest {
         ctx.setPayloadHash("payload-sha256-abc123");
 
         meta = new SourceMetadata();
+        meta.setDocId("DOC-TEST-001");
         meta.setTitle("Test Invoice 2026");
         meta.setCreationDate(Instant.now().toString());
         meta.setClientId("CHE-123.456.789");
         meta.setDocumentType("INVOICE");
+        meta.setHash("sha256-abc123");
+        meta.setAccountNo("ACC-123");
 
         // Make fluent chain return itself (common pattern)
         when(restClient.get()).thenReturn(requestSpec);

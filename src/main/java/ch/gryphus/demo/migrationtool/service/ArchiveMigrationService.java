@@ -134,7 +134,7 @@ public class ArchiveMigrationService {
         return pages;
     }
 
-    public Path createChainZip(String docId, List<TiffPage> pages, SourceMetadata meta, MigrationContext ctx)
+    public Path createChainZip(String docId, List<TiffPage> pages, SourceMetadata sourceMetadata, MigrationContext ctx)
             throws IOException, NoSuchAlgorithmException {
 
         Path zipPath = Files.createTempFile(docId + "_chain", ".zip");
@@ -161,10 +161,10 @@ public class ArchiveMigrationService {
 
             // optional: snapshot of source metadata
             manifest.put("sourceMetadata", Map.of(
-                    "docId", meta.getDocId(),
-                    "title", meta.getTitle(),
-                    "creationDate", meta.getCreationDate(),
-                    "clientId", meta.getClientId()
+                    "docId", sourceMetadata.getDocId(),
+                    "title", sourceMetadata.getTitle(),
+                    "creationDate", sourceMetadata.getCreationDate(),
+                    "clientId", sourceMetadata.getClientId()
             ));
 
             String manifestJson = new ObjectMapper().writerWithDefaultPrettyPrinter()
@@ -199,15 +199,15 @@ public class ArchiveMigrationService {
         return pdf;
     }
 
-    public ArchivalMetadata buildXml(@NonNull SourceMetadata meta, MigrationContext ctx) {
+    public ArchivalMetadata buildXml(SourceMetadata sourceMetadata, MigrationContext ctx) {
         ArchivalMetadata metadata = new ArchivalMetadata();
 
         // Core document info
         metadata.setDocumentId(ctx.getDocId());
-        metadata.setTitle(meta.getTitle() != null ? meta.getTitle() : "Untitled Document");
-        metadata.setCreationDate(meta.getCreationDate());
-        metadata.setClientId(meta.getClientId());
-        metadata.setDocumentType(meta.getDocumentType());
+        metadata.setTitle(sourceMetadata.getTitle() != null ? sourceMetadata.getTitle() : "Untitled Document");
+        metadata.setCreationDate(sourceMetadata.getCreationDate());
+        metadata.setClientId(sourceMetadata.getClientId());
+        metadata.setDocumentType(sourceMetadata.getDocumentType());
         metadata.setPageCount(ctx.getPageHashes().size());
 
         // Integrity / chain of custody

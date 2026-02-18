@@ -2,6 +2,37 @@ version: '3.9'
 
 services:
 
+  chainvault-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chainvault-app
+    ports:
+      - "8080:8080"
+      - "8000:8000"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      # SFTP (from sftp-test)
+      target.sftp.host: sftp-test
+      target.sftp.port: 22
+      target.sftp.username: testuser
+      target.sftp.password: testpass123
+      target.sftp.remote-directory: /upload
+      target.sftp.allow-unknown-keys: "true"
+      # Source API (from fake-api)
+      source.api.base-url: http://fake-source-api:9090
+      source.api.token: dummy
+      # JobRunr (optional PostgreSQL)
+      spring.datasource.url: jdbc:postgresql://postgres:5432/jobrunr
+      spring.datasource.username: jobrunr
+      spring.datasource.password: jobrunr
+      jobrunr.background-job-server.enabled: true
+      jobrunr.dashboard.enabled: true
+    depends_on:
+      - sftp-test
+      - fake-source-api
+      - postgres
+    restart: unless-stopped
   postgres:
     image: postgres:16-alpine
     container_name: postgres-jobrunr
@@ -32,7 +63,7 @@ services:
     restart: unless-stopped
 
   fake-source-api:
-    image: node:20-alpine
+    image: node:25-alpine
     container_name: fake-source-api
     working_dir: /app
     command: >

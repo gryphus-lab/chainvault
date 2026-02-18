@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -15,13 +17,28 @@ import org.testcontainers.utility.DockerImageName;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.awaitility.Awaitility.await;
 
-@Disabled
 @SpringBootTest
 @Testcontainers
 class ArchiveMigrationServiceIntegrationTest {
+
+    // PostgreSQL container with reasonable defaults
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"))
+            .withDatabaseName("jobrunr")
+            .withUsername("jobrunr")
+            .withPassword("jobrunr");
+
+    // Fake REST API (json-server with db.json)
+    @Container
+    static GenericContainer<?> jsonServer = new GenericContainer<>(DockerImageName.parse("clue/json-server:latest"))
+            .withCommand("--watch /data/db.json --static /data/static --host 0.0.0.0")
+            .withClasspathResourceMapping("db.json", "/data/db.json", BindMode.READ_ONLY)
+            .withClasspathResourceMapping("static", "/data/static", BindMode.READ_ONLY)
+            .withExposedPorts(80)
+            .waitingFor(Wait.forHttp("/documents").forStatusCode(200));
 
     @Container
     static GenericContainer<?> sftpContainer = new GenericContainer<>(DockerImageName.parse("atmoz/sftp:latest"))
@@ -29,11 +46,19 @@ class ArchiveMigrationServiceIntegrationTest {
             .withExposedPorts(22)
             .waitingFor(Wait.forLogMessage(".*Server listening on 0.0.0.0 port 22.*", 1));
 
-    @Autowired
-    private ArchiveMigrationService service;
-
+    // Override Spring datasource properties at runtime
     @DynamicPropertySource
-    static void overrideSftpProperties(DynamicPropertyRegistry registry) {
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        // Fake source API
+        String apiUrl = "http://" + jsonServer.getHost() + ":" + jsonServer.getMappedPort(80);
+        registry.add("source.api.base-url", () -> apiUrl);
+        registry.add("source.api.token", () -> "dummy-token");
+
+        // Postgres
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
 
         // SFTP
         registry.add("target.sftp.host", sftpContainer::getHost);
@@ -44,6 +69,10 @@ class ArchiveMigrationServiceIntegrationTest {
         registry.add("target.sftp.allow-unknown-keys", () -> "true");
     }
 
+    @Autowired
+    private ArchiveMigrationService service;
+
+    @Disabled("TODO: To be checked")
     @Test
     void migrateDocument_shouldUploadToRealSftp() throws Exception {
         String docId = "DOC-ARCH-20250115-001";  // exists in your verbose db.json
@@ -78,7 +107,8 @@ class ArchiveMigrationServiceIntegrationTest {
 
         // No exception expected if your code handles 404 gracefully
         // or assertThrows if you want it to fail loudly
-        assertThatNoException()
-                .isThrownBy(() -> service.migrateDocument(invalidId));
+        assertThatException()
+                .isThrownBy(() -> service.migrateDocument(invalidId))
+                .withMessageContaining("404");
     }
 }

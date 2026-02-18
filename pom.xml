@@ -8,11 +8,10 @@
         <version>3.5.10</version>
     </parent>
 
-    <groupId>ch.gryphus.demo</groupId>
-    <artifactId>migration-tool</artifactId>
+    <groupId>ch.gryphus</groupId>
+    <artifactId>chainvault</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>finma-compliant-migration-tool</name>
-    <description>finma-compliant-migration-tool</description>
+    <name>ChainVault</name>
     <url/>
     <licenses>
         <license/>

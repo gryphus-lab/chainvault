@@ -1,10 +1,10 @@
-package ch.gryphus.demo.migrationtool.service;
+package ch.gryphus.chainvault.service;
 
-import ch.gryphus.demo.migrationtool.config.SftpTargetConfig;
-import ch.gryphus.demo.migrationtool.domain.ArchivalMetadata;
-import ch.gryphus.demo.migrationtool.domain.MigrationContext;
-import ch.gryphus.demo.migrationtool.domain.SourceMetadata;
-import ch.gryphus.demo.migrationtool.domain.TiffPage;
+import ch.gryphus.chainvault.config.SftpTargetConfig;
+import ch.gryphus.chainvault.domain.ArchivalMetadata;
+import ch.gryphus.chainvault.domain.MigrationContext;
+import ch.gryphus.chainvault.domain.SourceMetadata;
+import ch.gryphus.chainvault.domain.TiffPage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.pdfbox.Loader;

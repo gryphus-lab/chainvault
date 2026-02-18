@@ -1,3 +1,3 @@
-package ch.gryphus.demo.migrationtool.domain;
+package ch.gryphus.chainvault.domain;
 
 public record TiffPage(String name, byte[] data) {}

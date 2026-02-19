@@ -13,7 +13,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import javax.imageio.ImageIO;
@@ -32,7 +32,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class MigrationService {
 
@@ -246,5 +246,29 @@ public class MigrationService {
         }
 
         return pages;
+    }
+
+    public void processExtractAndHashJob() {
+        // impl comes here
+    }
+
+    public void processMergeToPdfJob() {
+        // impl comes here
+    }
+
+    public void processPrepareFilesJob() {
+        //
+    }
+
+    public void processUploadSftpJob() {
+        //
+    }
+
+    public void processSignDocumentJob() {
+        //
+    }
+
+    public void processTransformMetadataJob() {
+        //
     }
 }

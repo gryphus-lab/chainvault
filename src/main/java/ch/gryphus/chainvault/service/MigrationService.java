@@ -34,7 +34,7 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ArchiveMigrationService {
+public class MigrationService {
 
     private final RestClient restClient;
     private final SftpRemoteFileTemplate sftp;
@@ -246,20 +246,5 @@ public class ArchiveMigrationService {
         }
 
         return pages;
-    }
-
-    public Path zipPages(String id, List<byte[]> pages, Map<?,?> m) throws IOException {
-        var p = Path.of("/tmp/" + id + "-c.zip");
-        try (var zos = new ZipOutputStream(Files.newOutputStream(p))) {
-            for (int i = 0; i < pages.size(); i++) {
-                zos.putNextEntry(new ZipEntry("p" + (i + 1) + ".tif"));
-                zos.write(pages.get(i));
-                zos.closeEntry();
-            }
-            zos.putNextEntry(new ZipEntry("meta.json"));
-            zos.write(new ObjectMapper().writeValueAsBytes(m));
-            zos.closeEntry();
-        }
-        return p;
     }
 }

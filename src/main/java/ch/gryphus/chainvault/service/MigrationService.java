@@ -264,28 +264,4 @@ public class MigrationService {
         Tika tika = new Tika();
         return tika.detect(in);
     }
-
-    public void processExtractAndHashJob() {
-        // impl comes here
-    }
-
-    public void processMergeToPdfJob() {
-        // impl comes here
-    }
-
-    public void processPrepareFilesJob() {
-        //
-    }
-
-    public void processUploadSftpJob() {
-        //
-    }
-
-    public void processSignDocumentJob() {
-        //
-    }
-
-    public void processTransformMetadataJob() {
-        //
-    }
 }

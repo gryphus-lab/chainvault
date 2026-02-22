@@ -45,6 +45,7 @@ class MigrationServiceIntegrationTest {
             .withCommand("testuser:testpass123:::upload")
             .withExposedPorts(22)
             .waitingFor(Wait.forLogMessage(".*Server listening on 0.0.0.0 port 22.*", 1));
+
     @Autowired
     private MigrationService service;
 

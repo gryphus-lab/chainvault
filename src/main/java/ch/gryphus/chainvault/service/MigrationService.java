@@ -14,7 +14,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.tika.Tika;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import javax.imageio.ImageIO;
@@ -34,7 +34,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
 public class MigrationService {
 
@@ -110,11 +110,11 @@ public class MigrationService {
         }
     }
 
-    String sha256(Path path) throws IOException, NoSuchAlgorithmException {
+    public String sha256(Path path) throws IOException, NoSuchAlgorithmException {
         return sha256(Files.readAllBytes(path));
     }
 
-    String sha256(byte[] data) throws NoSuchAlgorithmException {
+    public String sha256(byte[] data) throws NoSuchAlgorithmException {
         return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(data));
     }
 

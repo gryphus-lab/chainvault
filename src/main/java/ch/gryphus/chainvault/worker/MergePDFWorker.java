@@ -9,20 +9,20 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class SftpUploadWorker {
+public class MergePDFWorker {
     private final MigrationService migrationService;
 
     @Autowired
-    public SftpUploadWorker(MigrationService migrationService) {
+    public MergePDFWorker(MigrationService migrationService) {
         this.migrationService = migrationService;
     }
 
-    @JobWorker(type = "upload-sftp")
+    @JobWorker(type = "merge-to-pdf")
     public void handle(ActivatedJob job) {
-        log.info("Processing upload-sftp job: {}", job.getKey());
+        log.info("Processing merge-to-pdf job: {}", job.getKey());
 
         // implementation comes here
 
-        log.info("upload-sftp job completed: {}", job.getKey());
+        log.info("merge-to-pdf job completed: {}", job.getKey());
     }
 }

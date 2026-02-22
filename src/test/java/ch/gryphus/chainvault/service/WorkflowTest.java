@@ -1,4 +1,4 @@
-package ch.gryphus.chainvault.test;
+package ch.gryphus.chainvault.service;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;
@@ -18,7 +18,7 @@ class WorkflowTest {
     private CamundaProcessTestContext processTestContext;
 
     @Test
-    void shouldCompleteProcessInstance() {
+    void test_HappyPathShouldCompleteProcessInstance() {
         // given: the processes are deployed
         client
                 .newDeployResourceCommand()
@@ -33,6 +33,13 @@ class WorkflowTest {
                 .latestVersion()
                 .send()
                 .join();
+        processTestContext.mockJobWorker("extract-and-hash").thenComplete();
+        processTestContext.mockJobWorker("sign-document").thenComplete();
+        processTestContext.mockJobWorker("prepare-files").thenComplete();
+        processTestContext.mockJobWorker("merge-to-pdf").thenComplete();
+        processTestContext.mockJobWorker("transform-metadata").thenComplete();
+        processTestContext.mockJobWorker("upload-sftp").thenComplete();
+        processTestContext.mockJobWorker("handle-error").thenComplete();
 
         // then
         CamundaAssert.assertThat(processInstance).isCompleted();

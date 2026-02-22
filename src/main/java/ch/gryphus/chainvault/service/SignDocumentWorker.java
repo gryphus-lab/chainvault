@@ -1,10 +1,8 @@
-package ch.gryphus.chainvault.worker;
+package ch.gryphus.chainvault.service;
 
-import ch.gryphus.chainvault.service.MigrationService;
 import io.camunda.client.annotation.JobWorker;
 import io.camunda.client.api.response.ActivatedJob;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -12,13 +10,12 @@ import org.springframework.stereotype.Component;
 public class SignDocumentWorker {
     private final MigrationService migrationService;
 
-    @Autowired
     public SignDocumentWorker(MigrationService migrationService) {
         this.migrationService = migrationService;
     }
 
     @JobWorker(type = "sign-document")
-    public void handle(ActivatedJob job) {
+    public void handle(final ActivatedJob job) {
         log.info("Processing sign-document job: {}", job.getKey());
 
         // implementation comes here

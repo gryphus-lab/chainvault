@@ -77,3 +77,9 @@ source:
 migration:
   temp-dir: /tmp/migration-${random.uuid}
   chunk-size-for-inventory: 500   # when fetching lists
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: metrics

@@ -10,9 +10,31 @@ on:
     branches: [ "main" ]
 
 jobs:
+
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:16-alpine
+        # Provide the password for postgres
+        env:
+          POSTGRES_DB: chainvault
+          POSTGRES_USER: chainvault
+          POSTGRES_PASSWORD: secret
+        # Set health checks to wait until postgres has started
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,6 +44,12 @@ jobs:
         with:
           java-version: 21
           distribution: 'temurin'
+      - name: Start Camunda 8 Core
+        run: |
+          # Tune for low-memory CI environment
+          export ELASTICSEARCH_JAVA_OPTS="-Xms512m -Xmx512m"
+          export ZEEBE_BROKER_JAVA_OPTS="-Xms512m -Xmx512m"
+          docker compose -f ./docker/ci/docker-compose-8.8/docker-compose.yaml up -d
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:

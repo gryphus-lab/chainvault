@@ -2,11 +2,6 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.11</version>
-    </parent>
 
     <groupId>ch.gryphus</groupId>
     <artifactId>chainvault</artifactId>
@@ -32,7 +27,7 @@
         <lombok.version>1.18.34</lombok.version>
 
         <!-- dependencies-->
-        <spring-boot.version>${project.parent.version}</spring-boot.version>
+        <spring-boot.version>3.5.11</spring-boot.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <camunda.version>8.8.13</camunda.version>
         <commons-compress.version>1.28.0</commons-compress.version>
@@ -105,11 +100,6 @@
                 <groupId>io.camunda</groupId>
                 <artifactId>camunda-spring-boot-starter</artifactId>
                 <version>${camunda.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.camunda</groupId>
-                <artifactId>zeebe-bom</artifactId>
-                <version>$camunda.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.camunda</groupId>
@@ -300,7 +290,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
                 <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -313,6 +307,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
             </plugin>
         </plugins>
     </build>

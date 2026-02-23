@@ -110,11 +110,11 @@ public class MigrationService {
         }
     }
 
-    String sha256(Path path) throws IOException, NoSuchAlgorithmException {
+    public String sha256(Path path) throws IOException, NoSuchAlgorithmException {
         return sha256(Files.readAllBytes(path));
     }
 
-    String sha256(byte[] data) throws NoSuchAlgorithmException {
+    public String sha256(byte[] data) throws NoSuchAlgorithmException {
         return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(data));
     }
 

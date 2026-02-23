@@ -47,7 +47,10 @@ class MigrationServiceIntegrationTest {
             .withExposedPorts(22)
             .waitingFor(Wait.forLogMessage(".*Server listening on 0.0.0.0 port 22.*", 1));
     @Autowired
-    private MigrationService service;
+    private MigrationService migrationService;
+
+    @Autowired
+    private OrchestrationService orchestrationService;
 
     // Override Spring datasource properties at runtime
     @DynamicPropertySource
@@ -77,7 +80,7 @@ class MigrationServiceIntegrationTest {
         String docId = "DOC-ARCH-20250115-001";  // exists in your verbose db.json
 
         // Act – full real flow
-        service.migrateDocument(docId);
+        migrationService.migrateDocument(docId);
 
         // Wait for upload to appear in SFTP (poll the container)
         String expectedDir = "/home/testuser/upload/%s".formatted(docId);
@@ -107,7 +110,12 @@ class MigrationServiceIntegrationTest {
         // No exception expected if your code handles 404 gracefully
         // or assertThrows if you want it to fail loudly
         assertThatException()
-                .isThrownBy(() -> service.migrateDocument(invalidId))
+                .isThrownBy(() -> migrationService.migrateDocument(invalidId))
                 .withMessageContaining("404");
+    }
+
+    @Test
+    void testFlowableHappyPath() {
+        assertThat(orchestrationService.startProcess()).isNotNull();
     }
 }

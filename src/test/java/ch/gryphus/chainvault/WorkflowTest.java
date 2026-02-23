@@ -1,4 +1,4 @@
-package ch.gryphus.chainvault.service;
+package ch.gryphus.chainvault;
 
 import io.camunda.client.CamundaClient;
 import io.camunda.client.api.response.ProcessInstanceEvent;

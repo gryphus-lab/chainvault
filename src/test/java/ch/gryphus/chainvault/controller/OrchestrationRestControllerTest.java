@@ -1,36 +1,49 @@
 package ch.gryphus.chainvault.controller;
 
 import ch.gryphus.chainvault.service.OrchestrationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(OrchestrationRestController.class)
 class OrchestrationRestControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private MockMvcTester mockMvcTester;
 
     @MockitoBean
     private OrchestrationService mockOrchestrationService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
     void testStartProcessInstance() throws Exception {
-        // Given
-        when(mockOrchestrationService.startProcess()).thenReturn("test");
+        // Setup
+        when(mockOrchestrationService.startProcess(any())).thenReturn("test");
+
+        Map<String, Object> variables = Map.of("docId", "123");
+        String json = objectMapper.writeValueAsString(variables);
 
         // Run the test and verify the results
-        mockMvc.perform(post("/chainvault/process")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Process started with id: test"));
+        assertThat(mockMvcTester.post()
+                .uri("/chainvault/process")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .hasStatus(HttpStatus.CREATED)
+                .bodyText()
+                .contains("docId=123")
+                .contains("id:test");
     }
 }

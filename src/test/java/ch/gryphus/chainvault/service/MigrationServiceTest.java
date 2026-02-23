@@ -62,7 +62,7 @@ class MigrationServiceTest {
     @InjectMocks
     private MigrationService migrationService;
     @Mock
-    private ObjectMapper jsonMapper;  // used inside createChainZip
+    private ObjectMapper jsonMapper;
     private MigrationContext ctx;
     private SourceMetadata meta;
 

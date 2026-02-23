@@ -37,6 +37,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=gryphus-lab_chainvault -Pcoverage

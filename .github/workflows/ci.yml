@@ -47,7 +47,8 @@ jobs:
       - name: Start Camunda 8 Core
         run: |
           # Download the lightweight compose file if not in your repo
-          curl -O https://raw.githubusercontent.com/camunda/camunda-distributions/refs/heads/main/docker-compose/versions/camunda-8.8/docker-compose.yaml
+          curl -O https://github.com/camunda/camunda-distributions/releases/download/docker-compose-8.8/docker-compose-8.8.zip
+          unzip docker-compose-8.8.zip
 
           # Tune for low-memory CI environment
           export ELASTICSEARCH_JAVA_OPTS="-Xms512m -Xmx512m"

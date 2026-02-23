@@ -2,10 +2,11 @@ package ch.gryphus.chainvault.controller;
 
 import ch.gryphus.chainvault.service.OrchestrationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/chainvault")
@@ -18,8 +19,8 @@ public class OrchestrationRestController {
     }
 
     @PostMapping(value="/process")
-    public ResponseEntity<Object> startProcessInstance() {
-        String retVal = orchestrationService.startProcess();
-        return ResponseEntity.ok().body("Process started with id: %s".formatted(retVal));
+    public ResponseEntity<Object> startProcessInstance(@RequestBody Map<String, Object> payload) {
+        String retVal = orchestrationService.startProcess(payload);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Process instance started for payload:" + payload + " with id:" + retVal);
     }
 }

@@ -14,6 +14,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -116,6 +118,9 @@ class MigrationServiceIntegrationTest {
 
     @Test
     void testFlowableHappyPath() {
-        assertThat(orchestrationService.startProcess()).isNotNull();
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("docId", "DOC-ARCH-20250115-001");
+
+        assertThat(orchestrationService.startProcess(variables)).isNotNull();
     }
 }

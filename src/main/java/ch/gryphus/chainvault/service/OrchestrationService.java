@@ -6,6 +6,8 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Slf4j
 @Service
 public class OrchestrationService {
@@ -16,8 +18,8 @@ public class OrchestrationService {
         this.runtimeService = runtimeService;
     }
 
-    public String startProcess() {
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("chainvault");
+    public String startProcess(Map<String, Object> variables) {
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("chainvault", variables);
         return processInstance.getProcessInstanceId();
     }
 }

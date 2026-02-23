@@ -50,7 +50,7 @@ jobs:
           export ELASTICSEARCH_JAVA_OPTS="-Xms512m -Xmx512m"
           export ZEEBE_BROKER_JAVA_OPTS="-Xms512m -Xmx512m"
 
-          docker compose -f docker/ci/docker-compose-8.8/docker-compose.yaml up -d
+          docker compose -f ./docker/ci/docker-compose-8.8/docker-compose.yaml up -d
 
       - name: Wait for Zeebe
         run: |

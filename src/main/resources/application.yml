@@ -36,15 +36,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-camunda:
-  client:
-    prefer-rest-over-grpc: false
-    execution-threads: 10
-    mode: self-managed
-    grpc-address: http://0.0.0.0:26500
-    rest-address: http://localhost:8088
-    request-timeout: PT30S
-
 server:
   port: 8085
   servlet:

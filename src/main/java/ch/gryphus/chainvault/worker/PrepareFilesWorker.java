@@ -1,5 +1,6 @@
-package ch.gryphus.chainvault.service;
+package ch.gryphus.chainvault.worker;
 
+import ch.gryphus.chainvault.service.MigrationService;
 import io.camunda.client.annotation.JobWorker;
 import io.camunda.client.api.response.ActivatedJob;
 import lombok.extern.slf4j.Slf4j;

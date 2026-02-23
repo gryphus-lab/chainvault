@@ -1,5 +1,6 @@
-package ch.gryphus.chainvault.service;
+package ch.gryphus.chainvault.worker;
 
+import ch.gryphus.chainvault.service.MigrationService;
 import io.camunda.client.annotation.JobWorker;
 import io.camunda.client.api.response.ActivatedJob;
 import lombok.extern.slf4j.Slf4j;
@@ -7,19 +8,19 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class MergePDFWorker {
+public class SftpUploadWorker {
     private final MigrationService migrationService;
 
-    public MergePDFWorker(MigrationService migrationService) {
+    public SftpUploadWorker(MigrationService migrationService) {
         this.migrationService = migrationService;
     }
 
-    @JobWorker(type = "merge-to-pdf")
+    @JobWorker(type = "upload-sftp")
     public void handle(final ActivatedJob job) {
-        log.info("Processing merge-to-pdf job: {}", job.getKey());
+        log.info("Processing upload-sftp job: {}", job.getKey());
 
         // implementation comes here
 
-        log.info("merge-to-pdf job completed: {}", job.getKey());
+        log.info("upload-sftp job completed: {}", job.getKey());
     }
 }

@@ -10,6 +10,7 @@ on:
     branches: [ "main" ]
 
 jobs:
+
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
@@ -43,6 +44,22 @@ jobs:
         with:
           java-version: 21
           distribution: 'temurin'
+      - name: Start Camunda 8 Core
+        run: |
+          # Download the lightweight compose file if not in your repo
+          curl -O https://raw.githubusercontent.com/camunda/camunda-distributions/refs/heads/main/docker-compose/versions/camunda-8.8/docker-compose.yaml
+
+          # Tune for low-memory CI environment
+          export ELASTICSEARCH_JAVA_OPTS="-Xms512m -Xmx512m"
+          export ZEEBE_BROKER_JAVA_OPTS="-Xms512m -Xmx512m"
+
+          docker compose -f docker-compose-core.yaml up -d
+
+      - name: Wait for Zeebe
+        run: |
+          # Simple bash loop to wait for the gRPC port (26500)
+          timeout 120s bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/localhost/26500; do sleep 5; done'jobs:
+
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:

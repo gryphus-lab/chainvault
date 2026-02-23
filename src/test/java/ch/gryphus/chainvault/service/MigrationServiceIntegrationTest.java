@@ -28,7 +28,8 @@ class MigrationServiceIntegrationTest {
     static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("postgres:16-alpine"))
             .withDatabaseName("chainvault")
             .withUsername("chainvault")
-            .withPassword("secret");
+            .withPassword("secret")
+            .withClasspathResourceMapping("db/init-scripts", "/docker-entrypoint-initdb.d", BindMode.READ_ONLY);
 
     // Fake REST API (json-server with db.json)
     @Container

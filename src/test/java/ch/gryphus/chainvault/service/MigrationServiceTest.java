@@ -5,6 +5,7 @@ import ch.gryphus.chainvault.domain.ArchivalMetadata;
 import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.domain.TiffPage;
+import ch.gryphus.chainvault.utils.HashUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.pdfbox.Loader;
@@ -68,11 +69,13 @@ class MigrationServiceTest {
 
     @BeforeEach
     void setup() {
-        ctx = new MigrationContext("DOC-TEST-001");
+        String docId = "DOC-TEST-001";
+        ctx = new MigrationContext();
+        ctx.setDocId(docId);
         ctx.setPayloadHash("payload-sha256-abc123");
 
         meta = new SourceMetadata();
-        meta.setDocId("DOC-TEST-001");
+        meta.setDocId(docId);
         meta.setTitle("Test Invoice 2026");
         meta.setCreationDate(Instant.now().toString());
         meta.setClientId("CHE-123.456.789");
@@ -95,7 +98,7 @@ class MigrationServiceTest {
         byte[] data = "hello world".getBytes();
         String expected = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9";
 
-        String hash = migrationService.sha256(data);
+        String hash = HashUtils.sha256(data);
         assertThat(hash).isEqualTo(expected);
     }
 
@@ -104,8 +107,8 @@ class MigrationServiceTest {
         Path file = tempDir.resolve("test.txt");
         Files.writeString(file, "hello world");
 
-        String hashFromBytes = migrationService.sha256("hello world".getBytes());
-        String hashFromPath = migrationService.sha256(file);
+        String hashFromBytes = HashUtils.sha256("hello world".getBytes());
+        String hashFromPath = HashUtils.sha256(file);
 
         assertThat(hashFromPath).isEqualTo(hashFromBytes);
     }
@@ -273,42 +276,6 @@ class MigrationServiceTest {
         try (PDDocument doc = Loader.loadPDF(pdf.toFile())) {
             assertThat(doc.getNumberOfPages()).isZero();
         }
-    }
-
-    // ────────────────────────────────────────────────
-    // migrateDocument – happy path (partial integration)
-    // ────────────────────────────────────────────────
-    @Test
-    void migrateDocument_happyPath_shouldCallAllSteps() throws Exception {
-        byte[] fakeZipPayload = createZipWithTiffs(List.of("page001.tif", "fake-tiff-data"));
-
-        Path fakePdf = tempDir.resolve("mocked.pdf");
-        Files.createFile(fakePdf);  // or write dummy content
-
-        doReturn(fakePdf)
-                .when(migrationService)
-                .mergeTiffToPdf(anyList(), anyString());
-
-        // Mock RestClient chain (critical!)
-        when(restClient.get()).thenReturn(requestSpec);
-
-        // Metadata call
-        when(requestSpec.uri("/documents/{id}", "DOC-HAPPY")).thenReturn(requestSpec);
-        when(requestSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(SourceMetadata.class)).thenReturn(meta);
-
-        // Payload call (second get)
-        when(requestSpec.uri(anyString())).thenReturn(requestSpec);
-        when(requestSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(byte[].class)).thenReturn(fakeZipPayload);
-
-        // Act
-        migrationService.migrateDocument("DOC-HAPPY");
-
-        // Assert calls
-        verify(restClient, times(2)).get();  // metadata + payload
-        verify(requestSpec, times(1)).uri(anyString(), eq("DOC-HAPPY"));
-        verify(requestSpec, times(2)).retrieve();
     }
 
     // Helper to create small test ZIP

@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 public class MigrationContext {
-    private final String docId;
+    private String docId;
     private String payloadHash;
     private String zipHash;
     private String pdfHash;

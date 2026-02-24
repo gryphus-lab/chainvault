@@ -2,11 +2,12 @@ package ch.gryphus.chainvault.service;
 
 import ch.gryphus.chainvault.config.SftpTargetConfig;
 import ch.gryphus.chainvault.domain.*;
+import ch.gryphus.chainvault.utils.HashUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -25,7 +26,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.*;
@@ -39,86 +39,38 @@ import java.util.zip.ZipOutputStream;
 public class MigrationService {
 
     private final RestClient restClient;
-    private final SftpRemoteFileTemplate sftp;
-    private final SftpTargetConfig sftpCfg;
+    private final SftpRemoteFileTemplate sftpRemoteFileTemplate;
+    private final SftpTargetConfig sftpTargetConfig;
     private final XmlMapper xmlMapper;
 
-    public void migrateDocument(String docId) {
-        MigrationContext ctx = new MigrationContext(docId);
-
-        Path zipPath = null;
-        Path pdfPath = null;
-        byte[] payload = new byte[0];
-
+    public Map<String, Object> extractAndHash(String docId) throws NoSuchAlgorithmException, MigrationServiceException {
         try {
-            // 1. Extract
+            Map<String, Object> map = new HashMap<>();
+            byte[] payload;
+
+            var ctx = new MigrationContext();
+            ctx.setDocId(docId);
+            map.put("ctx", ctx);
+
             var meta = restClient.get().uri("/documents/{id}", docId).retrieve().body(SourceMetadata.class);
-            if (meta != null && meta.getPayloadUrl() != null) {
-                payload = restClient.get().uri(meta.getPayloadUrl()).retrieve().body(byte[].class);
-                ctx.setPayloadHash(sha256(payload));
-            }
-
-            // 2. Extract pages
-            List<TiffPage> pages = extractTiffPages(payload, ctx);
-
-            // 3. Chain ZIP
-            zipPath = createChainZip(docId, pages, meta, ctx);
-            ctx.setZipHash(sha256(zipPath));
-
-            // 4. PDF
-            pdfPath = mergeTiffToPdf(pages, docId);
-            ctx.setPdfHash(sha256(pdfPath));
-
-            // 5. XML metadata
-            String xml = xmlMapper.writeValueAsString(buildXml(Objects.requireNonNull(meta), ctx));
-
-            // 6. SFTP upload
-            String folder = "%s/%s".formatted(sftpCfg.getRemoteDirectory(), docId);
-            Path finalZipPath = zipPath;
-            Path finalPdfPath = pdfPath;
-            sftp.execute(s -> {
-                s.mkdir(folder);
-                s.write(Files.newInputStream(finalZipPath.toFile().toPath()), "%s/%s_chain.zip".formatted(folder, docId));
-                s.write(Files.newInputStream(finalPdfPath.toFile().toPath()), "%s/%s.pdf".formatted(folder, docId));
-                s.write(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), "%s/%s_meta.xml".formatted(folder, docId));
-                return null;
-            });
-
-            log.info("Done {} | zipPath={} | pdf={}", docId, ctx.getZipHash(), ctx.getPdfHash());
-
-        } catch (IOException | NoSuchAlgorithmException e) {
-            log.error("Failed {}", docId, e);
-        } finally {
-            // Cleanup temporary files – always try to delete, even on failure
-            if (zipPath != null) {
-                try {
-                    Files.deleteIfExists(zipPath);
-                    log.debug("Deleted temp ZIP: {}", zipPath);
-                } catch (IOException e) {
-                    log.warn("Failed to delete temp ZIP {}: {}", zipPath, e.getMessage());
+            if (meta != null) {
+                map.put("meta", meta);
+                if (meta.getPayloadUrl() != null) {
+                    payload = restClient.get().uri(meta.getPayloadUrl()).retrieve().body(byte[].class);
+                    ctx.setPayloadHash(HashUtils.sha256(payload));
+                    map.put("payload", payload);
                 }
+                return map;
+            } else {
+                throw new MigrationServiceException("No metadata found for docId: " + docId);
             }
-
-            if (pdfPath != null) {
-                try {
-                    Files.deleteIfExists(pdfPath);
-                    log.debug("Deleted temp PDF: {}", pdfPath);
-                } catch (IOException e) {
-                    log.warn("Failed to delete temp PDF {}: {}", pdfPath, e.getMessage());
-                }
-            }
+        } catch (NoSuchAlgorithmException | MigrationServiceException e) {
+            log.error("Error while trying to extract metadata from docId: {}", docId, e);
+            throw e;
         }
     }
 
-    String sha256(Path path) throws IOException, NoSuchAlgorithmException {
-        return sha256(Files.readAllBytes(path));
-    }
-
-    String sha256(byte[] data) throws NoSuchAlgorithmException {
-        return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(data));
-    }
-
-    private List<TiffPage> extractTiffPages(byte[] payload, MigrationContext ctx) throws IOException, NoSuchAlgorithmException {
+    public List<TiffPage> signTiffPages(byte[] payload, MigrationContext ctx) throws IOException, NoSuchAlgorithmException {
         List<TiffPage> pages = new ArrayList<>();
 
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(payload))) {
@@ -127,7 +79,7 @@ public class MigrationService {
                 if (entry.getName().toLowerCase().endsWith(".tif") || entry.getName().toLowerCase().endsWith(".tiff")) {
                     byte[] data = zis.readAllBytes();
 
-                    String pageHash = sha256(data);
+                    String pageHash = HashUtils.sha256(data);
                     ctx.addPageHash(entry.getName(), pageHash);
                     pages.add(new TiffPage(entry.getName(), data));
                 }
@@ -180,10 +132,22 @@ public class MigrationService {
         }
 
         // Optional: log final hash for audit trail
-        String zipHash = sha256(zipPath);
+        String zipHash = HashUtils.sha256(zipPath);
         log.info("Chain ZIP created: {} | hash = {}", zipPath.getFileName(), zipHash);
 
         return zipPath;
+    }
+
+    public void uploadToSftp(MigrationContext ctx, String docId, String xml, Path zipPath, Path pdfPath) {
+        String folder = "%s/%s".formatted(sftpTargetConfig.getRemoteDirectory(), docId);
+        sftpRemoteFileTemplate.execute(s -> {
+            s.mkdir(folder);
+            s.write(Files.newInputStream(zipPath.toFile().toPath()), "%s/%s_chain.zip".formatted(folder, docId));
+            s.write(Files.newInputStream(pdfPath.toFile().toPath()), "%s/%s.pdf".formatted(folder, docId));
+            s.write(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), "%s/%s_meta.xml".formatted(folder, docId));
+            return null;
+        });
+        log.info("Done {} | zipPath={} | pdf={}", docId, ctx.getZipHash(), ctx.getPdfHash());
     }
 
     public Path mergeTiffToPdf(List<TiffPage> pages, String docId) throws IOException {
@@ -258,6 +222,12 @@ public class MigrationService {
         }
 
         return pages;
+    }
+
+
+
+    public String transformMetadataToXml(SourceMetadata meta, MigrationContext ctx) throws JsonProcessingException {
+        return xmlMapper.writeValueAsString(buildXml(Objects.requireNonNull(meta), ctx));
     }
 
     public String getDetectedMimeType(InputStream in) throws IOException {

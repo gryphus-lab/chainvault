@@ -10,7 +10,6 @@ import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component("signDocument")
@@ -28,12 +27,11 @@ public class SignDocumentDelegate implements JavaDelegate {
         String docId = (String) execution.getVariable("docId");
         log.info("SignDocumentDelegate started for docId: {}", docId);
 
-        Map<String, Object> map = execution.getVariables();
-        byte[] payload = (byte[]) map.get("payload");
-        MigrationContext ctx = (MigrationContext) map.get("ctx");
+        byte[] payload = (byte[]) execution.getTransientVariable("payload");
+        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 
         List<TiffPage> pages = migrationService.signTiffPages(payload, ctx);
-        execution.setVariable("pages", pages);
+        execution.setTransientVariable("pages", pages);
 
         log.info("SignDocumentDelegate completed for docId: {}", docId);
     }

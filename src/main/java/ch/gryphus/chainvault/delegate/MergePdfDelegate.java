@@ -1,6 +1,7 @@
 package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.domain.MigrationContext;
+import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.service.MigrationService;
 import ch.gryphus.chainvault.utils.HashUtils;
 import lombok.SneakyThrows;
@@ -27,14 +28,14 @@ public class MergePdfDelegate implements JavaDelegate {
         String docId = (String) execution.getVariable("docId");
         log.info("MergePdfDelegate started for docId:{}", docId);
 
-        var pages = execution.getVariable("pages", List.class);
-        MigrationContext ctx = execution.getVariable("ctx", MigrationContext.class);
+        List<TiffPage> pages = (List<TiffPage>) execution.getTransientVariable("pages");
+        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 
         Path pdfPath = migrationService.mergeTiffToPdf(pages, docId);
         ctx.setPdfHash(HashUtils.sha256(pdfPath));
 
-        execution.setVariable("ctx", ctx);
-        execution.setVariable("pdfPath", pdfPath);
+        execution.setTransientVariable("ctx", ctx);
+        execution.setTransientVariable("pdfPath", pdfPath);
 
         log.info("MergePdfDelegate completed for docId:{}", docId);
     }

@@ -24,10 +24,10 @@ public class SftpUploadDelegate implements JavaDelegate {
 
         log.info("SftpUploadDelegate started for docId: {}", docId);
 
-        MigrationContext ctx = execution.getVariable("ctx", MigrationContext.class);
-        String xml = (String) execution.getVariable("xml");
-        Path zipPath = execution.getVariable("zipPath", Path.class);
-        Path pdfPath = execution.getVariable("pdfPath", Path.class);
+        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
+        String xml = (String) execution.getTransientVariable("xml");
+        Path zipPath = (Path) execution.getTransientVariable("zipPath");
+        Path pdfPath = (Path) execution.getTransientVariable("pdfPath");
 
         migrationService.uploadToSftp(ctx, docId, xml, zipPath, pdfPath);
 

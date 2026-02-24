@@ -2,6 +2,7 @@ package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.SourceMetadata;
+import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.service.MigrationService;
 import ch.gryphus.chainvault.utils.HashUtils;
 import lombok.SneakyThrows;
@@ -29,14 +30,14 @@ public class PrepareFilesDelegate implements JavaDelegate {
         String docId = (String) execution.getVariable("docId");
         log.info("PrepareFilesDelegate started for docId:{}", docId);
 
-        var pages = execution.getVariable("pages", List.class);
-        SourceMetadata meta =  execution.getVariable("meta", SourceMetadata.class);
-        MigrationContext ctx = execution.getVariable("ctx", MigrationContext.class);
+        var pages = (List<TiffPage>) execution.getTransientVariable("pages");
+        SourceMetadata meta =  (SourceMetadata) execution.getTransientVariable("meta");
+        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
         Path zipPath = migrationService.createChainZip(docId, pages, meta, ctx);
         ctx.setZipHash(HashUtils.sha256(zipPath));
 
-        execution.setVariable("ctx", ctx);
-        execution.setVariable("zipPath", zipPath);
+        execution.setTransientVariable("ctx", ctx);
+        execution.setTransientVariable("zipPath", zipPath);
 
         log.info("PrepareFilesDelegate completed for docId:{}", docId);
     }

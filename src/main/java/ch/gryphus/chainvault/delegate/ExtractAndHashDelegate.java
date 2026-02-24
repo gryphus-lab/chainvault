@@ -28,9 +28,9 @@ public class ExtractAndHashDelegate implements JavaDelegate {
 
         Map<String, Object> map = migrationService.extractAndHash(docId);
 
-        execution.setVariable("ctx", map.get("ctx"));
-        execution.setVariable("meta", map.get("meta"));
-        execution.setVariable("payload", map.get("payload"));
+        execution.setTransientVariable("ctx", map.get("ctx"));
+        execution.setTransientVariable("meta", map.get("meta"));
+        execution.setTransientVariable("payload", map.get("payload"));
 
         log.info("SignDocumentDelegate completed for docId: {}", docId);
 

@@ -4,7 +4,7 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2026-02-23T10:43:39.679Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2026-02-24T01:09:01.310Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2026-02-24T02:29:23.467Z]]></design:modificationdate>
     </extensionElements>
     <subProcess id="SubProcess_Assemble" name="Assemble">
       <extensionElements>
@@ -128,6 +128,9 @@
         <flowable:field name="requestUrl">
           <flowable:expression><![CDATA[http://localhost:9090${metadata.payloadUrl}]]></flowable:expression>
         </flowable:field>
+        <flowable:field name="requestHeaders">
+          <flowable:string><![CDATA[Content-Type: application/zip]]></flowable:string>
+        </flowable:field>
         <flowable:field name="disallowRedirects">
           <flowable:string><![CDATA[false]]></flowable:string>
         </flowable:field>
@@ -144,7 +147,7 @@
           <flowable:string><![CDATA[false]]></flowable:string>
         </flowable:field>
         <flowable:field name="saveResponseParametersTransient">
-          <flowable:string><![CDATA[false]]></flowable:string>
+          <flowable:string><![CDATA[true]]></flowable:string>
         </flowable:field>
         <flowable:field name="saveResponseVariableAsJson">
           <flowable:string><![CDATA[false]]></flowable:string>
@@ -316,9 +319,9 @@
         <omgdc:Bounds height="80.0" width="100.0" x="358.0" y="110.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="StartEvent_1" id="BPMNShape_StartEvent_1">
-        <omgdc:Bounds height="30.0" width="30.0" x="147.0" y="135.0"></omgdc:Bounds>
+        <omgdc:Bounds height="30.0" width="30.0" x="126.0" y="135.0"></omgdc:Bounds>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="18.0" width="78.0" x="126.0" y="168.0"></omgdc:Bounds>
+          <omgdc:Bounds height="18.0" width="78.0" x="105.0" y="204.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="EndEvent_Success" id="BPMNShape_EndEvent_Success">
@@ -421,7 +424,7 @@
         <omgdi:waypoint x="740.0" y="379.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_1" id="BPMNEdge_Flow_1" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="56.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="177.0" y="150.0"></omgdi:waypoint>
+        <omgdi:waypoint x="156.0" y="150.0"></omgdi:waypoint>
         <omgdi:waypoint x="217.0" y="150.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_4" id="BPMNEdge_Flow_4" flowable:sourceDockerX="300.0" flowable:sourceDockerY="90.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">

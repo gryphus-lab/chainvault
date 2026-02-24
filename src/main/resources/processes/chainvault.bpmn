@@ -4,7 +4,7 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2026-02-23T10:43:39.679Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2026-02-24T02:29:23.467Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2026-02-24T09:25:52.164Z]]></design:modificationdate>
     </extensionElements>
     <subProcess id="SubProcess_Assemble" name="Assemble">
       <extensionElements>
@@ -75,7 +75,7 @@
           <flowable:string><![CDATA[GET]]></flowable:string>
         </flowable:field>
         <flowable:field name="requestUrl">
-          <flowable:expression><![CDATA[http://localhost:9090/documents/${docId}]]></flowable:expression>
+          <flowable:expression><![CDATA[${apiUrl}/documents/${docId}]]></flowable:expression>
         </flowable:field>
         <flowable:field name="disallowRedirects">
           <flowable:string><![CDATA[false]]></flowable:string>
@@ -126,7 +126,7 @@
           <flowable:string><![CDATA[GET]]></flowable:string>
         </flowable:field>
         <flowable:field name="requestUrl">
-          <flowable:expression><![CDATA[http://localhost:9090${metadata.payloadUrl}]]></flowable:expression>
+          <flowable:expression><![CDATA[${apiUrl}${metadata.payloadUrl}]]></flowable:expression>
         </flowable:field>
         <flowable:field name="requestHeaders">
           <flowable:string><![CDATA[Content-Type: application/zip]]></flowable:string>

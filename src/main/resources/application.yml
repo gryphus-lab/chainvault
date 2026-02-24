@@ -55,7 +55,7 @@ target:
 # Source Archive Config
 source:
   api:
-    base-url: http://fake-source-api:9090
+    base-url: http://localhost:9090
     token: dummy-for-test
 migration:
   temp-dir: /tmp/migration-${random.uuid}

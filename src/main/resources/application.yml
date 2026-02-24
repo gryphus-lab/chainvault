@@ -76,14 +76,14 @@ flowable:
     request-retry-limit: 3
     socket-timeout: 5s
     user-system-properties: true
-#  mail:
-#    server:
-#      default-from: flowable@localhost
-#      host: localhost
-#      port: '1025'
-#      ssl-port: '1465'
-#      use-ssl: false
-#      use-tls: false
+  #  mail:
+  #    server:
+  #      default-from: flowable@localhost
+  #      host: localhost
+  #      port: '1025'
+  #      ssl-port: '1465'
+  #      use-ssl: false
+  #      use-tls: false
   process:
     async:
       executor:

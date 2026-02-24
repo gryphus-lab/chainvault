@@ -12,7 +12,11 @@
       "status": "ARCHIVED",
       "originalSizeBytes": 5242880,
       "pageCount": 8,
-      "tags": ["finance", "2025", "urgent"],
+      "tags": [
+        "finance",
+        "2025",
+        "urgent"
+      ],
       "payloadUrl": "/payloads/invoice-001.zip"
     },
     {
@@ -27,7 +31,11 @@
       "status": "ARCHIVED",
       "originalSizeBytes": 1245184,
       "pageCount": 14,
-      "tags": ["legal", "insurance", "confidential"],
+      "tags": [
+        "legal",
+        "insurance",
+        "confidential"
+      ],
       "payloadUrl": "/payloads/contract-002.zip"
     },
     {
@@ -42,7 +50,11 @@
       "status": "ARCHIVED",
       "originalSizeBytes": 3670016,
       "pageCount": 22,
-      "tags": ["compliance", "regulatory", "q1-2025"],
+      "tags": [
+        "compliance",
+        "regulatory",
+        "q1-2025"
+      ],
       "payloadUrl": "/payloads/compliance-report-003.zip"
     },
     {
@@ -57,7 +69,11 @@
       "status": "ARCHIVED",
       "originalSizeBytes": 819200,
       "pageCount": 5,
-      "tags": ["tax", "official", "2025"],
+      "tags": [
+        "tax",
+        "official",
+        "2025"
+      ],
       "payloadUrl": "/payloads/tax-letter-004.zip"
     },
     {
@@ -72,7 +88,11 @@
       "status": "ARCHIVED",
       "originalSizeBytes": 262144,
       "pageCount": 3,
-      "tags": ["audit", "internal", "email"],
+      "tags": [
+        "audit",
+        "internal",
+        "email"
+      ],
       "payloadUrl": "/payloads/audit-email-005.zip"
     }
   ]

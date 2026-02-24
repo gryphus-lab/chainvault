@@ -35,7 +35,7 @@ class OrchestrationServiceTest {
     @Test
     void testStartProcess() {
         // Setup
-        final Map<String, Object> variables = Map.ofEntries(Map.entry("value", "value"));
+        final Map<String, Object> variables = Map.ofEntries(Map.entry("docId", "123"));
         when(mockRuntimeService.startProcessInstanceByKey(anyString(), anyMap())).thenReturn(mockProcessInstance);
 
         // Run the test

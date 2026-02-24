@@ -13,7 +13,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +49,7 @@ class MigrationServiceIntegrationIT extends BaseIT {
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         // Fake source API
-        String apiUrl = "http://" + jsonServer.getHost() + ":" + jsonServer.getMappedPort(9090);
+        String apiUrl = "http://%s:%d".formatted(jsonServer.getHost(), jsonServer.getMappedPort(9090));
         registry.add("source.api.base-url", () -> apiUrl);
         registry.add("source.api.token", () -> "dummy-token");
 
@@ -110,8 +109,10 @@ class MigrationServiceIntegrationIT extends BaseIT {
 
     @Test
     void testFlowableHappyPath() {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("docId", "DOC-ARCH-20250115-001");
+        Map<String, Object> variables = Map.of(
+                "apiUrl", "http://%s:%d".formatted(jsonServer.getHost(), jsonServer.getMappedPort(9090)),
+                "docId", "DOC-ARCH-20250115-001"
+        );
 
         assertThat(orchestrationService.startProcess(variables)).isNotNull();
     }

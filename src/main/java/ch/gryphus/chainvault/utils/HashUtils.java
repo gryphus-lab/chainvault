@@ -10,6 +10,11 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashUtils {
 
+    private HashUtils() {
+        // empty constructor
+    }
+
+
     public static String sha256(Path path) throws IOException, NoSuchAlgorithmException {
         return sha256(Files.readAllBytes(path));
     }

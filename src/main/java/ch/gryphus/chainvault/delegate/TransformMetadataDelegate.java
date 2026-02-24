@@ -27,7 +27,7 @@ public class TransformMetadataDelegate implements JavaDelegate {
         log.info("TransformDocumentDelegate started for docId: {}", docId);
 
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
-        SourceMetadata meta =  (SourceMetadata) execution.getTransientVariable("meta");
+        SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
         String xml = migrationService.transformMetadataToXml(meta, ctx);
         execution.setTransientVariable("xml", xml);
 

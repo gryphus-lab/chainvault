@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -14,6 +15,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.tika.Tika;
+import org.springframework.http.MediaType;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -43,31 +45,43 @@ public class MigrationService {
     private final SftpTargetConfig sftpTargetConfig;
     private final XmlMapper xmlMapper;
 
-    public Map<String, Object> extractAndHash(String docId) throws NoSuchAlgorithmException, MigrationServiceException {
-        try {
-            Map<String, Object> map = new HashMap<>();
-            byte[] payload;
+    @SneakyThrows
+    public Map<String, Object> extractAndHash(String docId) {
+        Map<String, Object> map = new HashMap<>();
+        byte[] payload;
 
-            var ctx = new MigrationContext();
-            ctx.setDocId(docId);
-            map.put("ctx", ctx);
+        var ctx = new MigrationContext();
+        ctx.setDocId(docId);
+        map.put("ctx", ctx);
 
-            var meta = restClient.get().uri("/documents/{id}", docId).retrieve().body(SourceMetadata.class);
-            if (meta != null) {
-                map.put("meta", meta);
-                if (meta.getPayloadUrl() != null) {
-                    payload = restClient.get().uri(meta.getPayloadUrl()).retrieve().body(byte[].class);
-                    ctx.setPayloadHash(HashUtils.sha256(payload));
-                    map.put("payload", payload);
-                }
-                return map;
-            } else {
-                throw new MigrationServiceException("No metadata found for docId: " + docId);
+        var meta = restClient.get()
+                .uri("/documents/{id}", docId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange((request, response) -> {
+                    if (response.getStatusCode().is4xxClientError()) {
+                        throw new MigrationServiceException(docId, response.getStatusCode(), response.getHeaders());
+                    } else {
+                        return response.bodyTo(SourceMetadata.class);
+                    }
+                });
+        if (meta != null) {
+            map.put("meta", meta);
+            if (meta.getPayloadUrl() != null) {
+                payload = restClient.get()
+                        .uri(meta.getPayloadUrl())
+                        .accept(MediaType.APPLICATION_OCTET_STREAM)
+                        .exchange((request, response) -> {
+                            if (response.getStatusCode().is4xxClientError()) {
+                                throw new MigrationServiceException(docId, response.getStatusCode(), response.getHeaders());
+                            } else {
+                                return response.bodyTo(byte[].class);
+                            }
+                        });
+                ctx.setPayloadHash(HashUtils.sha256(payload));
+                map.put("payload", payload);
             }
-        } catch (NoSuchAlgorithmException | MigrationServiceException e) {
-            log.error("Error while trying to extract metadata from docId: {}", docId, e);
-            throw e;
         }
+        return map;
     }
 
     public List<TiffPage> signTiffPages(byte[] payload, MigrationContext ctx) throws IOException, NoSuchAlgorithmException {
@@ -223,7 +237,6 @@ public class MigrationService {
 
         return pages;
     }
-
 
 
     public String transformMetadataToXml(SourceMetadata meta, MigrationContext ctx) throws JsonProcessingException {

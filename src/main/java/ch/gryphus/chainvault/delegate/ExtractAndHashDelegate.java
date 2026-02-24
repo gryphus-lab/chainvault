@@ -24,7 +24,7 @@ public class ExtractAndHashDelegate implements JavaDelegate {
     public void execute(DelegateExecution execution) {
         String docId = (String) execution.getVariable("docId");
 
-        log.info("SignDocumentDelegate started for docId: {}", docId);
+        log.info("ExtractAndHashDelegate started for docId: {}", docId);
 
         Map<String, Object> map = migrationService.extractAndHash(docId);
 
@@ -32,7 +32,7 @@ public class ExtractAndHashDelegate implements JavaDelegate {
         execution.setTransientVariable("meta", map.get("meta"));
         execution.setTransientVariable("payload", map.get("payload"));
 
-        log.info("SignDocumentDelegate completed for docId: {}", docId);
+        log.info("ExtractAndHashDelegate completed for docId: {}", docId);
 
     }
 }

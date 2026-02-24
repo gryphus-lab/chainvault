@@ -103,10 +103,8 @@ class MigrationServiceIntegrationIT extends BaseIT {
         String invalidId = "DOC-NOT-EXISTS-999";
         Map<String, Object> variables = Map.of("docId", invalidId);
 
-        // No exception expected if your code handles 404 gracefully
-        // or assertThrows if you want it to fail loudly
         assertThatException()
                 .isThrownBy(() -> orchestrationService.startProcess(variables))
-                .withMessageContaining("404");
+                .isInstanceOf(MigrationServiceException.class).withMessageContaining("Unable to find document with id: " + invalidId);
     }
 }

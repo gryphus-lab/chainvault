@@ -1,6 +1,10 @@
 package ch.gryphus.chainvault.service;
 
-public class MigrationServiceException extends Throwable {
-    public MigrationServiceException(String s) {
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+
+public class MigrationServiceException extends RuntimeException {
+    public MigrationServiceException(String docId, HttpStatusCode statusCode, HttpHeaders headers) {
+        super("Unable to find document with id: " + docId + " . See exception details: " + statusCode + " " + headers);
     }
 }

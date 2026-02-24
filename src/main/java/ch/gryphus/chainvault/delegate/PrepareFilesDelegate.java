@@ -31,7 +31,7 @@ public class PrepareFilesDelegate implements JavaDelegate {
         log.info("PrepareFilesDelegate started for docId:{}", docId);
 
         var pages = (List<TiffPage>) execution.getTransientVariable("pages");
-        SourceMetadata meta =  (SourceMetadata) execution.getTransientVariable("meta");
+        SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
         Path zipPath = migrationService.createChainZip(docId, pages, meta, ctx);
         ctx.setZipHash(HashUtils.sha256(zipPath));

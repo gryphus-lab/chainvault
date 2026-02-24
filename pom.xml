@@ -219,7 +219,6 @@
             <version>${flowable.version}</version>
         </dependency>
 
-
         <!-- Sftp integration -->
         <dependency>
             <groupId>org.springframework.integration</groupId>

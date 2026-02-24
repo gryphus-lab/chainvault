@@ -12,6 +12,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 
@@ -69,11 +70,12 @@ class MigrationServiceIntegrationIT extends BaseIT {
     }
 
     @Test
-    void migrateDocument_shouldUploadToRealSftp() throws Exception {
+    void migrateDocument_shouldUploadToRealSftp() throws IOException, InterruptedException {
         String docId = "DOC-ARCH-20250115-001";  // exists in your verbose db.json
+        Map<String, Object> variables = Map.of("docId", docId);
 
-        // Act – full real flow
-        migrationService.migrateDocument(docId);
+        // Check if process workflow is started
+        assertThat(orchestrationService.startProcess(variables)).isNotNull();
 
         // Wait for upload to appear in SFTP (poll the container)
         String expectedDir = "/home/testuser/upload/%s".formatted(docId);
@@ -99,18 +101,10 @@ class MigrationServiceIntegrationIT extends BaseIT {
     @Test
     void migrateDocument_withNonExistingDoc_shouldFailGracefully() {
         String invalidId = "DOC-NOT-EXISTS-999";
+        Map<String, Object> variables = Map.of("docId", invalidId);
 
-        // No exception expected if your code handles 404 gracefully
-        // or assertThrows if you want it to fail loudly
         assertThatException()
-                .isThrownBy(() -> migrationService.migrateDocument(invalidId))
-                .withMessageContaining("404");
-    }
-
-    @Test
-    void testFlowableHappyPath() {
-        Map<String, Object> variables = Map.of("docId", "DOC-ARCH-20250115-001");
-
-        assertThat(orchestrationService.startProcess(variables)).isNotNull();
+                .isThrownBy(() -> orchestrationService.startProcess(variables))
+                .isInstanceOf(MigrationServiceException.class).withMessageContaining("Unable to find document with id: " + invalidId);
     }
 }

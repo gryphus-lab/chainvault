@@ -44,7 +44,7 @@ public class MigrationService {
     private final XmlMapper xmlMapper;
 
     public void migrateDocument(String docId) {
-        var ctx = new MigrationContext(docId);
+        MigrationContext ctx = new MigrationContext(docId);
 
         Path zipPath = null;
         Path pdfPath = null;

@@ -18,12 +18,17 @@ public class SignDocumentDelegate implements JavaDelegate {
         String docId = (String) execution.getVariable("docId");
         var ctx = new MigrationContext(docId);
         log.info("SignDocumentDelegate started for docId: {}", docId);
+
         byte[] payloadBytes = new ObjectMapper().writeValueAsBytes(execution.getVariable("payload"));
         String payloadHash = HashUtils.sha256(payloadBytes);
         ctx.setPayloadHash(payloadHash);
 
-        execution.setVariables(Map.of("ctx", new ObjectMapper().writeValueAsString(ctx), "payloadBytes", payloadBytes));
+        execution.setVariables(Map.of(
+                "ctx", new ObjectMapper().writeValueAsString(ctx),
+                "payloadBytes", payloadBytes)
+        );
         execution.removeVariable("payload");
+
         log.info("SignDocumentDelegate completed for docId: {}, payloadHash:{}", docId, payloadHash);
     }
 }

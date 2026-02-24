@@ -4,7 +4,7 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2026-02-23T10:43:39.679Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2026-02-24T10:09:35.588Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2026-02-24T13:01:14.785Z]]></design:modificationdate>
     </extensionElements>
     <subProcess id="SubProcess_Assemble" name="Assemble">
       <extensionElements>
@@ -162,6 +162,13 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
+    <serviceTask id="VariableActivity_2" name="Initialize variables" flowable:delegateExpression="${initVariablesService}" flowable:extensionId="VariableActivity">
+      <extensionElements>
+        <flowable:overwrite><![CDATA[true]]></flowable:overwrite>
+        <design:stencilid><![CDATA[VariableActivity]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[ServiceTask]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
     <startEvent id="StartEvent_1" name="Start Migration" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:work-form-field-validation><![CDATA[false]]></flowable:work-form-field-validation>
@@ -271,7 +278,12 @@
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
     </sequenceFlow>
-    <sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_Extract">
+    <sequenceFlow id="SequenceFlow_5" sourceRef="VariableActivity_2" targetRef="Task_Extract">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="VariableActivity_2">
       <extensionElements>
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
@@ -318,16 +330,19 @@
       <bpmndi:BPMNShape bpmnElement="Extract_Payload" id="BPMNShape_Extract_Payload">
         <omgdc:Bounds height="80.0" width="100.0" x="358.0" y="110.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="VariableActivity_2" id="BPMNShape_VariableActivity_2">
+        <omgdc:Bounds height="80.0" width="100.0" x="81.40361317747079" y="110.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="StartEvent_1" id="BPMNShape_StartEvent_1">
-        <omgdc:Bounds height="30.0" width="30.0" x="126.0" y="135.0"></omgdc:Bounds>
+        <omgdc:Bounds height="30.0" width="30.0" x="9.807226354941577" y="135.0"></omgdc:Bounds>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="18.0" width="78.0" x="105.0" y="204.0"></omgdc:Bounds>
+          <omgdc:Bounds height="18.0" width="78.0" x="-11.192773645058423" y="204.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="EndEvent_Success" id="BPMNShape_EndEvent_Success">
-        <omgdc:Bounds height="28.0" width="28.0" x="1506.0" y="146.0"></omgdc:Bounds>
+        <omgdc:Bounds height="28.0" width="28.0" x="1451.0" y="146.0"></omgdc:Bounds>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="18.0" width="111.0" x="1493.0" y="188.0"></omgdc:Bounds>
+          <omgdc:Bounds height="18.0" width="111.0" x="1438.0" y="188.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="EndEvent_Failed" id="BPMNShape_EndEvent_Failed">
@@ -372,7 +387,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_Success" id="BPMNEdge_Flow_Success" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
         <omgdi:waypoint x="1400.0" y="160.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1506.0" y="160.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1451.0" y="160.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_Merge" id="BPMNEdge_Flow_Merge" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="860.0" y="160.0"></omgdi:waypoint>
@@ -395,6 +410,10 @@
         <omgdi:waypoint x="433.0" y="205.0"></omgdi:waypoint>
         <omgdi:waypoint x="433.0" y="379.0"></omgdi:waypoint>
         <omgdi:waypoint x="740.0" y="379.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_5" id="BPMNEdge_SequenceFlow_5" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="56.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="181.4036131774708" y="150.0"></omgdi:waypoint>
+        <omgdi:waypoint x="217.0" y="150.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="SequenceFlow_2" id="BPMNEdge_SequenceFlow_2" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="70.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="304.0" y="205.0"></omgdi:waypoint>
@@ -423,9 +442,9 @@
         <omgdi:waypoint x="580.0" y="379.0"></omgdi:waypoint>
         <omgdi:waypoint x="740.0" y="379.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="Flow_1" id="BPMNEdge_Flow_1" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="56.0" flowable:targetDockerY="40.0">
-        <omgdi:waypoint x="156.0" y="150.0"></omgdi:waypoint>
-        <omgdi:waypoint x="217.0" y="150.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1" id="BPMNEdge_Flow_1" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="39.80722635494158" y="150.0"></omgdi:waypoint>
+        <omgdi:waypoint x="81.40361317747079" y="150.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="Flow_4" id="BPMNEdge_Flow_4" flowable:sourceDockerX="300.0" flowable:sourceDockerY="90.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
         <omgdi:waypoint x="1240.0" y="160.0"></omgdi:waypoint>

@@ -73,9 +73,9 @@ flowable:
     connect-timeout: 5s
     connection-request-timeout: 5s
     disable-cert-verify: false
-    request-retry-limit: '3'
+    request-retry-limit: 3
     socket-timeout: 5s
-    user-system-properties: false
+    user-system-properties: true
 #  mail:
 #    server:
 #      default-from: flowable@localhost

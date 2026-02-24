@@ -109,10 +109,7 @@ class MigrationServiceIntegrationIT extends BaseIT {
 
     @Test
     void testFlowableHappyPath() {
-        Map<String, Object> variables = Map.of(
-                "apiUrl", "http://%s:%d".formatted(jsonServer.getHost(), jsonServer.getMappedPort(9090)),
-                "docId", "DOC-ARCH-20250115-001"
-        );
+        Map<String, Object> variables = Map.of("docId", "DOC-ARCH-20250115-001");
 
         assertThat(orchestrationService.startProcess(variables)).isNotNull();
     }

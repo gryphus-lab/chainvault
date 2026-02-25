@@ -20,3 +20,4 @@ kafka.keystore.jks*
 /.vs
 /logs/
 **/*local*
+/data/

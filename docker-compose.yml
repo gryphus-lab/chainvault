@@ -42,6 +42,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./src/main/resources/db/init-scripts:/docker-entrypoint-initdb.d
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U chainvault" ]
       interval: 5s
@@ -54,10 +55,14 @@ services:
     container_name: sftp-test
     ports:
       - "2222:22"
-    environment:
-      - SFTP_USERS=testuser:testpass123:::upload
     volumes:
-      - sftp-data:/home/testuser/upload
+      - ./data/upload:/home/testuser/upload
+    command: testuser:testpass123:::upload
+    healthcheck:
+      test: [ "CMD", "ls", "/home/testuser/upload" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   fake-source-api:

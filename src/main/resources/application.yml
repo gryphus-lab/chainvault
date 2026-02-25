@@ -57,6 +57,7 @@ source:
   api:
     base-url: http://localhost:9090
     token: dummy-for-test
+
 migration:
   temp-dir: /tmp/migration-${random.uuid}
   chunk-size-for-inventory: 500   # when fetching lists

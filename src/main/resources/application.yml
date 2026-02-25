@@ -119,3 +119,11 @@ management:
       cache:
         time-to-live: 0ms
       enabled: true
+
+# springdoc (OpenAPI) configuration: limit scanning to app controllers to avoid
+# including Flowable or other third-party endpoints which can produce invalid
+# or huge schemas that Swagger UI struggles to render.
+springdoc:
+  packagesToScan: ch.gryphus.chainvault.controller
+  swagger-ui:
+    path: /swagger-ui.html

@@ -16,15 +16,11 @@ spring:
       idle-timeout: 30000
       connection-timeout: 20000
 
-  # Flyway (recommended - simple & reliable)
-  flyway:
+  # Liquibase
+  liquibase:
     enabled: true
-    baseline-on-migrate: true               # Auto-baseline existing DB if needed
-    locations: classpath:db/migration       # Default: src/main/resources/db/migration
-    validate-on-migrate: true
-    out-of-order: false                     # Enforce strict version order
-    # For dev/testing: allow repair / clean (dangerous in prod!)
-    # repair: true  # uncomment only when needed
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    # default schema, contexts etc can be set here if needed
 
   # JPA / Hibernate (optional - if you use entities/repositories)
   jpa:

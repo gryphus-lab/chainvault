@@ -8,15 +8,29 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+/**
+ * The type Serialization config.
+ */
 @Configuration
 public class SerializationConfig {
 
+    /**
+     * Object mapper object mapper.
+     *
+     * @return the object mapper
+     */
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
         return new ObjectMapper(); // prioritize json
     }
 
+    /**
+     * Xml mapper xml mapper.
+     *
+     * @param builder the builder
+     * @return the xml mapper
+     */
     @Bean
     public XmlMapper xmlMapper(Jackson2ObjectMapperBuilder builder) {
         // reuse spring's default mapper configuration (modules, date formats, etc.)
@@ -24,6 +38,11 @@ public class SerializationConfig {
         return builder.createXmlMapper(true).build();
     }
 
+    /**
+     * Tika tika.
+     *
+     * @return the tika
+     */
     @Bean
     public Tika tika() {
         return new Tika();

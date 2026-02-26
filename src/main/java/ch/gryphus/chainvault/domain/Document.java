@@ -4,6 +4,9 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 
+/**
+ * The type Document.
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Document {
     @JacksonXmlProperty(localName = "Identifier")

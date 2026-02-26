@@ -7,6 +7,9 @@ import lombok.Data;
 
 import java.util.Map;
 
+/**
+ * The type Archival metadata.
+ */
 // ArchivalMetadata.java
 @XmlRootElement(name = "ArchivalMetadata")
 @XmlAccessorType(XmlAccessType.FIELD)

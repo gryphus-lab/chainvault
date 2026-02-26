@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+/**
+ * The type Sftp properties.
+ */
 @Data
 @Component
 @ConfigurationProperties(prefix = "target.sftp")

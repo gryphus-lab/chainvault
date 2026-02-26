@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: gryphus-lab/chainvault:latest
     container_name: chainvault-app
     ports:
       - "8085:8085"

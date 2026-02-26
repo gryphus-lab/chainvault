@@ -155,7 +155,9 @@ public class MigrationService {
     public void uploadToSftp(MigrationContext ctx, String docId, String xml, Path zipPath, Path pdfPath) {
         String folder = "%s/%s".formatted(sftpTargetConfig.getRemoteDirectory(), docId);
         sftpRemoteFileTemplate.execute(s -> {
-            s.mkdir(folder);
+            if (!s.exists(folder)) {
+                s.mkdir(folder);
+            }
             s.write(Files.newInputStream(zipPath.toFile().toPath()), "%s/%s_chain.zip".formatted(folder, docId));
             s.write(Files.newInputStream(pdfPath.toFile().toPath()), "%s/%s.pdf".formatted(folder, docId));
             s.write(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), "%s/%s_meta.xml".formatted(folder, docId));

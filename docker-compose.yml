@@ -55,7 +55,7 @@ services:
     image: atmoz/sftp:latest
     container_name: sftp-test
     ports:
-      - "2222:22"
+      - "22"
     volumes:
       - ./data/upload:/home/testuser/upload
     command: testuser:testpass123:::upload

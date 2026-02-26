@@ -6,6 +6,8 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V1__create_migration_audit_table.sql
             relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false
   - changeSet:
       id: V2__add_migration_events_log
       author: migration
@@ -13,6 +15,8 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V2__add_migration_events_log.sql
             relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false
   - changeSet:
       id: V3__add_status_enum_and_triggers
       author: migration
@@ -20,6 +24,8 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V3__add_status_enum_and_triggers.sql
             relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false
   - changeSet:
       id: V4__add_migration_summary_view
       author: migration
@@ -27,6 +33,8 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V4__add_migration_summary_view.sql
             relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false
   - changeSet:
       id: V5__add_performance_indexes_on_audit
       author: migration
@@ -34,6 +42,8 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V5__add_performance_indexes_on_audit.sql
             relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false
   - changeSet:
       id: V6__add_performance_indexes_on_events
       author: migration
@@ -41,6 +51,8 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V6__add_performance_indexes_on_events.sql
             relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false
   - changeSet:
       id: V7__add_composite_indexes_for_reporting
       author: migration
@@ -48,6 +60,8 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V7__add_composite_indexes_for_reporting.sql
             relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false
   - changeSet:
       id: V8__add_partial_and_expression_indexes
       author: migration
@@ -55,3 +69,5 @@ databaseChangeLog:
         - sqlFile:
             path: db/migration/V8__add_partial_and_expression_indexes.sql
             relativeToChangelogFile: false
+            splitStatements: false
+            stripComments: false

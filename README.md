@@ -11,14 +11,14 @@ Key responsibilities:
 - Transform metadata and prepare files
 - Merge PDFs and sign documents
 - Upload artifacts to SFTP targets
-- Record audit and event logs via Flyway migrations
+ - Record audit and event logs via Liquibase migrations
 
 ## Repo layout
 - `src/main/java` — application source, controllers, delegates and services
 - `src/main/resources/application.yml` — Spring Boot configuration
 - `src/main/resources/mapping-config.yml` — mapping configuration
 - `src/main/resources/processes/chainvault.bpmn` — BPMN workflow definition
-- `src/main/resources/db/migration` — Flyway migration scripts (V1..V8)
+- `src/main/resources/db/migration` — SQL migration scripts (V1..V8) applied via Liquibase
 - `test/` — unit and integration tests
 
 ## Prerequisites
@@ -54,10 +54,10 @@ docker-compose up --build
 ## Configuration
 - Main Spring configuration: `src/main/resources/application.yml`.
 - Mapping and process definitions: `mapping-config.yml`, `processes/chainvault.bpmn`.
-- Database migrations are located in `src/main/resources/db/migration` and are applied via Flyway on startup.
+Database migrations are located in `src/main/resources/db/migration` and are applied via Liquibase on startup (see `src/main/resources/db/changelog/db.changelog-master.yaml`).
 
 ## Database
-The repository contains Flyway SQL migrations under `src/main/resources/db/migration`. A database must be configured in `application.yml` (datasource settings). See `DataSourceConfig.java` for programmatic datasource configuration.
+The repository contains SQL migration scripts under `src/main/resources/db/migration`. These are applied by Liquibase using the master changelog at `src/main/resources/db/changelog/db.changelog-master.yaml`. A database must be configured in `application.yml` (datasource settings). See `DataSourceConfig.java` for programmatic datasource configuration.
 
 ## Testing
 Run tests with:
@@ -69,7 +69,7 @@ Run tests with:
 ## Useful files
 - Application entry: `src/main/java/ch/gryphus/chainvault/MigrationApplication.java`
 - BPMN process: `src/main/resources/processes/chainvault.bpmn`
-- Flyway migrations: `src/main/resources/db/migration`
+- Liquibase changelog: `src/main/resources/db/changelog/db.changelog-master.yaml` (includes `src/main/resources/db/migration`)
 
 ## Contributing
 PRs and issues are welcome. Follow the existing code style and add tests for significant changes.

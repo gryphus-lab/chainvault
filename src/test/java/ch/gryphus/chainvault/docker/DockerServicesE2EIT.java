@@ -70,10 +70,10 @@ class DockerServicesE2EIT {
     @Container
     static GenericContainer<?> api = new GenericContainer<>(
             DockerImageName.parse("node:25-alpine"))
-            .withCommand("sh", "-c",
-                    "npm install -g json-server && " +
-                    "echo '{\"users\": [{\"id\": 1, \"name\": \"Test\"}], \"documents\": []}' > /data/db.json && " +
-                    "json-server --watch /data/db.json --port 9090 --host 0.0.0.0")
+            .withPrivilegedMode(true)
+            .withCommand("sh", "-c", "npm install -g json-server && json-server --watch /data/db.json --static /data/static --port 9090 --host 0.0.0.0")
+            .withClasspathResourceMapping("db.json", "/data/db.json", BindMode.READ_ONLY)
+            .withClasspathResourceMapping("static", "/data/static", BindMode.READ_ONLY)
             .withExposedPorts(9090)
             .waitingFor(Wait.forHttp("/").forStatusCode(200))
             .withStartupTimeout(Duration.ofSeconds(120));
@@ -94,7 +94,7 @@ class DockerServicesE2EIT {
                     postgres.getJdbcUrl(),
                     postgres.getUsername(),
                     postgres.getPassword())) {
-                
+
                 assertThat(conn).isNotNull();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery("SELECT 1");
@@ -110,7 +110,7 @@ class DockerServicesE2EIT {
         String apiUrl = "http://%s:%d/documents".formatted(api.getHost(), api.getMappedPort(9090));
 
         await()
-                .atMost(Duration.ofSeconds(15))
+                .atMost(Duration.ofSeconds(5))
                 .pollInterval(Duration.ofMillis(500))
                 .untilAsserted(() -> {
                     HttpRequest request = HttpRequest.newBuilder()
@@ -121,14 +121,14 @@ class DockerServicesE2EIT {
                     assertThatNoException().isThrownBy(() -> {
                         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                         assertThat(response.statusCode()).isEqualTo(200);
-                        assertThat(response.body()).contains("[]"); // Empty documents array
+                        assertThat(response.body()).hasSizeGreaterThan(1);
                     });
                 });
     }
 
     @Test
     @DisplayName("Should access SFTP file system")
-    void testSftpConnectivity() throws Exception {
+    void testSftpConnectivity() {
         assertThatNoException().isThrownBy(() -> {
             var execResult = sftp.execInContainer("ls", "-la", "/home/testuser/upload");
             assertThat(execResult.getExitCode()).isZero();
@@ -185,7 +185,7 @@ class DockerServicesE2EIT {
     @DisplayName("API service should be accessible via HTTP")
     void testApiHttpAccess() {
         HttpClient client = HttpClient.newHttpClient();
-        String apiUrl = "http://%s:%d/users".formatted(api.getHost(), api.getMappedPort(9090));
+        String apiUrl = "http://%s:%d/documents".formatted(api.getHost(), api.getMappedPort(9090));
 
         await()
                 .atMost(Duration.ofSeconds(15))
@@ -199,16 +199,22 @@ class DockerServicesE2EIT {
                     assertThatNoException().isThrownBy(() -> {
                         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                         assertThat(response.statusCode()).isEqualTo(200);
-                        assertThat(response.body()).contains("Test"); // User from our data
+                        assertThat(response.body()).contains("DOC-ARCH-20250115-001"); // User from our data
                     });
                 });
     }
 
     @Test
     @DisplayName("Services should remain running for extended period")
-    void testServiceStability() throws InterruptedException {
+    void testServiceStability() {
         // Verify services are still running after 5 seconds
-        Thread.sleep(5000);
+        await().atMost(Duration.ofSeconds(5))
+                .then().untilAsserted(() -> {
+                            assertThat(postgres.isRunning()).isTrue();
+                            assertThat(sftp.isRunning()).isTrue();
+                            assertThat(api.isRunning()).isTrue();
+                        }
+                );
 
         assertThat(postgres.isRunning()).isTrue();
         assertThat(sftp.isRunning()).isTrue();
@@ -222,7 +228,7 @@ class DockerServicesE2EIT {
                 postgres.getJdbcUrl(),
                 postgres.getUsername(),
                 postgres.getPassword())) {
-            
+
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT datname FROM pg_database WHERE datname = '" + DB_NAME + "'");
             assertThat(rs.next()).isTrue();

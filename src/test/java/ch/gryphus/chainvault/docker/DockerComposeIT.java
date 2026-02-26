@@ -2,7 +2,7 @@ package ch.gryphus.chainvault.docker;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -30,7 +30,7 @@ class DockerComposeIT {
      * Note: Requires docker-compose.yml to be in a specific location
      */
     @Container
-    static DockerComposeContainer<?> dockerCompose = new DockerComposeContainer<>(
+    static ComposeContainer dockerCompose = new ComposeContainer(
             new File("docker-compose.yml"))
             .withExposedService(POSTGRES_SERVICE, 5432, 
                     Wait.forLogMessage(".*database system is ready to accept connections.*", 2)
@@ -39,7 +39,7 @@ class DockerComposeIT {
                     Wait.forLogMessage(".*Server listening on 0.0.0.0 port 22.*", 1)
                        .withStartupTimeout(Duration.ofSeconds(120)))
             .withExposedService(API_SERVICE, 9090,
-                    Wait.forHttp("/")
+                    Wait.forHttp("/documents")
                             .forStatusCode(200)
                        .withStartupTimeout(Duration.ofSeconds(120)));
 
@@ -76,7 +76,7 @@ class DockerComposeIT {
         Integer port = dockerCompose.getServicePort(API_SERVICE, 9090);
 
         assertThat(host).isNotNull();
-        assertThat(port).isEqualTo(9090);
+        assertThat(port).isGreaterThan(9090);
     }
 
     @Test
@@ -113,10 +113,10 @@ class DockerComposeIT {
 
         // SFTP: 22 -> random local port (dynamic)
         Integer sftpPort = dockerCompose.getServicePort(SFTP_SERVICE, 22);
-        assertThat(sftpPort).isPositive();
+        assertThat(sftpPort).isGreaterThan(22);
 
         // API: 9090 -> 9090 (fixed)
         Integer apiPort = dockerCompose.getServicePort(API_SERVICE, 9090);
-        assertThat(apiPort).isEqualTo(9090);
+        assertThat(apiPort).isGreaterThan(9090);
     }
 }

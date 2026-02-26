@@ -1,6 +1,7 @@
 package ch.gryphus.chainvault.docker;
 
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -9,6 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -57,16 +59,16 @@ class DockerServicesIntegrationIT {
     @Container
     static GenericContainer<?> apiContainer = new GenericContainer<>(
             DockerImageName.parse("node:25-alpine"))
-            .withCommand("sh", "-c", 
-                    "npm install -g json-server && " +
-                    "echo '{\"users\": [], \"documents\": []}' > /data/db.json && " +
-                    "json-server --watch /data/db.json --port 9090 --host 0.0.0.0")
+            .withPrivilegedMode(true)
+            .withCommand("sh", "-c", "npm install -g json-server && json-server --watch /data/db.json --static /data/static --port 9090 --host 0.0.0.0")
+            .withClasspathResourceMapping("db.json", "/data/db.json",BindMode.READ_ONLY)
+            .withClasspathResourceMapping("static", "/data/static", BindMode.READ_ONLY)
             .withExposedPorts(9090)
             .waitingFor(Wait.forHttp("/").forStatusCode(200))
             .withStartupTimeout(Duration.ofSeconds(120));
 
     @Test
-    void testPostgresHealthCheck() throws SQLException {
+    void testPostgresHealthCheck() {
         // Verify PostgreSQL container is running
         assertThat(postgresContainer.isRunning()).isTrue();
 
@@ -152,8 +154,8 @@ class DockerServicesIntegrationIT {
                 .pollInterval(Duration.ofMillis(500))
                 .untilAsserted(() -> {
                     try {
-                        java.net.URL url = new java.net.URL(apiUrl);
-                        java.net.URLConnection conn = url.openConnection();
+                        var url = URI.create(apiUrl).toURL();
+                        var conn = url.openConnection();
                         conn.setConnectTimeout(1000);
                         conn.setReadTimeout(1000);
                         conn.getInputStream();
@@ -166,15 +168,13 @@ class DockerServicesIntegrationIT {
     @Test
     void testPostgresPortMapping() {
         Integer mappedPort = postgresContainer.getMappedPort(5432);
-        assertThat(mappedPort).isNotNull().isPositive();
-        assertThat(mappedPort).isGreaterThanOrEqualTo(5432);
+        assertThat(mappedPort).isNotNull().isPositive().isGreaterThanOrEqualTo(5432);
     }
 
     @Test
     void testSftpPortMapping() {
         Integer mappedPort = sftpContainer.getMappedPort(22);
-        assertThat(mappedPort).isNotNull().isPositive();
-        assertThat(mappedPort).isNotEqualTo(22); // Dynamic port allocation
+        assertThat(mappedPort).isNotNull().isPositive().isNotEqualTo(22); // Dynamic port allocation
     }
 
     @Test

@@ -2,6 +2,9 @@ package ch.gryphus.chainvault.domain;
 
 import lombok.Data;
 
+/**
+ * The type Source metadata.
+ */
 @Data
 public class SourceMetadata {
     private String docId;

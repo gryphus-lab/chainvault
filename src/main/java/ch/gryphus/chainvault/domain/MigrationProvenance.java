@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.util.Map;
 
+/**
+ * The type Migration provenance.
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 public class MigrationProvenance {

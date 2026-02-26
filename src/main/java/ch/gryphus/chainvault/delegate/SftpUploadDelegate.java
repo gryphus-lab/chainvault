@@ -9,11 +9,19 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 
+/**
+ * The type Sftp upload delegate.
+ */
 @Slf4j
 @Component("uploadSftp")
 public class SftpUploadDelegate implements JavaDelegate {
     private final MigrationService migrationService;
 
+    /**
+     * Instantiates a new Sftp upload delegate.
+     *
+     * @param migrationService the migration service
+     */
     public SftpUploadDelegate(MigrationService migrationService) {
         this.migrationService = migrationService;
     }

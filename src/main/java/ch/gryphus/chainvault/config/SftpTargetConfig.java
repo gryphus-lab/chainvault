@@ -8,15 +8,28 @@ import org.springframework.integration.file.remote.session.SessionFactory;
 import org.springframework.integration.sftp.session.DefaultSftpSessionFactory;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 
+/**
+ * The type Sftp target config.
+ */
 @Configuration
 public class SftpTargetConfig {
 
     private final SftpProperties props;
 
+    /**
+     * Instantiates a new Sftp target config.
+     *
+     * @param props the props
+     */
     public SftpTargetConfig(SftpProperties props) {
         this.props = props;
     }
 
+    /**
+     * Sftp session factory caching session factory.
+     *
+     * @return the caching session factory
+     */
     @Bean
     public CachingSessionFactory<SftpClient.DirEntry> sftpSessionFactory() {
         DefaultSftpSessionFactory factory = new DefaultSftpSessionFactory(true);  // true = allow unknown keys (dev); false = strict in prod
@@ -42,11 +55,22 @@ public class SftpTargetConfig {
         return new CachingSessionFactory<>(factory, 10);  // Cache up to 10 sessions
     }
 
+    /**
+     * Sftp remote file template sftp remote file template.
+     *
+     * @param sessionFactory the session factory
+     * @return the sftp remote file template
+     */
     @Bean
     public SftpRemoteFileTemplate sftpRemoteFileTemplate(SessionFactory<SftpClient.DirEntry> sessionFactory) {
         return new SftpRemoteFileTemplate(sessionFactory);
     }
 
+    /**
+     * Gets remote directory.
+     *
+     * @return the remote directory
+     */
     /*
      * helper for other beans/services that need the directory path; keeps
      * SftpProperties encapsulated while still available.

@@ -3,6 +3,9 @@ package ch.gryphus.chainvault.domain;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * The type Tiff page.
+ */
 public record TiffPage(String name, byte[] data) implements AbstractPage {
     @Override
     public boolean equals(Object o) {

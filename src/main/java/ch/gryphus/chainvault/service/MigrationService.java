@@ -34,6 +34,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * The type Migration service.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -46,6 +49,13 @@ public class MigrationService {
     private final ObjectMapper objectMapper;
     private final Tika tika;
 
+    /**
+     * Extract and hash map.
+     *
+     * @param docId the doc id
+     * @return the map
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public Map<String, Object> extractAndHash(String docId) throws NoSuchAlgorithmException {
         Map<String, Object> map = new HashMap<>();
         byte[] payload;
@@ -84,6 +94,15 @@ public class MigrationService {
         return map;
     }
 
+    /**
+     * Sign tiff pages list.
+     *
+     * @param payload the payload
+     * @param ctx     the ctx
+     * @return the list
+     * @throws IOException              the io exception
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public List<TiffPage> signTiffPages(byte[] payload, MigrationContext ctx) throws IOException, NoSuchAlgorithmException {
         List<TiffPage> pages = new ArrayList<>();
 
@@ -102,6 +121,17 @@ public class MigrationService {
         return pages;
     }
 
+    /**
+     * Create chain zip path.
+     *
+     * @param docId          the doc id
+     * @param pages          the pages
+     * @param sourceMetadata the source metadata
+     * @param ctx            the ctx
+     * @return the path
+     * @throws IOException              the io exception
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public Path createChainZip(String docId, List<TiffPage> pages, SourceMetadata sourceMetadata, MigrationContext ctx)
             throws IOException, NoSuchAlgorithmException {
 
@@ -152,6 +182,15 @@ public class MigrationService {
         return zipPath;
     }
 
+    /**
+     * Upload to sftp.
+     *
+     * @param ctx     the ctx
+     * @param docId   the doc id
+     * @param xml     the xml
+     * @param zipPath the zip path
+     * @param pdfPath the pdf path
+     */
     public void uploadToSftp(MigrationContext ctx, String docId, String xml, Path zipPath, Path pdfPath) {
         String folder = "%s/%s".formatted(sftpTargetConfig.getRemoteDirectory(), docId);
         sftpRemoteFileTemplate.execute(s -> {
@@ -166,6 +205,14 @@ public class MigrationService {
         log.info("Done {} | zipPath={} | pdf={}", docId, ctx.getZipHash(), ctx.getPdfHash());
     }
 
+    /**
+     * Merge tiff to pdf path.
+     *
+     * @param pages the pages
+     * @param docId the doc id
+     * @return the path
+     * @throws IOException the io exception
+     */
     public Path mergeTiffToPdf(List<TiffPage> pages, String docId) throws IOException {
         Path pdf = Path.of("/tmp/" + docId + ".pdf");
         try (var doc = new PDDocument()) {
@@ -188,6 +235,13 @@ public class MigrationService {
         return pdf;
     }
 
+    /**
+     * Build xml archival metadata.
+     *
+     * @param sourceMetadata the source metadata
+     * @param ctx            the ctx
+     * @return the archival metadata
+     */
     public ArchivalMetadata buildXml(SourceMetadata sourceMetadata, MigrationContext ctx) {
         ArchivalMetadata metadata = new ArchivalMetadata();
 
@@ -217,6 +271,13 @@ public class MigrationService {
         return metadata;
     }
 
+    /**
+     * Unzip tiff pages list.
+     *
+     * @param zipBytes the zip bytes
+     * @return the list
+     * @throws IOException the io exception
+     */
     public List<TiffPage> unzipTiffPages(byte[] zipBytes) throws IOException {
         var pages = new ArrayList<TiffPage>();
 
@@ -241,10 +302,25 @@ public class MigrationService {
     }
 
 
+    /**
+     * Transform metadata to xml string.
+     *
+     * @param meta the meta
+     * @param ctx  the ctx
+     * @return the string
+     * @throws JsonProcessingException the json processing exception
+     */
     public String transformMetadataToXml(SourceMetadata meta, MigrationContext ctx) throws JsonProcessingException {
         return xmlMapper.writeValueAsString(buildXml(Objects.requireNonNull(meta), ctx));
     }
 
+    /**
+     * Gets detected mime type.
+     *
+     * @param in the in
+     * @return the detected mime type
+     * @throws IOException the io exception
+     */
     public String getDetectedMimeType(InputStream in) throws IOException {
         Tika tika = new Tika();
         return tika.detect(in);

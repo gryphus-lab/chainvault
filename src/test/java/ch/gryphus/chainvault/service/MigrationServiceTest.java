@@ -26,7 +26,6 @@ import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.web.client.RestClient;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -137,7 +136,6 @@ class MigrationServiceTest {
     // unzipTiffPages
     // ────────────────────────────────────────────────
     @Test
-    @org.junit.jupiter.api.Disabled("Requires real Tika detection on live ZipInputStream; would need more complex mocking")
     void unzipTiffPages_shouldExtractAndPreserveOrder() throws Exception {
         byte[] zip = createZipWithTiffs(List.of(
                 "page-001.tif", "TIFF content 1",
@@ -149,12 +147,12 @@ class MigrationServiceTest {
 
         assertThat(pages).hasSize(3);
         assertThat(pages.get(0).name()).isEqualTo("page-001.tif");
+        assertThat(pages.get(1).name()).isEqualTo("page-002.tif");
         assertThat(new String(pages.get(0).data())).isEqualTo("TIFF content 1");
         assertThat(pages.get(2).name()).isEqualTo("page-003.tif");
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Requires real Tika detection on live ZipInputStream; would need more complex mocking")
     void unzipTiffPages_shouldIgnoreNonTiffFiles() throws Exception {
         byte[] zip = createZipWithTiffs(List.of(
                 "page-001.tif", "TIFF1",

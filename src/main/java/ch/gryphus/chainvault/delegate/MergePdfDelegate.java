@@ -9,7 +9,9 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Slf4j
@@ -33,7 +35,7 @@ public class MergePdfDelegate implements JavaDelegate {
         try {
             pdfPath = migrationService.mergeTiffToPdf(pages, docId);
             ctx.setPdfHash(HashUtils.sha256(pdfPath));
-        } catch (java.io.IOException | java.security.NoSuchAlgorithmException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw new IllegalStateException("error preparing PDF or computing hash", e);
         }
 

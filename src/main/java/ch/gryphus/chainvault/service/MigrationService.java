@@ -226,7 +226,7 @@ public class MigrationService {
                 if (entry.isDirectory()) continue;
 
                 String nameLower = entry.getName().toLowerCase();
-                if (getDetectedMimeType(zis).equals("image/tiff") && (nameLower.endsWith(".tif") || nameLower.endsWith(".tiff"))) {
+                if (nameLower.endsWith(".tif") || nameLower.endsWith(".tiff")) {
                     byte[] data = zis.readAllBytes();
                     pages.add(new TiffPage(entry.getName(), data));
                 }

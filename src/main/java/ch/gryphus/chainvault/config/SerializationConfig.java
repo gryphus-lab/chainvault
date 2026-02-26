@@ -1,18 +1,21 @@
 package ch.gryphus.chainvault.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.tika.Tika;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @Configuration
 public class SerializationConfig {
 
-    /**
-     * Boot already creates a primary {@code ObjectMapper}, so we don't need to override it
-     * unless we have non‑standard customisation. Consumers can simply inject ObjectMapper.
-     */
+    @Bean
+    @Primary
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper(); // prioritize json
+    }
 
     @Bean
     public XmlMapper xmlMapper(Jackson2ObjectMapperBuilder builder) {

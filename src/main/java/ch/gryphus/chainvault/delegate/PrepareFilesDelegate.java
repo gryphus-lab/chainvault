@@ -10,7 +10,9 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Slf4j
@@ -35,7 +37,7 @@ public class PrepareFilesDelegate implements JavaDelegate {
         try {
             zipPath = migrationService.createChainZip(docId, pages, meta, ctx);
             ctx.setZipHash(HashUtils.sha256(zipPath));
-        } catch (java.io.IOException | java.security.NoSuchAlgorithmException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw new IllegalStateException("error preparing files", e);
         }
 

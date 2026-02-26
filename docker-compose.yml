@@ -12,7 +12,7 @@ services:
     volumes:
       - ./logs:/app/logs
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: default
       # SFTP (from sftp-test)
       target.sftp.host: sftp-test
       target.sftp.port: 22
@@ -21,7 +21,7 @@ services:
       target.sftp.remote-directory: /upload
       target.sftp.allow-unknown-keys: "true"
       # Source API (from fake-api)
-      source.api.base-url: http://fake-source-api:9090
+      source.api.base-url: http://fake-source-api:9091
       source.api.token: dummy
       # PostgreSQL
       spring.datasource.url: jdbc:postgresql://postgres:5432/chainvault
@@ -70,14 +70,14 @@ services:
     working_dir: /app
     command: >
       sh -c "npm install -g json-server &&
-        json-server --watch /data/db.json --static /data/static --port 9090 --host 0.0.0.0"
+        json-server --watch /data/db.json --static /data/static --port 9091 --host 0.0.0.0"
     ports:
-      - "9090:9090"
+      - "9091:9091"
     volumes:
       - ./src/test/resources/db.json:/data/db.json:ro
       - ./src/test/resources/static:/data/static:ro
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9090" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:9091" ]
       interval: 5s
       timeout: 3s
       retries: 5

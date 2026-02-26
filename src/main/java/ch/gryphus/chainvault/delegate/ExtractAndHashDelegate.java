@@ -1,7 +1,6 @@
 package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.service.MigrationService;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
@@ -19,14 +18,18 @@ public class ExtractAndHashDelegate implements JavaDelegate {
         this.migrationService = migrationService;
     }
 
-    @SneakyThrows
     @Override
     public void execute(DelegateExecution execution) {
         String docId = (String) execution.getVariable("docId");
 
         log.info("ExtractAndHashDelegate started for docId: {}", docId);
 
-        Map<String, Object> map = migrationService.extractAndHash(docId);
+        Map<String, Object> map;
+        try {
+            map = migrationService.extractAndHash(docId);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("hash algorithm not available", e);
+        }
 
         execution.setTransientVariable("ctx", map.get("ctx"));
         execution.setTransientVariable("meta", map.get("meta"));

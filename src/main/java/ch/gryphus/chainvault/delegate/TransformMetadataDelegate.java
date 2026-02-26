@@ -3,7 +3,7 @@ package ch.gryphus.chainvault.delegate;
 import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.service.MigrationService;
-import lombok.SneakyThrows;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
@@ -19,7 +19,6 @@ public class TransformMetadataDelegate implements JavaDelegate {
         this.migrationService = migrationService;
     }
 
-    @SneakyThrows
     @Override
     public void execute(DelegateExecution execution) {
         String docId = (String) execution.getVariable("docId");
@@ -28,7 +27,12 @@ public class TransformMetadataDelegate implements JavaDelegate {
 
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
         SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
-        String xml = migrationService.transformMetadataToXml(meta, ctx);
+        String xml;
+        try {
+            xml = migrationService.transformMetadataToXml(meta, ctx);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("failed to transform metadata to xml", e);
+        }
         execution.setTransientVariable("xml", xml);
 
         log.info("TransformDocumentDelegate completed for docId: {}", docId);

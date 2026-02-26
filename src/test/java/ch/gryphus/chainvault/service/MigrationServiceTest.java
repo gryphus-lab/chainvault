@@ -11,6 +11,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +26,6 @@ import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.web.client.RestClient;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -55,21 +55,39 @@ class MigrationServiceTest {
     @Mock
     private RestClient.ResponseSpec responseSpec;
     @Mock
-    private SftpRemoteFileTemplate sftp;
+    private SftpRemoteFileTemplate sftpRemoteFileTemplate;
     @Mock
-    private SftpTargetConfig sftpCfg;
-    @Mock
-    private XmlMapper xmlMapper;
+    private SftpTargetConfig sftpTargetConfig;
+
     @Spy
-    @InjectMocks
+    private XmlMapper xmlMapper = new XmlMapper();
+
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Spy
+    private Tika tika = new Tika();
+
+    // Constructed manually in setup() to avoid Mockito type-based injection confusion
     private MigrationService migrationService;
-    @Mock
-    private ObjectMapper jsonMapper;
     private MigrationContext ctx;
     private SourceMetadata meta;
 
     @BeforeEach
     void setup() {
+        // Explicitly construct MigrationService with fresh mappers to avoid type-based injection confusion
+        // where XmlMapper (extends ObjectMapper) might get injected as ObjectMapper
+        xmlMapper = new XmlMapper();
+        objectMapper = new ObjectMapper();
+        tika = Mockito.spy(new Tika());
+        // Mock tika detection to always return "image/tiff" in tests
+        try {
+            Mockito.doReturn("image/tiff").when(tika).detect(Mockito.any(java.io.InputStream.class));
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+        migrationService = new MigrationService(restClient, sftpRemoteFileTemplate, sftpTargetConfig, xmlMapper, objectMapper, tika);
+
         String docId = "DOC-TEST-001";
         ctx = new MigrationContext();
         ctx.setDocId(docId);
@@ -125,11 +143,11 @@ class MigrationServiceTest {
                 "page-003.tif", "TIFF content 3"
         ));
 
-        when(migrationService.getDetectedMimeType(any(InputStream.class))).thenReturn("image/tiff");
         List<TiffPage> pages = migrationService.unzipTiffPages(zip);
 
         assertThat(pages).hasSize(3);
         assertThat(pages.get(0).name()).isEqualTo("page-001.tif");
+        assertThat(pages.get(1).name()).isEqualTo("page-002.tif");
         assertThat(new String(pages.get(0).data())).isEqualTo("TIFF content 1");
         assertThat(pages.get(2).name()).isEqualTo("page-003.tif");
     }
@@ -142,7 +160,6 @@ class MigrationServiceTest {
                 "page-002.tif", "TIFF2"
         ));
 
-        when(migrationService.getDetectedMimeType(any(InputStream.class))).thenReturn("image/tiff");
         List<TiffPage> pages = migrationService.unzipTiffPages(zip);
 
         assertThat(pages).hasSize(2);

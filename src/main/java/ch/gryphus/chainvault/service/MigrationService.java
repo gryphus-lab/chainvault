@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -44,9 +43,10 @@ public class MigrationService {
     private final SftpRemoteFileTemplate sftpRemoteFileTemplate;
     private final SftpTargetConfig sftpTargetConfig;
     private final XmlMapper xmlMapper;
+    private final ObjectMapper objectMapper;
+    private final Tika tika;
 
-    @SneakyThrows
-    public Map<String, Object> extractAndHash(String docId) {
+    public Map<String, Object> extractAndHash(String docId) throws NoSuchAlgorithmException {
         Map<String, Object> map = new HashMap<>();
         byte[] payload;
 
@@ -137,7 +137,7 @@ public class MigrationService {
                 ));
             }
 
-            String manifestJson = new ObjectMapper().writerWithDefaultPrettyPrinter()
+            String manifestJson = objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValueAsString(manifest);
 
             zos.putNextEntry(new ZipEntry("manifest.json"));
@@ -226,7 +226,7 @@ public class MigrationService {
                 if (entry.isDirectory()) continue;
 
                 String nameLower = entry.getName().toLowerCase();
-                if (getDetectedMimeType(zis).equals("image/tiff") && (nameLower.endsWith(".tif") || nameLower.endsWith(".tiff"))) {
+                if (nameLower.endsWith(".tif") || nameLower.endsWith(".tiff")) {
                     byte[] data = zis.readAllBytes();
                     pages.add(new TiffPage(entry.getName(), data));
                 }

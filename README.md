@@ -57,7 +57,7 @@ docker-compose up --build
 Database migrations are located in `src/main/resources/db/migration` and are applied via Liquibase on startup (see `src/main/resources/db/changelog/db.changelog-master.yaml`).
 
 ## Database
-The repository contains SQL migration scripts under `src/main/resources/db/migration`. These are applied by Liquibase using the master changelog at `src/main/resources/db/changelog/db.changelog-master.yaml`. A database must be configured in `application.yml` (datasource settings). See `DataSourceConfig.java` for programmatic datasource configuration.
+The repository contains SQL migration scripts under `src/main/resources/db/migration`. These are applied by Liquibase using the master changelog at `src/main/resources/db/changelog/db.changelog-master.yaml`. A database must be configured in `application.yml` (spring.datasource settings). Spring Boot's auto‑configuration creates a `DataSource` bean automatically, so no custom config class is required.
 
 ## Testing
 Run tests with:

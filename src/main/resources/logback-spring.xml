@@ -29,13 +29,7 @@
             <includeMdcKeyName>docId</includeMdcKeyName>     <!-- if you put docId in MDC -->
             <includeMdcKeyName>migrationBatch</includeMdcKeyName>
 
-            <customFields>
-                {
-                "app": "${springAppName:-finma-migration}",
-                "env": "${spring.profiles.active:-dev}",
-                "version": "${project.version:-1.0-SNAPSHOT}"
-                }
-            </customFields>
+            <customFields>{"app":"chainvault","env":"prod","host":"${HOSTNAME:-unknown}"}</customFields>
 
             <!-- Shorten stack traces in JSON -->
             <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">

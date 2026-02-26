@@ -9,6 +9,8 @@ services:
     image: gryphus-lab/chainvault:latest
     ports:
       - "8085:8085"
+    volumes:
+      - ./logs:/app/logs
     environment:
       SPRING_PROFILES_ACTIVE: local
       # SFTP (from sftp-test)

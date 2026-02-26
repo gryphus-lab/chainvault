@@ -1,0 +1,35 @@
+# docker-compose.yml
+services:
+  alloy:
+    image: grafana/alloy:latest
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy
+      - ./logs:/var/log/chainvault:ro           # mount your JSON log directory
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    ports:
+      - "12345:12345"
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      # increases the log level from info to debug
+      - GF_LOG_LEVEL=debug
+    ports:
+      - '3000:3000'
+    volumes:
+      - 'grafana_storage:/var/lib/grafana'
+volumes:
+  grafana_storage: { }

@@ -1,0 +1,62 @@
+// 1. Discover JSON log files (adjust paths / patterns)
+local.file_match "app_json_logs" {
+	path_targets = [{
+		__path__ = "/var/log/chainvault/*.json",
+	}]
+	sync_period = "10s" // how often to check for new files
+}
+
+// 2. Tail the discovered files and read log lines
+loki.source.file "tail_json_logs" {
+	targets    = local.file_match.app_json_logs.targets
+	forward_to = [loki.process.parse_json.receiver]
+
+	tail_from_end = true // start from end of file (recommended)
+}
+
+// 3. Parse JSON lines + enrich with labels + fix timestamp
+loki.process "parse_json" {
+	forward_to = [loki.write.default.receiver]
+
+	// Parse each line as JSON
+	stage.json {
+		expressions = {
+			"timestamp" = "timestamp", // adjust field name if different
+			"level"     = "level",
+			"logger"    = "logger",
+			"message"   = "message",
+			"traceId"   = "trace_id", // optional tracing correlation
+			"spanId"    = "span_id",
+			"error"     = "error",
+		}
+	}
+
+	// Use extracted timestamp (very important for correct ordering in Loki)
+	stage.timestamp {
+		source   = "timestamp"
+		format   = "RFC3339"       // adjust to your format (RFC3339 common)
+		location = "Europe/Zurich" // or Europe/Zurich
+	}
+
+	// Map severity (Loki recognizes these labels)
+	stage.labels {
+		values = {
+			level  = "",
+			logger = "",
+			app    = "chainvault",    // static label
+			host   = env("HOSTNAME"), // dynamic
+		}
+	}
+}
+
+// 4. Send to Loki
+loki.write "default" {
+	endpoint {
+		url = "http://loki:3100/loki/api/v1/push"
+	}
+
+	external_labels = {
+		environment = "production",
+		cluster     = "ch-zurich-01",
+	}
+}

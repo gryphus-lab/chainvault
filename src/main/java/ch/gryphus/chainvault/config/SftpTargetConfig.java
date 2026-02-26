@@ -14,48 +14,30 @@ import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 @Configuration
 public class SftpTargetConfig {
 
-    @Value("${target.sftp.host}")
-    private String host;
+    private final SftpProperties props;
 
-    @Value("${target.sftp.port:22}")
-    private int port;
-
-    @Value("${target.sftp.username}")
-    private String username;
-
-    @Value("${target.sftp.password}")
-    private String password;
-
-    @Value("${target.sftp.private-key-path}")
-    private Resource privateKey;
-
-    @Value("${target.sftp.known-hosts}")
-    private Resource knownHosts;
-
-    // Getter for remote dir (used in service)
-    @Getter
-    @Value("${target.sftp.remote-directory:/incoming/migration}")
-    private String remoteDirectory;
+    public SftpTargetConfig(SftpProperties props) {
+        this.props = props;
+    }
 
     @Bean
     public CachingSessionFactory<SftpClient.DirEntry> sftpSessionFactory() {
         DefaultSftpSessionFactory factory = new DefaultSftpSessionFactory(true);  // true = allow unknown keys (dev); false = strict in prod
 
-        factory.setHost(host);
-        factory.setPort(port);
-        factory.setUser(username);
+        factory.setHost(props.getHost());
+        factory.setPort(props.getPort());
+        factory.setUser(props.getUsername());
 
-        if (!password.isEmpty()) {
-            factory.setPassword(password);
-        } else if (privateKey != null && privateKey.exists()) {
-            factory.setPrivateKey(privateKey);
+        if (props.getPassword() != null && !props.getPassword().isEmpty()) {
+            factory.setPassword(props.getPassword());
+        } else if (props.getPrivateKey() != null && props.getPrivateKey().exists()) {
+            factory.setPrivateKey(props.getPrivateKey());
         }
 
         // Strict host key checking (recommended for compliance)
-        if (knownHosts != null && knownHosts.exists()) {
-            factory.setKnownHostsResource(knownHosts);
-        } else {
-            // Fallback: disable strict checking (less secure, log warning)
+        if (props.getKnownHosts() != null && props.getKnownHosts().exists()) {
+            factory.setKnownHostsResource(props.getKnownHosts());
+        } else if (props.isAllowUnknownKeys()) {
             factory.setAllowUnknownKeys(true);
         }
 
@@ -67,4 +49,12 @@ public class SftpTargetConfig {
     public SftpRemoteFileTemplate sftpRemoteFileTemplate(SessionFactory<SftpClient.DirEntry> sessionFactory) {
         return new SftpRemoteFileTemplate(sessionFactory);
     }
-}
+
+    /*
+     * helper for other beans/services that need the directory path; keeps
+     * SftpProperties encapsulated while still available.
+     */
+    public String getRemoteDirectory() {
+        return props.getRemoteDirectory();
+    }
+} 

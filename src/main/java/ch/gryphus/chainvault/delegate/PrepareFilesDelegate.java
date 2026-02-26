@@ -5,7 +5,6 @@ import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.service.MigrationService;
 import ch.gryphus.chainvault.utils.HashUtils;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
@@ -24,7 +23,6 @@ public class PrepareFilesDelegate implements JavaDelegate {
         this.migrationService = migrationService;
     }
 
-    @SneakyThrows
     @Override
     public void execute(DelegateExecution execution) {
         String docId = (String) execution.getVariable("docId");
@@ -33,8 +31,13 @@ public class PrepareFilesDelegate implements JavaDelegate {
         var pages = (List<TiffPage>) execution.getTransientVariable("pages");
         SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
-        Path zipPath = migrationService.createChainZip(docId, pages, meta, ctx);
-        ctx.setZipHash(HashUtils.sha256(zipPath));
+        Path zipPath;
+        try {
+            zipPath = migrationService.createChainZip(docId, pages, meta, ctx);
+            ctx.setZipHash(HashUtils.sha256(zipPath));
+        } catch (java.io.IOException | java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("error preparing files", e);
+        }
 
         execution.setTransientVariable("ctx", ctx);
         execution.setTransientVariable("zipPath", zipPath);

@@ -4,7 +4,6 @@ import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.service.MigrationService;
 import ch.gryphus.chainvault.utils.HashUtils;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
@@ -22,7 +21,6 @@ public class MergePdfDelegate implements JavaDelegate {
         this.migrationService = migrationService;
     }
 
-    @SneakyThrows
     @Override
     public void execute(DelegateExecution execution) {
         String docId = (String) execution.getVariable("docId");
@@ -31,8 +29,13 @@ public class MergePdfDelegate implements JavaDelegate {
         List<TiffPage> pages = (List<TiffPage>) execution.getTransientVariable("pages");
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 
-        Path pdfPath = migrationService.mergeTiffToPdf(pages, docId);
-        ctx.setPdfHash(HashUtils.sha256(pdfPath));
+        Path pdfPath;
+        try {
+            pdfPath = migrationService.mergeTiffToPdf(pages, docId);
+            ctx.setPdfHash(HashUtils.sha256(pdfPath));
+        } catch (java.io.IOException | java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("error preparing PDF or computing hash", e);
+        }
 
         execution.setTransientVariable("ctx", ctx);
         execution.setTransientVariable("pdfPath", pdfPath);

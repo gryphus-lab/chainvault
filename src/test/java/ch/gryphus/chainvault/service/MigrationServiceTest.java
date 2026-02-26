@@ -11,6 +11,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,13 +59,19 @@ class MigrationServiceTest {
     private SftpRemoteFileTemplate sftp;
     @Mock
     private SftpTargetConfig sftpCfg;
-    @Mock
-    private XmlMapper xmlMapper;
+
+    @Spy
+    private XmlMapper xmlMapper = new XmlMapper();
+
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Spy
+    private Tika tika = new Tika();
+
     @Spy
     @InjectMocks
     private MigrationService migrationService;
-    @Mock
-    private ObjectMapper jsonMapper;
     private MigrationContext ctx;
     private SourceMetadata meta;
 

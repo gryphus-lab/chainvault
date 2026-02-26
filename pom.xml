@@ -42,10 +42,16 @@
         <pdfbox.version>3.0.6</pdfbox.version>
         <tika-core.version>3.2.3</tika-core.version>
 
+        <!-- flowable -->
         <flowable.version>7.2.0</flowable.version>
+        
         <!-- test dependencies-->
         <testcontainers.version>2.0.3</testcontainers.version>
 
+        <!-- plugins -->
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <liquibase-maven-plugin.version>4.23.2</liquibase-maven-plugin.version>
+        
         <!-- Sonar -->
         <sonar.organization>gryphus-lab</sonar.organization>
     </properties>
@@ -57,7 +63,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.14</version>
+                        <version>${jacoco-maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>
@@ -76,6 +82,25 @@
                                     </formats>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>report-integration</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report-integration</goal>
+                                </goals>
+                                <configuration>
+                                    <formats>
+                                        <format>XML</format>
+                                    </formats>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>report-aggregate</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report-aggregate</goal>
+                                </goals>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
@@ -88,7 +113,7 @@
                     <plugin>
                         <groupId>org.liquibase</groupId>
                         <artifactId>liquibase-maven-plugin</artifactId>
-                        <version>4.23.2</version>
+                        <version>${liquibase-maven-plugin.version}</version>
                         <configuration>
                             <changeLogFile>src/main/resources/db/changelog/db.changelog-master.yaml</changeLogFile>
                             <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
@@ -395,7 +420,7 @@
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
-                <version>4.23.2</version>
+                <version>${liquibase-maven-plugin.version}</version>
                 <configuration>
                     <changeLogFile>src/main/resources/db/changelog/db.changelog-master.yaml</changeLogFile>
                     <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>

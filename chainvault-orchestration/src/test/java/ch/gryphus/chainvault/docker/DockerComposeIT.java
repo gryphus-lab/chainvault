@@ -39,12 +39,12 @@ class DockerComposeIT {
             .withExposedService(SFTP_SERVICE, 22,
                     Wait.forLogMessage(".*Server listening on 0.0.0.0 port 22.*", 1)
                             .withStartupTimeout(Duration.ofSeconds(120)))
-            .withExposedService(API_SERVICE, 9090,
+            .withExposedService(API_SERVICE, 9091,
                     Wait.forHttp("/documents")
                             .forStatusCode(200)
                             .withStartupTimeout(Duration.ofSeconds(120)))
             .withExposedService(CHAINVAULT_APP, 8085,
-                Wait.forHttp("/swagger-ui.html")
+                Wait.forHttp("/actuator/health")
                      .forStatusCode(200)
                             .withStartupTimeout(Duration.ofSeconds(120)));
 
@@ -78,11 +78,11 @@ class DockerComposeIT {
     @Test
     @DisplayName("API service should be accessible")
     void testApiServiceAccessibility() {
-        String host = dockerCompose.getServiceHost(API_SERVICE, 9090);
-        Integer port = dockerCompose.getServicePort(API_SERVICE, 9090);
+        String host = dockerCompose.getServiceHost(API_SERVICE, 9091);
+        Integer port = dockerCompose.getServicePort(API_SERVICE, 9091);
 
         assertThat(host).isNotNull();
-        assertThat(port).isGreaterThan(9090);
+        assertThat(port).isGreaterThan(9091);
     }
 
     @Test
@@ -94,7 +94,7 @@ class DockerComposeIT {
                 .untilAsserted(() -> {
                     String postgresHost = dockerCompose.getServiceHost(POSTGRES_SERVICE, 5432);
                     String sftpHost = dockerCompose.getServiceHost(SFTP_SERVICE, 22);
-                    String apiHost = dockerCompose.getServiceHost(API_SERVICE, 9090);
+                    String apiHost = dockerCompose.getServiceHost(API_SERVICE, 9091);
 
                     assertThat(postgresHost).isNotBlank();
                     assertThat(sftpHost).isNotBlank();
@@ -107,7 +107,7 @@ class DockerComposeIT {
     void testServicesRunning() {
         assertThat(dockerCompose.getServicePort(POSTGRES_SERVICE, 5432)).isPositive();
         assertThat(dockerCompose.getServicePort(SFTP_SERVICE, 22)).isPositive();
-        assertThat(dockerCompose.getServicePort(API_SERVICE, 9090)).isPositive();
+        assertThat(dockerCompose.getServicePort(API_SERVICE, 9091)).isPositive();
     }
 
     @Test
@@ -121,8 +121,8 @@ class DockerComposeIT {
         Integer sftpPort = dockerCompose.getServicePort(SFTP_SERVICE, 22);
         assertThat(sftpPort).isGreaterThan(22);
 
-        // API: 9090 -> 9090 (fixed)
-        Integer apiPort = dockerCompose.getServicePort(API_SERVICE, 9090);
-        assertThat(apiPort).isGreaterThan(9090);
+        // API: 9091 -> 9091 (fixed)
+        Integer apiPort = dockerCompose.getServicePort(API_SERVICE, 9091);
+        assertThat(apiPort).isGreaterThan(9091);
     }
 }

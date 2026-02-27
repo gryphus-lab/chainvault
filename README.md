@@ -14,12 +14,8 @@ Key responsibilities:
  - Record audit and event logs via Liquibase migrations
 
 ## Repo layout
-- `src/main/java` — application source, controllers, delegates and services
-- `src/main/resources/application.yml` — Spring Boot configuration
-- `src/main/resources/mapping-config.yml` — mapping configuration
-- `src/main/resources/processes/chainvault.bpmn` — BPMN workflow definition
-- `src/main/resources/db/migration` — SQL migration scripts (V1..V8) applied via Liquibase
-- `test/` — unit and integration tests
+- `chainvault-migration/` — migration service module: domain, extraction/transform/merge/sign/upload logic, SFTP and REST client config
+- `chainvault-orchestration/` — Flowable BPMN orchestration module: process definition, delegates, REST API, main application
 - `docker-compose.yml` — main app stack (chainvault, postgres, sftp-test, fake-source-api)
 - `docker-compose-monitoring.yml` — observability stack (Prometheus, Loki, Alloy, Grafana)
 - `env/prometheus.yml` — Prometheus scrape config
@@ -39,14 +35,14 @@ From the repository root:
 ./mvnw clean package -DskipTests
 ```
 
-This produces a runnable JAR in `target/`.
+This produces a runnable JAR `chainvault-<version>.jar` in both `target/` (project root) and `chainvault-orchestration/target/` (e.g. `chainvault-0.0.1-SNAPSHOT.jar`).
 
 ## Run
 
 Run the packaged JAR:
 
 ```bash
-java -jar target/*-SNAPSHOT.jar
+java -jar target/chainvault-0.0.1-SNAPSHOT.jar
 ```
 
 Or use Docker Compose to start services as defined in `docker-compose.yml`:
@@ -64,9 +60,9 @@ To build and run the app stack together with the monitoring stack (Prometheus, L
 This runs `docker-compose -f docker-compose-monitoring.yml -f docker-compose.yml up -d` after a clean build.
 
 ## Configuration
-- Main Spring configuration: `src/main/resources/application.yml`.
-- Mapping and process definitions: `mapping-config.yml`, `processes/chainvault.bpmn`.
-- Database migrations are in `src/main/resources/db/migration` and are applied via Liquibase on startup (see `src/main/resources/db/changelog/db.changelog-master.yaml`).
+- Main Spring configuration: `chainvault-orchestration/src/main/resources/application.yml`.
+- Mapping and process definitions: `mapping-config.yml`, `processes/chainvault.bpmn` (in orchestration module).
+- Database migrations are in `chainvault-orchestration/src/main/resources/db/migration` and are applied via Liquibase on startup (see `db/changelog/db.changelog-master.yaml`).
 - OpenAPI (springdoc) is configured in `application.yml`; Swagger UI is at `/swagger-ui.html` when the app is running.
 
 ## Database
@@ -79,7 +75,7 @@ Run tests with:
 ./mvnw test
 ```
 
-Docker integration tests (Testcontainers) validate the full stack and individual services; see `src/test/java/ch/gryphus/chainvault/docker/README.md`. Run them with:
+Docker integration tests (Testcontainers) validate the full stack and individual services; see `chainvault-orchestration/src/test/java/ch/gryphus/chainvault/docker/README.md`. Run them with:
 
 ```bash
 ./mvnw test -Dtest=Docker*
@@ -90,10 +86,11 @@ Docker integration tests (Testcontainers) validate the full stack and individual
 - **OpenAPI**: REST API docs and Swagger UI at `/swagger-ui.html` (springdoc).
 
 ## Useful files
-- Application entry: `src/main/java/ch/gryphus/chainvault/MigrationApplication.java`
-- BPMN process: `src/main/resources/processes/chainvault.bpmn`
-- Liquibase changelog: `src/main/resources/db/changelog/db.changelog-master.yaml` (includes `src/main/resources/db/migration`)
-- OpenAPI config: `src/main/java/ch/gryphus/chainvault/config/OpenApiConfig.java`
+- Application entry: `chainvault-orchestration/src/main/java/ch/gryphus/chainvault/MigrationApplication.java`
+- BPMN process: `chainvault-orchestration/src/main/resources/processes/chainvault.bpmn`
+- Liquibase changelog: `chainvault-orchestration/src/main/resources/db/changelog/db.changelog-master.yaml`
+- OpenAPI config: `chainvault-orchestration/src/main/java/ch/gryphus/chainvault/config/OpenApiConfig.java`
+- Migration service: `chainvault-migration/src/main/java/ch/gryphus/chainvault/service/MigrationService.java`
 
 ## Contributing
 PRs and issues are welcome. Follow the existing code style and add tests for significant changes.

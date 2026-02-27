@@ -3,6 +3,7 @@ WORKDIR /workspace
 COPY pom.xml mvnw* ./
 COPY chainvault-migration ./chainvault-migration
 COPY chainvault-orchestration ./chainvault-orchestration
+COPY chainvault-report-aggregate ./chainvault-report-aggregate
 RUN mvn -DskipTests -q install
 
 FROM eclipse-temurin:21-jdk-alpine

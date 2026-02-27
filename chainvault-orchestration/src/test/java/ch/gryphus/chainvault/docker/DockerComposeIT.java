@@ -1,13 +1,11 @@
 package ch.gryphus.chainvault.docker;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.google.common.annotations.Beta;
 
 import java.io.File;
 import java.time.Duration;
@@ -33,17 +31,18 @@ class DockerComposeIT {
      */
     @Container
     static ComposeContainer dockerCompose = new ComposeContainer(
-            new File("docker-compose.yml"))
-            .withExposedService(POSTGRES_SERVICE, 5432, 
+            new File("../docker-compose.yml"))
+            .withExposedService(POSTGRES_SERVICE, 5432,
                     Wait.forLogMessage(".*database system is ready to accept connections.*", 2)
-                       .withStartupTimeout(Duration.ofSeconds(120)))
+                            .withStartupTimeout(Duration.ofSeconds(120)))
             .withExposedService(SFTP_SERVICE, 22,
                     Wait.forLogMessage(".*Server listening on 0.0.0.0 port 22.*", 1)
-                       .withStartupTimeout(Duration.ofSeconds(120)))
+                            .withStartupTimeout(Duration.ofSeconds(120)))
             .withExposedService(API_SERVICE, 9090,
-                    Wait.forHttp("/documents")
+                    Wait.forHttp("/")
                             .forStatusCode(200)
-                       .withStartupTimeout(Duration.ofSeconds(120)));
+                            .withStartupTimeout(Duration.ofSeconds(120)));
+
 
     @Test
     @DisplayName("Docker compose container should start successfully")

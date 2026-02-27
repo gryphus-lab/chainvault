@@ -24,6 +24,7 @@ class DockerComposeIT {
     private static final String POSTGRES_SERVICE = "postgres";
     private static final String SFTP_SERVICE = "sftp-test";
     private static final String API_SERVICE = "fake-source-api";
+    private static final String CHAINVAULT_APP = "chainvault-app";
 
     /**
      * Container for managing the entire docker-compose stack
@@ -39,8 +40,12 @@ class DockerComposeIT {
                     Wait.forLogMessage(".*Server listening on 0.0.0.0 port 22.*", 1)
                             .withStartupTimeout(Duration.ofSeconds(120)))
             .withExposedService(API_SERVICE, 9090,
-                    Wait.forHttp("/")
+                    Wait.forHttp("/documents")
                             .forStatusCode(200)
+                            .withStartupTimeout(Duration.ofSeconds(120)))
+            .withExposedService(CHAINVAULT_APP, 8085,
+                Wait.forHttp("/swagger-ui.html")
+                     .forStatusCode(200)
                             .withStartupTimeout(Duration.ofSeconds(120)));
 
 

@@ -241,7 +241,7 @@ public class MigrationService {
     }
 
     public String getDetectedMimeType(InputStream in) throws IOException {
-        Tika tika = new Tika();
-        return tika.detect(in);
+        Tika t = new Tika();
+        return t.detect(in);
     }
 }

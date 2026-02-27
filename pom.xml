@@ -30,6 +30,7 @@
     <modules>
         <module>chainvault-migration</module>
         <module>chainvault-orchestration</module>
+        <module>chainvault-report-aggregate</module>
     </modules>
 
     <properties>
@@ -53,7 +54,6 @@
         <liquibase-maven-plugin.version>4.23.2</liquibase-maven-plugin.version>
         <sonar.organization>gryphus-lab</sonar.organization>
     </properties>
-
     <profiles>
         <profile>
             <id>coverage</id>
@@ -65,19 +65,48 @@
                         <version>${jacoco-maven-plugin.version}</version>
                         <executions>
                             <execution>
-                                <id>report-aggregate</id>
-                                <phase>verify</phase>
+                                <id>prepare-agent</id>
                                 <goals>
-                                    <goal>report-aggregate</goal>
+                                    <goal>prepare-agent</goal>
                                 </goals>
                             </execution>
+                            <execution>
+                                <id>report</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <formats>
+                                        <format>XML</format>
+                                        <format>HTML</format>
+                                    </formats>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>prepare-agent-integration</id>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report-integration</id>
+                                <goals>
+                                    <goal>report-integration</goal>
+                                </goals>
+                                <configuration>
+                                    <formats>
+                                        <format>XML</format>
+                                        <format>HTML</format>
+                                    </formats>
+                                </configuration>
+                            </execution>
+
                         </executions>
                     </plugin>
                 </plugins>
             </build>
         </profile>
     </profiles>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

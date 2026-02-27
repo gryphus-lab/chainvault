@@ -1,0 +1,87 @@
+version: '3.9'
+
+services:
+
+  chainvault-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gryphus-lab/chainvault:latest
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      # SFTP (from sftp-test)
+      target.sftp.host: sftp-test
+      target.sftp.port: 22
+      target.sftp.username: testuser
+      target.sftp.password: testpass123
+      target.sftp.remote-directory: /upload
+      target.sftp.allow-unknown-keys: "true"
+      # Source API (from fake-api)
+      source.api.base-url: http://fake-source-api:9091
+      source.api.token: dummy
+      # PostgreSQL
+      spring.datasource.url: jdbc:postgresql://postgres:5432/chainvault
+      spring.datasource.username: chainvault
+      spring.datasource.password: secret
+    depends_on:
+      - sftp-test
+      - fake-source-api
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: chainvault
+      POSTGRES_USER: chainvault
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/main/resources/db/init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U chainvault" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  sftp-test:
+    image: atmoz/sftp:latest
+    ports:
+      - "22"
+    volumes:
+      - ./data/upload:/home/testuser/upload
+    command: testuser:testpass123:::upload
+    healthcheck:
+      test: [ "CMD", "ls", "/home/testuser/upload" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  fake-source-api:
+    image: node:25-alpine
+    working_dir: /app
+    command: >
+      sh -c "npm install -g json-server &&
+        json-server --watch /data/db.json --static /data/static --port 9091 --host 0.0.0.0"
+    ports:
+      - "9091:9091"
+    volumes:
+      - ./src/test/resources/db.json:/data/db.json:ro
+      - ./src/test/resources/static:/data/static:ro
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9091" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
+  sftp-data:

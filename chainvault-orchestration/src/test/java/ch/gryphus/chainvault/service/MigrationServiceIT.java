@@ -22,7 +22,7 @@ import static org.awaitility.Awaitility.await;
 
 @SpringBootTest
 @Testcontainers
-class MigrationServiceIntegrationIT extends BaseIT {
+class MigrationServiceIT extends BaseIT {
 
     // Fake REST API (json-server with db.json)
     @Container

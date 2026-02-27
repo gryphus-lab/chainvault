@@ -82,6 +82,25 @@
                                     </formats>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>prepare-agent-integration</id>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report-integration</id>
+                                <goals>
+                                    <goal>report-integration</goal>
+                                </goals>
+                                <configuration>
+                                    <formats>
+                                        <format>XML</format>
+                                        <format>HTML</format>
+                                    </formats>
+                                </configuration>
+                            </execution>
+
                         </executions>
                     </plugin>
                 </plugins>

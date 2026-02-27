@@ -16,6 +16,7 @@ Key responsibilities:
 ## Repo layout
 - `chainvault-migration/` — migration service module: domain, extraction/transform/merge/sign/upload logic, SFTP and REST client config
 - `chainvault-orchestration/` — Flowable BPMN orchestration module: process definition, delegates, REST API, main application
+- `chainvault-report-aggregate/` — JaCoCo aggregate module combining coverage from `chainvault-migration` and `chainvault-orchestration` (unit + integration/Docker tests), used for CI/Sonar
 - `docker-compose.yml` — main app stack (chainvault, postgres, sftp-test, fake-source-api)
 - `docker-compose-monitoring.yml` — observability stack (Prometheus, Loki, Alloy, Grafana)
 - `env/prometheus.yml` — Prometheus scrape config
@@ -69,7 +70,7 @@ This runs `docker-compose -f docker-compose-monitoring.yml -f docker-compose.yml
 The repository contains SQL migration scripts under `src/main/resources/db/migration`. These are applied by Liquibase using the master changelog at `src/main/resources/db/changelog/db.changelog-master.yaml`. A database must be configured in `application.yml` (spring.datasource settings). Spring Boot's auto‑configuration creates a `DataSource` bean automatically, so no custom config class is required.
 
 ## Testing
-Run tests with:
+Run unit and integration tests with:
 
 ```bash
 ./mvnw test
@@ -80,6 +81,19 @@ Docker integration tests (Testcontainers) validate the full stack and individual
 ```bash
 ./mvnw test -Dtest=Docker*
 ```
+
+### Test coverage (JaCoCo, multi-module)
+
+To generate JaCoCo coverage reports (including integration/Docker tests) across all modules, use the `coverage` profile from the project root:
+
+```bash
+./mvnw verify -Pcoverage
+```
+
+This will:
+- Attach JaCoCo agents for both unit and integration tests in each module
+- Generate per-module reports, and
+- Produce an aggregated report in the `chainvault-report-aggregate` module (HTML + XML) suitable for CI/Sonar consumption.
 
 ## Observability
 - **Prometheus**: Metrics are exposed at `/prometheus` (Micrometer). Use `docker-compose-monitoring.yml` to run Prometheus, Loki, Alloy, and Grafana; scrape config is in `env/prometheus.yml`.

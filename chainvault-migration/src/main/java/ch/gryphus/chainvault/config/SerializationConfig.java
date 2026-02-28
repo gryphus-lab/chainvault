@@ -14,17 +14,33 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Configuration
 public class SerializationConfig {
 
+    /**
+     * Object mapper object mapper.
+     *
+     * @return the object mapper
+     */
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
     }
 
+    /**
+     * Xml mapper xml mapper.
+     *
+     * @param builder the builder
+     * @return the xml mapper
+     */
     @Bean
     public XmlMapper xmlMapper(Jackson2ObjectMapperBuilder builder) {
         return builder.createXmlMapper(true).build();
     }
 
+    /**
+     * Tika tika.
+     *
+     * @return the tika
+     */
     @Bean
     public Tika tika() {
         return new Tika();

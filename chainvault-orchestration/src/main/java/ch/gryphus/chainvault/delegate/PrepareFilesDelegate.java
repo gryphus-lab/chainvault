@@ -15,12 +15,20 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+/**
+ * The type Prepare files delegate.
+ */
 @Slf4j
 @Component("prepareFiles")
 public class PrepareFilesDelegate implements JavaDelegate {
 
     private final MigrationService migrationService;
 
+    /**
+     * Instantiates a new Prepare files delegate.
+     *
+     * @param migrationService the migration service
+     */
     public PrepareFilesDelegate(MigrationService migrationService) {
         this.migrationService = migrationService;
     }
@@ -35,6 +43,7 @@ public class PrepareFilesDelegate implements JavaDelegate {
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
         Path zipPath;
         try {
+            migrationService.setWorkingDirectory("/tmp");
             zipPath = migrationService.createChainZip(docId, pages, meta, ctx);
             ctx.setZipHash(HashUtils.sha256(zipPath));
         } catch (IOException | NoSuchAlgorithmException e) {

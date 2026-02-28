@@ -16,6 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+/**
+ * The type Orchestration rest controller test.
+ */
 @WebMvcTest(OrchestrationRestController.class)
 class OrchestrationRestControllerTest {
 
@@ -28,6 +31,11 @@ class OrchestrationRestControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    /**
+     * Test start process instance.
+     *
+     * @throws Exception the exception
+     */
     @Test
     void testStartProcessInstance() throws Exception {
         // Setup

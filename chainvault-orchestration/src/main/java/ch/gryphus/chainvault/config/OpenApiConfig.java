@@ -12,6 +12,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * Chain vault open api open api.
+     *
+     * @return the open api
+     */
     @Bean
     public OpenAPI chainVaultOpenApi() {
         return new OpenAPI()

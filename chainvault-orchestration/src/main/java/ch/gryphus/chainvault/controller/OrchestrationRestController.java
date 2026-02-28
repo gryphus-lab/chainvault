@@ -20,11 +20,22 @@ import java.util.Map;
 public class OrchestrationRestController {
     private final OrchestrationService orchestrationService;
 
+    /**
+     * Instantiates a new Orchestration rest controller.
+     *
+     * @param orchestrationService the orchestration service
+     */
     @Autowired
     public OrchestrationRestController(OrchestrationService orchestrationService) {
         this.orchestrationService = orchestrationService;
     }
 
+    /**
+     * Start process instance response entity.
+     *
+     * @param payload the payload
+     * @return the response entity
+     */
     @PostMapping(value = "/process", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> startProcessInstance(@RequestBody Map<String, Object> payload) {
         String processId = orchestrationService.startProcess(payload);

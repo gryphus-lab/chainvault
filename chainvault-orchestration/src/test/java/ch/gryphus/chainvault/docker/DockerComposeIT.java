@@ -14,8 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 /**
- * Docker Compose orchestration tests
- * Validates that services defined in docker-compose.yml work together correctly
+ * The type Docker compose it.
  */
 @Testcontainers
 @DisplayName("Docker Compose Orchestration Tests")
@@ -27,8 +26,7 @@ class DockerComposeIT {
     private static final String CHAINVAULT_APP = "chainvault-app";
 
     /**
-     * Container for managing the entire docker-compose stack
-     * Note: Requires docker-compose.yml to be in a specific location
+     * The constant dockerCompose.
      */
     @Container
     static ComposeContainer dockerCompose = new ComposeContainer(
@@ -49,12 +47,18 @@ class DockerComposeIT {
                             .withStartupTimeout(Duration.ofSeconds(120)));
 
 
+    /**
+     * Test docker compose starts.
+     */
     @Test
     @DisplayName("Docker compose container should start successfully")
     void testDockerComposeStarts() {
         assertThat(dockerCompose).isNotNull();
     }
 
+    /**
+     * Test postgres service accessibility.
+     */
     @Test
     @DisplayName("PostgreSQL service should be accessible")
     void testPostgresServiceAccessibility() {
@@ -65,6 +69,9 @@ class DockerComposeIT {
         assertThat(port).isPositive();
     }
 
+    /**
+     * Test sftp service accessibility.
+     */
     @Test
     @DisplayName("SFTP service should be accessible")
     void testSftpServiceAccessibility() {
@@ -75,6 +82,9 @@ class DockerComposeIT {
         assertThat(port).isPositive();
     }
 
+    /**
+     * Test api service accessibility.
+     */
     @Test
     @DisplayName("API service should be accessible")
     void testApiServiceAccessibility() {
@@ -85,6 +95,9 @@ class DockerComposeIT {
         assertThat(port).isGreaterThan(9091);
     }
 
+    /**
+     * Test service network connectivity.
+     */
     @Test
     @DisplayName("Services should have proper network connectivity")
     void testServiceNetworkConnectivity() {
@@ -102,6 +115,9 @@ class DockerComposeIT {
                 });
     }
 
+    /**
+     * Test services running.
+     */
     @Test
     @DisplayName("All services should be running")
     void testServicesRunning() {
@@ -110,6 +126,9 @@ class DockerComposeIT {
         assertThat(dockerCompose.getServicePort(API_SERVICE, 9091)).isPositive();
     }
 
+    /**
+     * Test port mapping.
+     */
     @Test
     @DisplayName("Should handle port mapping correctly")
     void testPortMapping() {

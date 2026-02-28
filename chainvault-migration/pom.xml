@@ -13,6 +13,8 @@
     <artifactId>chainvault-migration</artifactId>
     <name>ChainVault Migration</name>
     <description>Migration service layer: document extraction, transformation, signing, merging and SFTP upload.</description>
+    <properties>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -64,6 +66,16 @@
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-matchers</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

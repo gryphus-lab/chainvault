@@ -23,14 +23,13 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.awaitility.Awaitility.await;
 
 /**
- * Integration tests for Docker services defined in docker-compose.yml
- * Tests the health, availability, and basic connectivity of each service.
+ * The type Docker services integration it.
  */
 @Testcontainers
 class DockerServicesIntegrationIT {
 
     /**
-     * PostgreSQL service test - validates database initialization and connectivity
+     * The constant postgresContainer.
      */
     @Container
     static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(
@@ -43,7 +42,7 @@ class DockerServicesIntegrationIT {
             .withStartupTimeout(Duration.ofSeconds(120));
 
     /**
-     * SFTP service test - validates SSH/SFTP server availability
+     * The constant sftpContainer.
      */
     @Container
     static GenericContainer<?> sftpContainer = new GenericContainer<>(
@@ -54,7 +53,7 @@ class DockerServicesIntegrationIT {
             .withStartupTimeout(Duration.ofSeconds(120));
 
     /**
-     * Fake API service test - validates Node.js json-server availability
+     * The constant apiContainer.
      */
     @Container
     static GenericContainer<?> apiContainer = new GenericContainer<>(
@@ -67,6 +66,9 @@ class DockerServicesIntegrationIT {
             .waitingFor(Wait.forHttp("/").forStatusCode(200))
             .withStartupTimeout(Duration.ofSeconds(120));
 
+    /**
+     * Test postgres health check.
+     */
     @Test
     void testPostgresHealthCheck() {
         // Verify PostgreSQL container is running
@@ -89,6 +91,11 @@ class DockerServicesIntegrationIT {
         });
     }
 
+    /**
+     * Test postgres version compatibility.
+     *
+     * @throws SQLException the sql exception
+     */
     @Test
     void testPostgresVersionCompatibility() throws SQLException {
         try (Connection conn = DriverManager.getConnection(
@@ -104,6 +111,9 @@ class DockerServicesIntegrationIT {
         }
     }
 
+    /**
+     * Test sftp service availability.
+     */
     @Test
     void testSftpServiceAvailability() {
         assertThat(sftpContainer.isRunning()).isTrue();
@@ -119,6 +129,12 @@ class DockerServicesIntegrationIT {
         });
     }
 
+    /**
+     * Test sftp user access.
+     *
+     * @throws IOException          the io exception
+     * @throws InterruptedException the interrupted exception
+     */
     @Test
     void testSftpUserAccess() throws IOException, InterruptedException {
         // Create a test file in the SFTP container
@@ -136,6 +152,9 @@ class DockerServicesIntegrationIT {
         sftpContainer.execInContainer("rm", "/home/testuser/upload/test.txt");
     }
 
+    /**
+     * Test api service availability.
+     */
     @Test
     void testApiServiceAvailability() {
         assertThat(apiContainer.isRunning()).isTrue();
@@ -144,6 +163,9 @@ class DockerServicesIntegrationIT {
         assertThat(mappedPort).isPositive();
     }
 
+    /**
+     * Test api response format.
+     */
     @Test
     void testApiResponseFormat() {
         String apiUrl = "http://%s:%d".formatted(apiContainer.getHost(), apiContainer.getMappedPort(9090));
@@ -165,18 +187,27 @@ class DockerServicesIntegrationIT {
                 });
     }
 
+    /**
+     * Test postgres port mapping.
+     */
     @Test
     void testPostgresPortMapping() {
         Integer mappedPort = postgresContainer.getMappedPort(5432);
         assertThat(mappedPort).isNotNull().isPositive().isGreaterThanOrEqualTo(5432);
     }
 
+    /**
+     * Test sftp port mapping.
+     */
     @Test
     void testSftpPortMapping() {
         Integer mappedPort = sftpContainer.getMappedPort(22);
         assertThat(mappedPort).isNotNull().isPositive().isNotEqualTo(22); // Dynamic port allocation
     }
 
+    /**
+     * Test service isolation.
+     */
     @Test
     void testServiceIsolation() {
         // Ensure each service has its own container instance
@@ -190,6 +221,11 @@ class DockerServicesIntegrationIT {
                 .isNotEqualTo(apiContainer.getContainerId());
     }
 
+    /**
+     * Test postgres connection pooling.
+     *
+     * @throws SQLException the sql exception
+     */
     @Test
     void testPostgresConnectionPooling() throws SQLException {
         // Test multiple concurrent connections
@@ -206,6 +242,12 @@ class DockerServicesIntegrationIT {
         }
     }
 
+    /**
+     * Test sftp upload directory.
+     *
+     * @throws IOException          the io exception
+     * @throws InterruptedException the interrupted exception
+     */
     @Test
     void testSftpUploadDirectory() throws IOException, InterruptedException {
         // Verify the upload directory exists and is writable
@@ -216,6 +258,9 @@ class DockerServicesIntegrationIT {
         assertThat(result.getStdout().trim()).isEqualTo("exists");
     }
 
+    /**
+     * Test service memory and resource usage.
+     */
     @Test
     void testServiceMemoryAndResourceUsage() {
         // Verify containers are running and consuming resources

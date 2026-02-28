@@ -6,9 +6,15 @@ import org.testcontainers.containers.BindMode;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
+/**
+ * The type Base it.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS) // Force immediate cleanup
 public abstract class BaseIT {
+    /**
+     * The Postgres.
+     */
     static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("postgres:16-alpine"))
             .withDatabaseName("chainvault")
             .withUsername("chainvault")

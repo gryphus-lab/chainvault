@@ -17,11 +17,22 @@ import java.util.Map;
 public class OrchestrationService {
     private final RuntimeService runtimeService;
 
+    /**
+     * Instantiates a new Orchestration service.
+     *
+     * @param runtimeService the runtime service
+     */
     @Autowired
     public OrchestrationService(RuntimeService runtimeService) {
         this.runtimeService = runtimeService;
     }
 
+    /**
+     * Start process string.
+     *
+     * @param variables the variables
+     * @return the string
+     */
     @Transactional
     public String startProcess(Map<String, Object> variables) {
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("chainvault", variables);

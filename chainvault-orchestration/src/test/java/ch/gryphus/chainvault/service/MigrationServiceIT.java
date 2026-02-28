@@ -20,11 +20,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.awaitility.Awaitility.await;
 
+/**
+ * The type Migration service it.
+ */
 @SpringBootTest
 @Testcontainers
 class MigrationServiceIT extends BaseIT {
 
-    // Fake REST API (json-server with db.json)
+    /**
+     * The constant jsonServer.
+     */
+// Fake REST API (json-server with db.json)
     @Container
     static GenericContainer<?> jsonServer = new GenericContainer<>(DockerImageName.parse("node:25-alpine"))
             .withPrivilegedMode(true)
@@ -34,6 +40,9 @@ class MigrationServiceIT extends BaseIT {
             .withExposedPorts(9090)
             .waitingFor(Wait.forHttp("/").forStatusCode(200));
 
+    /**
+     * The constant sftpContainer.
+     */
     @Container
     static GenericContainer<?> sftpContainer = new GenericContainer<>(DockerImageName.parse("atmoz/sftp:latest"))
             .withCommand("testuser:testpass123:::upload")
@@ -46,7 +55,12 @@ class MigrationServiceIT extends BaseIT {
     @Autowired
     private OrchestrationService orchestrationService;
 
-    // Override Spring datasource properties at runtime
+    /**
+     * Configure properties.
+     *
+     * @param registry the registry
+     */
+// Override Spring datasource properties at runtime
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         // Fake source API
@@ -69,6 +83,12 @@ class MigrationServiceIT extends BaseIT {
         registry.add("target.sftp.allow-unknown-keys", () -> "true");
     }
 
+    /**
+     * Migrate document should upload to real sftp.
+     *
+     * @throws IOException          the io exception
+     * @throws InterruptedException the interrupted exception
+     */
     @Test
     void migrateDocument_shouldUploadToRealSftp() throws IOException, InterruptedException {
         String docId = "DOC-ARCH-20250115-001";  // exists in your verbose db.json
@@ -98,6 +118,9 @@ class MigrationServiceIT extends BaseIT {
         assertThat(Integer.parseInt(fileCount.trim())).isEqualTo(3);
     }
 
+    /**
+     * Migrate document with non existing doc should fail gracefully.
+     */
     @Test
     void migrateDocument_withNonExistingDoc_shouldFailGracefully() {
         String invalidId = "DOC-NOT-EXISTS-999";

@@ -14,11 +14,19 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+/**
+ * The type Merge pdf delegate.
+ */
 @Slf4j
 @Component("mergePdf")
 public class MergePdfDelegate implements JavaDelegate {
     private final MigrationService migrationService;
 
+    /**
+     * Instantiates a new Merge pdf delegate.
+     *
+     * @param migrationService the migration service
+     */
     public MergePdfDelegate(MigrationService migrationService) {
         this.migrationService = migrationService;
     }

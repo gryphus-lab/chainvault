@@ -6,7 +6,9 @@ import ch.gryphus.chainvault.utils.HashUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -22,6 +24,7 @@ import org.springframework.web.client.RestClient;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +52,17 @@ public class MigrationService {
     private final ObjectMapper objectMapper;
     private final Tika tika;
 
+    @Getter
+    @Setter
+    private String workingDirectory;
+
+    /**
+     * Extract and hash map.
+     *
+     * @param docId the doc id
+     * @return the map
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public Map<String, Object> extractAndHash(String docId) throws NoSuchAlgorithmException {
         Map<String, Object> map = new HashMap<>();
         byte[] payload;
@@ -87,6 +101,15 @@ public class MigrationService {
         return map;
     }
 
+    /**
+     * Sign tiff pages list.
+     *
+     * @param payload the payload
+     * @param ctx     the ctx
+     * @return the list
+     * @throws IOException              the io exception
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public List<TiffPage> signTiffPages(byte[] payload, MigrationContext ctx) throws IOException, NoSuchAlgorithmException {
         List<TiffPage> pages = new ArrayList<>();
 
@@ -105,13 +128,23 @@ public class MigrationService {
         return pages;
     }
 
+    /**
+     * Create chain zip path.
+     *
+     * @param docId          the doc id
+     * @param pages          the pages
+     * @param sourceMetadata the source metadata
+     * @param ctx            the ctx
+     * @return the path
+     * @throws IOException              the io exception
+     * @throws NoSuchAlgorithmException the no such algorithm exception
+     */
     public Path createChainZip(String docId, List<TiffPage> pages, SourceMetadata sourceMetadata, MigrationContext ctx)
             throws IOException, NoSuchAlgorithmException {
 
-        Path zipPath = Files.createTempFile("%s_chain".formatted(docId), ".zip");
+        Path zipPath = new File("%s/%s_chain.zip".formatted(workingDirectory, docId)).toPath();
 
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
-
             for (int i = 0; i < pages.size(); i++) {
                 TiffPage page = pages.get(i);
                 String entryName = String.format("page-%03d_%s", i + 1, page.name());
@@ -151,6 +184,15 @@ public class MigrationService {
         return zipPath;
     }
 
+    /**
+     * Upload to sftp.
+     *
+     * @param ctx     the ctx
+     * @param docId   the doc id
+     * @param xml     the xml
+     * @param zipPath the zip path
+     * @param pdfPath the pdf path
+     */
     public void uploadToSftp(MigrationContext ctx, String docId, String xml, Path zipPath, Path pdfPath) {
         String folder = "%s/%s".formatted(sftpTargetConfig.getRemoteDirectory(), docId);
         sftpRemoteFileTemplate.execute(s -> {
@@ -165,21 +207,25 @@ public class MigrationService {
         log.info("Done {} | zipPath={} | pdf={}", docId, ctx.getZipHash(), ctx.getPdfHash());
     }
 
+    /**
+     * Merge tiff to pdf path.
+     *
+     * @param pages the pages
+     * @param docId the doc id
+     * @return the path
+     * @throws IOException the io exception
+     */
     public Path mergeTiffToPdf(List<TiffPage> pages, String docId) throws IOException {
-        Path pdf = Path.of("/tmp/" + docId + ".pdf");
+        Path pdf = new File("%s/%s.pdf".formatted(workingDirectory, docId)).toPath();
         try (var doc = new PDDocument()) {
             for (var page : pages) {
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(page.data()));
-                try {
-                    var pdImage = LosslessFactory.createFromImage(doc, img);
-                    var pdPage = new PDPage(new PDRectangle(img.getWidth(), img.getHeight()));
-                    doc.addPage(pdPage);
+                var pdImage = LosslessFactory.createFromImage(doc, img);
+                var pdPage = new PDPage(new PDRectangle(img.getWidth(), img.getHeight()));
+                doc.addPage(pdPage);
 
-                    try (var cs = new PDPageContentStream(doc, pdPage)) {
-                        cs.drawImage(pdImage, 0, 0);
-                    }
-                } catch (Exception ignored) {
-                    log.error("Failed to merge PDF image to pdf: {}", docId);
+                try (var cs = new PDPageContentStream(doc, pdPage)) {
+                    cs.drawImage(pdImage, 0, 0);
                 }
             }
             doc.save(pdf.toFile());
@@ -187,6 +233,13 @@ public class MigrationService {
         return pdf;
     }
 
+    /**
+     * Build xml archival metadata.
+     *
+     * @param sourceMetadata the source metadata
+     * @param ctx            the ctx
+     * @return the archival metadata
+     */
     public ArchivalMetadata buildXml(SourceMetadata sourceMetadata, MigrationContext ctx) {
         ArchivalMetadata metadata = new ArchivalMetadata();
 
@@ -213,6 +266,13 @@ public class MigrationService {
         return metadata;
     }
 
+    /**
+     * Unzip tiff pages list.
+     *
+     * @param zipBytes the zip bytes
+     * @return the list
+     * @throws IOException the io exception
+     */
     public List<TiffPage> unzipTiffPages(byte[] zipBytes) throws IOException {
         var pages = new ArrayList<TiffPage>();
 
@@ -236,12 +296,30 @@ public class MigrationService {
         return pages;
     }
 
+    /**
+     * Transform metadata to xml string.
+     *
+     * @param meta the meta
+     * @param ctx  the ctx
+     * @return the string
+     * @throws JsonProcessingException the json processing exception
+     */
     public String transformMetadataToXml(SourceMetadata meta, MigrationContext ctx) throws JsonProcessingException {
         return xmlMapper.writeValueAsString(buildXml(Objects.requireNonNull(meta), ctx));
     }
 
+    /**
+     * Gets detected mime type.
+     *
+     * @param in the in
+     * @return the detected mime type
+     * @throws IOException the io exception
+     */
     public String getDetectedMimeType(InputStream in) throws IOException {
-        Tika t = new Tika();
-        return t.detect(in);
+        return new Tika().detect(in);
+    }
+
+    public String getDetectedMimeType(byte[] bytes) {
+        return new Tika().detect(bytes);
     }
 }

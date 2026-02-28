@@ -9,12 +9,20 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
+/**
+ * The type Transform metadata delegate.
+ */
 @Slf4j
 @Component("transformMetadata")
 public class TransformMetadataDelegate implements JavaDelegate {
 
     private final MigrationService migrationService;
 
+    /**
+     * Instantiates a new Transform metadata delegate.
+     *
+     * @param migrationService the migration service
+     */
     public TransformMetadataDelegate(MigrationService migrationService) {
         this.migrationService = migrationService;
     }

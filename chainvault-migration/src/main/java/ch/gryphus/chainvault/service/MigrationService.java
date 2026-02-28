@@ -78,14 +78,15 @@ public class MigrationService {
                         .uri("/documents/{id}", docId)
                         .accept(MediaType.APPLICATION_JSON)
                         .exchange(
-                                (request1, response1) -> {
-                                    if (response1.getStatusCode().is4xxClientError()) {
+                                (request, response) -> {
+                                    if (response.getStatusCode().is4xxClientError()) {
                                         throw new MigrationServiceException(
-                                                docId,
-                                                response1.getStatusCode(),
-                                                response1.getHeaders());
+                                                "Unable to find document with id: %s"
+                                                        .formatted(docId),
+                                                response.getStatusCode(),
+                                                response.getHeaders());
                                     } else {
-                                        return response1.bodyTo(SourceMetadata.class);
+                                        return response.bodyTo(SourceMetadata.class);
                                     }
                                 });
 
@@ -100,7 +101,8 @@ public class MigrationService {
                                     (request, response) -> {
                                         if (response.getStatusCode().is4xxClientError()) {
                                             throw new MigrationServiceException(
-                                                    docId,
+                                                    "Unable to find payload for document with id: %s"
+                                                            .formatted(docId),
                                                     response.getStatusCode(),
                                                     response.getHeaders());
                                         } else {

@@ -3,8 +3,7 @@
  */
 package ch.gryphus.chainvault.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -53,6 +52,7 @@ import tools.jackson.dataformat.xml.XmlMapper;
 /**
  * The type Migration service test.
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 @MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 class MigrationServiceTest {
@@ -108,27 +108,23 @@ class MigrationServiceTest {
         meta.setHash("sha256-abc123");
         meta.setAccountNo("ACC-123");
         meta.setPayloadUrl("/payload/12345.zip");
-    }
 
-    @Test
-    void testExtractAndHash() throws Exception {
-        // Setup
-        // 1. Mock the Chain
         when(mockRestClient.get()).thenReturn(mockRequestHeadersUriSpec);
         when(mockRequestHeadersUriSpec.uri(anyString(), any(Object[].class)))
                 .thenReturn(mockRequestHeadersSpec);
         when(mockRequestHeadersSpec.accept(any())).thenReturn(mockRequestHeadersSpec);
+    }
 
-        // 2. Mock the .exchange() behavior
+    @Test
+    void testExtractAndHash_whenDocumentsExist() throws Exception {
+        // Setup
         when(mockRequestHeadersSpec.exchange(
                         any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))
                 .thenAnswer(
                         invocation -> {
-                            // This is the lambda from your service code
                             RestClient.RequestHeadersSpec.ExchangeFunction function =
                                     invocation.getArgument(0);
 
-                            // Set up what the mock response should return
                             when(mockResponse.getStatusCode()).thenReturn(HttpStatus.OK);
                             when(mockResponse.bodyTo(SourceMetadata.class)).thenReturn(meta);
                             when(mockResponse.bodyTo(byte[].class)).thenReturn(new byte[] {});
@@ -136,14 +132,59 @@ class MigrationServiceTest {
                             // Execute the lambda manually
                             return function.exchange(null, mockResponse);
                         });
-        // 2. Execute
-        final Map<String, Object> result = migrationServiceUnderTest.extractAndHash("docId");
 
-        // 3. Verify
+        final Map<String, Object> result = migrationServiceUnderTest.extractAndHash("DOC-TEST-001");
+
         assertThat(result).hasSize(3);
         var context = result.get("ctx");
         assertThat(context).isInstanceOf(MigrationContext.class);
         assertThat(((MigrationContext) context).getPayloadHash()).isNotNull();
+    }
+
+    @Test
+    void testExtractAndHash_whenDocumentDoesNotExist() {
+        // Setup
+        when(mockRequestHeadersSpec.exchange(
+                        any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))
+                .thenAnswer(
+                        invocation -> {
+                            RestClient.RequestHeadersSpec.ExchangeFunction function =
+                                    invocation.getArgument(0);
+
+                            when(mockResponse.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
+
+                            // Execute the lambda manually
+                            return function.exchange(null, mockResponse);
+                        });
+
+        String docId = "DOC-NOT-EXISTS-001";
+        assertThatExceptionOfType(MigrationServiceException.class)
+                .isThrownBy(() -> migrationServiceUnderTest.extractAndHash(docId))
+                .withMessageContaining("Unable to find document with id: " + docId);
+    }
+
+    @Test
+    void testExtractAndHash_whenPayloadDoesNotExist() {
+        when(mockRestClient.get()).thenReturn(mockRequestHeadersUriSpec);
+        when(mockRequestHeadersUriSpec.uri(anyString())).thenReturn(mockRequestHeadersSpec);
+        when(mockRequestHeadersSpec.accept(any())).thenReturn(mockRequestHeadersSpec);
+
+        when(mockRequestHeadersSpec.exchange(
+                        any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))
+                .thenAnswer(
+                        invocation -> {
+                            RestClient.RequestHeadersSpec.ExchangeFunction function =
+                                    invocation.getArgument(0);
+
+                            when(mockResponse.bodyTo(SourceMetadata.class)).thenReturn(meta);
+                            when(mockResponse.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
+
+                            return function.exchange(null, mockResponse);
+                        });
+
+        String docId = "DOC-NO-PAYLOAD-002";
+        assertThatExceptionOfType(MigrationServiceException.class)
+                .isThrownBy(() -> migrationServiceUnderTest.extractAndHash(docId));
     }
 
     /**

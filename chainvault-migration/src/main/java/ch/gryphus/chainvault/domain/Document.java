@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 package ch.gryphus.chainvault.domain;
 
 import jakarta.xml.bind.annotation.XmlAccessType;

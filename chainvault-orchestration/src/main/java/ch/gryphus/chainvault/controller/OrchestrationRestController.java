@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 package ch.gryphus.chainvault.controller;
 
 import ch.gryphus.chainvault.service.OrchestrationService;

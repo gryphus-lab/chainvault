@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 package ch.gryphus.chainvault.service;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -4,7 +4,7 @@ COPY pom.xml mvnw* ./
 COPY chainvault-migration ./chainvault-migration
 COPY chainvault-orchestration ./chainvault-orchestration
 COPY chainvault-report-aggregate ./chainvault-report-aggregate
-RUN mvn -DskipTests -q install
+RUN mvn -DskipTests -q package
 
 FROM eclipse-temurin:21-jdk-alpine
 ARG CHAINVAULT_VERSION=0.0.1-SNAPSHOT

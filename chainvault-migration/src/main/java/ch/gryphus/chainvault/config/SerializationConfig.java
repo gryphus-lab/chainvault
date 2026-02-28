@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.xml.XmlMapper;
 
 /**
@@ -19,7 +20,7 @@ public class SerializationConfig {
     /**
      * Object mapper object mapper.
      *
-     * @return the object mapper
+     * @return  the object mapper
      */
     @Bean
     @Primary
@@ -28,9 +29,19 @@ public class SerializationConfig {
     }
 
     /**
+     * Json mapper json mapper.
+     *
+     * @return  the json mapper
+     */
+    @Bean
+    public JsonMapper jsonMapper() {
+        return new JsonMapper();
+    }
+
+    /**
      * Xml mapper xml mapper.
      *
-     * @return the xml mapper
+     * @return  the xml mapper
      */
     @Bean
     public XmlMapper xmlMapper() {
@@ -40,7 +51,7 @@ public class SerializationConfig {
     /**
      * Tika tika.
      *
-     * @return the tika
+     * @return  the tika
      */
     @Bean
     public Tika tika() {

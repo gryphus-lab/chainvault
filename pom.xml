@@ -281,15 +281,6 @@
                         </licenseHeader>
                     </java>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>check</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

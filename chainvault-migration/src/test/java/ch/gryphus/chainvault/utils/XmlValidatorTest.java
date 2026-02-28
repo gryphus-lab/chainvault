@@ -9,16 +9,33 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class XmlValidatorTest {
+    @BeforeEach
+    void setUp() {
+        XmlValidator.setXsdPath("src/test/resources/xmls/ArchivalMetadata.xsd");
+    }
 
     @SneakyThrows
     @Test
-    void testIsValid() {
+    void testValidXML() {
         assertThat(
-                XmlValidator.isValid(
-                        Files.readString(Path.of("src/test/resources/xmls/valid-test.xml"))));
+                        XmlValidator.isValid(
+                                Files.readString(
+                                        Path.of("src/test/resources/xmls/valid-test.xml"))))
+                .isTrue();
+    }
+
+    @SneakyThrows
+    @Test
+    void testInvalidXML() {
+        assertThat(
+                        XmlValidator.isValid(
+                                Files.readString(
+                                        Path.of("src/test/resources/xmls/invalid-test.xml"))))
+                .isFalse();
     }
 
     @Test

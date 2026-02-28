@@ -54,9 +54,13 @@
         <liquibase-maven-plugin.version>4.23.2</liquibase-maven-plugin.version>
         <xmlunit.version>2.11.0</xmlunit.version>
 
-        <sonar.organization>gryphus-lab</sonar.organization>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <spotless.version>3.2.1</spotless.version>
+
+        <sonar.organization>gryphus-lab</sonar.organization>
+
+        <!-- exclude spring boot configuration classes -->
+        <sonar.exclusions>**/config/**.*</sonar.exclusions>
     </properties>
     <profiles>
         <profile>

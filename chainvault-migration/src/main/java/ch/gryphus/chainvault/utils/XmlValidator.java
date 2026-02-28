@@ -43,8 +43,6 @@ public class XmlValidator {
      *
      * @param xmlString the xml string
      * @return the boolean
-     * @throws IOException  the io exception
-     * @throws SAXException the sax exception
      */
     public static boolean isValid(String xmlString) {
         try {
@@ -58,6 +56,11 @@ public class XmlValidator {
         }
     }
 
+    /**
+     * Sets xsd path.
+     *
+     * @param xsdPath the xsd path
+     */
     public static void setXsdPath(String xsdPath) {
         XmlValidator.xsdPath = xsdPath;
     }

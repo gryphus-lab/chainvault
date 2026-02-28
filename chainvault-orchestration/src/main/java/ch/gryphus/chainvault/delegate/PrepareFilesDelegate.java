@@ -43,6 +43,7 @@ public class PrepareFilesDelegate implements JavaDelegate {
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
         Path zipPath;
         try {
+            migrationService.setWorkingDirectory("/tmp");
             zipPath = migrationService.createChainZip(docId, pages, meta, ctx);
             ctx.setZipHash(HashUtils.sha256(zipPath));
         } catch (IOException | NoSuchAlgorithmException e) {

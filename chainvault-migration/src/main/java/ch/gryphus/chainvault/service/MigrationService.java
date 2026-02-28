@@ -3,9 +3,8 @@ package ch.gryphus.chainvault.service;
 import ch.gryphus.chainvault.config.SftpTargetConfig;
 import ch.gryphus.chainvault.domain.*;
 import ch.gryphus.chainvault.utils.HashUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -20,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import tools.jackson.core.JacksonException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -147,7 +147,7 @@ public class MigrationService {
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
             for (int i = 0; i < pages.size(); i++) {
                 TiffPage page = pages.get(i);
-                String entryName = String.format("page-%03d_%s", i + 1, page.name());
+                String entryName = "page-%03d_%s".formatted(i + 1, page.name());
 
                 zos.putNextEntry(new ZipEntry(entryName));
                 zos.write(page.data());
@@ -302,9 +302,9 @@ public class MigrationService {
      * @param meta the meta
      * @param ctx  the ctx
      * @return the string
-     * @throws JsonProcessingException the json processing exception
+     * @throws JacksonException the json processing exception
      */
-    public String transformMetadataToXml(SourceMetadata meta, MigrationContext ctx) throws JsonProcessingException {
+    public String transformMetadataToXml(SourceMetadata meta, MigrationContext ctx) throws JacksonException {
         return xmlMapper.writeValueAsString(buildXml(Objects.requireNonNull(meta), ctx));
     }
 

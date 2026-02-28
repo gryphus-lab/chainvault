@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
@@ -42,7 +42,7 @@ class DockerServicesE2EIT {
      * The constant postgres.
      */
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+    static PostgreSQLContainer postgres = new PostgreSQLContainer(
             DockerImageName.parse("postgres:16-alpine"))
             .withDatabaseName(DB_NAME)
             .withUsername(DB_USER)

@@ -6,8 +6,8 @@ import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.utils.HashUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import org.apache.commons.io.input.BrokenInputStream;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -158,8 +157,8 @@ class MigrationServiceTest {
         when(mockSftpTargetConfig.getRemoteDirectory()).thenReturn("result");
 
         // Run the test
-        migrationServiceUnderTest.uploadToSftp(ctx, "docId", "xml", Paths.get("filename.txt"),
-                Paths.get("filename.txt"));
+        migrationServiceUnderTest.uploadToSftp(ctx, "docId", "xml", Path.of("filename.txt"),
+                Path.of("filename.txt"));
 
         // Verify the results
         verify(mockSftpRemoteFileTemplate).execute(any(SessionCallback.class));

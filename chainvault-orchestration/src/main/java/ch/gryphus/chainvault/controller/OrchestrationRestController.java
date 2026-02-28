@@ -1,7 +1,6 @@
 package ch.gryphus.chainvault.controller;
 
 import ch.gryphus.chainvault.service.OrchestrationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,6 @@ public class OrchestrationRestController {
      *
      * @param orchestrationService the orchestration service
      */
-    @Autowired
     public OrchestrationRestController(OrchestrationService orchestrationService) {
         this.orchestrationService = orchestrationService;
     }

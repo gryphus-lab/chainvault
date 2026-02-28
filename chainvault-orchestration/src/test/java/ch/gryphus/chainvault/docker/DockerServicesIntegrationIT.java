@@ -3,10 +3,10 @@ package ch.gryphus.chainvault.docker;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ class DockerServicesIntegrationIT {
      * The constant postgresContainer.
      */
     @Container
-    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(
+    static PostgreSQLContainer postgresContainer = new PostgreSQLContainer(
             DockerImageName.parse("postgres:16-alpine"))
             .withDatabaseName("chainvault")
             .withUsername("chainvault")

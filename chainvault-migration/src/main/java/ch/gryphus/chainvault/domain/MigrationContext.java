@@ -18,6 +18,9 @@ public class MigrationContext {
 
     /**
      * Add page hash.
+     *
+     * @param name     the name
+     * @param pageHash the page hash
      */
     public void addPageHash(String name, String pageHash) {
         pageHashes.put(name, pageHash);

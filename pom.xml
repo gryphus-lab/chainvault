@@ -52,6 +52,8 @@
         <testcontainers.version>2.0.3</testcontainers.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <liquibase-maven-plugin.version>4.23.2</liquibase-maven-plugin.version>
+        <xmlunit.version>2.11.0</xmlunit.version>
+
         <sonar.organization>gryphus-lab</sonar.organization>
     </properties>
     <profiles>
@@ -210,6 +212,12 @@
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-postgresql</artifactId>
                 <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-core</artifactId>
+                <version>${xmlunit.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

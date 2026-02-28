@@ -11,6 +11,13 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class RestClientConfig {
 
+    /**
+     * Rest client rest client.
+     *
+     * @param baseUrl the base url
+     * @param token   the token
+     * @return the rest client
+     */
     @Bean
     public RestClient restClient(
             @Value("${source.api.base-url:https://legacy-api.example.com}") String baseUrl,

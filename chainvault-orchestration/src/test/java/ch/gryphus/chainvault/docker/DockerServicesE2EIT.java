@@ -26,8 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.awaitility.Awaitility.await;
 
 /**
- * End-to-End Docker service integration test
- * Validates all services working together in the Docker ecosystem
+ * The type Docker services e 2 eit.
  */
 @Testcontainers
 @DisplayName("Docker Services End-to-End Integration Tests")
@@ -40,7 +39,7 @@ class DockerServicesE2EIT {
     private static final String DB_PASSWORD = "secret";
 
     /**
-     * PostgreSQL database service
+     * The constant postgres.
      */
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
@@ -54,7 +53,7 @@ class DockerServicesE2EIT {
             .withStartupTimeout(Duration.ofSeconds(120));
 
     /**
-     * SFTP file transfer service
+     * The constant sftp.
      */
     @Container
     static GenericContainer<?> sftp = new GenericContainer<>(
@@ -65,7 +64,7 @@ class DockerServicesE2EIT {
             .withStartupTimeout(Duration.ofSeconds(120));
 
     /**
-     * Fake REST API service
+     * The constant api.
      */
     @Container
     static GenericContainer<?> api = new GenericContainer<>(
@@ -78,6 +77,9 @@ class DockerServicesE2EIT {
             .waitingFor(Wait.forHttp("/").forStatusCode(200))
             .withStartupTimeout(Duration.ofSeconds(120));
 
+    /**
+     * Test all services healthy.
+     */
     @Test
     @DisplayName("All services should be running and healthy")
     void testAllServicesHealthy() {
@@ -86,6 +88,9 @@ class DockerServicesE2EIT {
         assertThat(api.isRunning()).isTrue();
     }
 
+    /**
+     * Test postgres connectivity.
+     */
     @Test
     @DisplayName("Should connect to PostgreSQL from all external services")
     void testPostgresConnectivity() {
@@ -103,6 +108,9 @@ class DockerServicesE2EIT {
         });
     }
 
+    /**
+     * Test api connectivity.
+     */
     @Test
     @DisplayName("Should retrieve documents from API service")
     void testApiConnectivity() {
@@ -126,6 +134,9 @@ class DockerServicesE2EIT {
                 });
     }
 
+    /**
+     * Test sftp connectivity.
+     */
     @Test
     @DisplayName("Should access SFTP file system")
     void testSftpConnectivity() {
@@ -135,6 +146,11 @@ class DockerServicesE2EIT {
         });
     }
 
+    /**
+     * Test sftp upload capability.
+     *
+     * @throws Exception the exception
+     */
     @Test
     @DisplayName("SFTP should allow file uploads")
     void testSftpUploadCapability() throws Exception {
@@ -150,6 +166,9 @@ class DockerServicesE2EIT {
         sftp.execInContainer("rm", "/home/testuser/upload/e2e-test.txt");
     }
 
+    /**
+     * Test postgres concurrent connections.
+     */
     @Test
     @DisplayName("PostgreSQL should handle concurrent connections")
     void testPostgresConcurrentConnections() {
@@ -181,6 +200,9 @@ class DockerServicesE2EIT {
         assertThat(allSuccess.get()).isTrue();
     }
 
+    /**
+     * Test api http access.
+     */
     @Test
     @DisplayName("API service should be accessible via HTTP")
     void testApiHttpAccess() {
@@ -204,6 +226,9 @@ class DockerServicesE2EIT {
                 });
     }
 
+    /**
+     * Test service stability.
+     */
     @Test
     @DisplayName("Services should remain running for extended period")
     void testServiceStability() {
@@ -221,6 +246,11 @@ class DockerServicesE2EIT {
         assertThat(api.isRunning()).isTrue();
     }
 
+    /**
+     * Test postgres database initialization.
+     *
+     * @throws Exception the exception
+     */
     @Test
     @DisplayName("PostgreSQL should have proper database initialized")
     void testPostgresDatabaseInitialization() throws Exception {
@@ -236,6 +266,9 @@ class DockerServicesE2EIT {
         }
     }
 
+    /**
+     * Test dynamic sftp port allocation.
+     */
     @Test
     @DisplayName("SFTP port should be dynamically allocated")
     void testDynamicSftpPortAllocation() {
@@ -243,6 +276,11 @@ class DockerServicesE2EIT {
         assertThat(mappedPort).isPositive().isGreaterThan(1024); // Should be ephemeral port
     }
 
+    /**
+     * Test data persistence.
+     *
+     * @throws Exception the exception
+     */
     @Test
     @DisplayName("Services should maintain data persistence")
     void testDataPersistence() throws Exception {
@@ -260,6 +298,9 @@ class DockerServicesE2EIT {
         sftp.execInContainer("rm", "/home/testuser/upload/persistent.txt");
     }
 
+    /**
+     * Test api timeout handling.
+     */
     @Test
     @DisplayName("Should handle API timeout gracefully")
     void testApiTimeoutHandling() {

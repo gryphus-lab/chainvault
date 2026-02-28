@@ -8,12 +8,20 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * The type Extract and hash delegate.
+ */
 @Slf4j
 @Component("extractAndHash")
 public class ExtractAndHashDelegate implements JavaDelegate {
 
     private final MigrationService migrationService;
 
+    /**
+     * Instantiates a new Extract and hash delegate.
+     *
+     * @param migrationService the migration service
+     */
     public ExtractAndHashDelegate(MigrationService migrationService) {
         this.migrationService = migrationService;
     }

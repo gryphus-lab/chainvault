@@ -16,10 +16,20 @@ public class SftpTargetConfig {
 
     private final SftpProperties props;
 
+    /**
+     * Instantiates a new Sftp target config.
+     *
+     * @param props the props
+     */
     public SftpTargetConfig(SftpProperties props) {
         this.props = props;
     }
 
+    /**
+     * Sftp session factory caching session factory.
+     *
+     * @return the caching session factory
+     */
     @Bean
     public CachingSessionFactory<SftpClient.DirEntry> sftpSessionFactory() {
         DefaultSftpSessionFactory factory = new DefaultSftpSessionFactory(true);
@@ -43,11 +53,22 @@ public class SftpTargetConfig {
         return new CachingSessionFactory<>(factory, 10);
     }
 
+    /**
+     * Sftp remote file template sftp remote file template.
+     *
+     * @param sessionFactory the session factory
+     * @return the sftp remote file template
+     */
     @Bean
     public SftpRemoteFileTemplate sftpRemoteFileTemplate(SessionFactory<SftpClient.DirEntry> sessionFactory) {
         return new SftpRemoteFileTemplate(sessionFactory);
     }
 
+    /**
+     * Gets remote directory.
+     *
+     * @return the remote directory
+     */
     public String getRemoteDirectory() {
         return props.getRemoteDirectory();
     }

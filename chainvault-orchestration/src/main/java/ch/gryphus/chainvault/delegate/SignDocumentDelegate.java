@@ -12,12 +12,20 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+/**
+ * The type Sign document delegate.
+ */
 @Slf4j
 @Component("signDocument")
 public class SignDocumentDelegate implements JavaDelegate {
 
     private final MigrationService migrationService;
 
+    /**
+     * Instantiates a new Sign document delegate.
+     *
+     * @param migrationService the migration service
+     */
     public SignDocumentDelegate(MigrationService migrationService) {
         this.migrationService = migrationService;
     }

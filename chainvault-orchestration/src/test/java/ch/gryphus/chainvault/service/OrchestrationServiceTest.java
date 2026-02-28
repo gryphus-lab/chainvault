@@ -15,6 +15,9 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+/**
+ * The type Orchestration service test.
+ */
 @ExtendWith(MockitoExtension.class)
 class OrchestrationServiceTest {
 
@@ -26,12 +29,18 @@ class OrchestrationServiceTest {
     @Mock
     private ProcessInstance mockProcessInstance;
 
+    /**
+     * Sets up.
+     */
     @BeforeEach
     void setUp() {
         orchestrationServiceUnderTest = new OrchestrationService(mockRuntimeService);
         when(mockProcessInstance.getProcessInstanceId()).thenReturn("test");
     }
 
+    /**
+     * Test start process.
+     */
     @Test
     void testStartProcess() {
         // Setup

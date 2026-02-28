@@ -88,29 +88,29 @@ public class MigrationService {
                                         return response.bodyTo(SourceMetadata.class);
                                     }
                                 });
-        if (meta != null) {
-            map.put("meta", meta);
-            if (meta.getPayloadUrl() != null) {
-                payload =
-                        restClient
-                                .get()
-                                .uri(meta.getPayloadUrl())
-                                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                                .exchange(
-                                        (request, response) -> {
-                                            if (response.getStatusCode().is4xxClientError()) {
-                                                throw new MigrationServiceException(
-                                                        docId,
-                                                        response.getStatusCode(),
-                                                        response.getHeaders());
-                                            } else {
-                                                return response.bodyTo(byte[].class);
-                                            }
-                                        });
-                ctx.setPayloadHash(HashUtils.sha256(payload));
-                map.put("payload", payload);
-            }
+
+        map.put("meta", meta);
+        if (meta.getPayloadUrl() != null) {
+            payload =
+                    restClient
+                            .get()
+                            .uri(meta.getPayloadUrl())
+                            .accept(MediaType.APPLICATION_OCTET_STREAM)
+                            .exchange(
+                                    (request, response) -> {
+                                        if (response.getStatusCode().is4xxClientError()) {
+                                            throw new MigrationServiceException(
+                                                    docId,
+                                                    response.getStatusCode(),
+                                                    response.getHeaders());
+                                        } else {
+                                            return response.bodyTo(byte[].class);
+                                        }
+                                    });
+            ctx.setPayloadHash(HashUtils.sha256(payload));
+            map.put("payload", payload);
         }
+
         return map;
     }
 

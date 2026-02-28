@@ -12,20 +12,27 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
 /**
  * The type Xml validator.
  */
-@RequiredArgsConstructor
 public class XmlValidator {
+
+    private XmlValidator() {
+        // empty constructor
+    }
 
     private static String xsdPath;
 
     private static Validator initValidator(String xsdPath) throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
         Source schemaFile = new StreamSource(new File(xsdPath));
         Schema schema = factory.newSchema(schemaFile);
         return schema.newValidator();

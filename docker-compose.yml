@@ -1,5 +1,4 @@
-version: '3.9'
-
+# docker-compose.yml for chainvault
 services:
 
   chainvault-app:

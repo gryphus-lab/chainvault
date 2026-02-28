@@ -1,13 +1,29 @@
 package ch.gryphus.chainvault.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import ch.gryphus.chainvault.config.SftpTargetConfig;
 import ch.gryphus.chainvault.domain.ArchivalMetadata;
 import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.utils.HashUtils;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.dataformat.xml.XmlMapper;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.input.BrokenInputStream;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -27,25 +43,8 @@ import org.springframework.web.client.RestClient;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 /**
  * The type Migration service test.
@@ -53,18 +52,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class MigrationServiceTest {
 
-    @Mock
-    private RestClient mockRestClient;
-    @Mock
-    private RestClient.RequestHeadersUriSpec mockRwquestSpec;
-    @Mock
-    private RestClient.ResponseSpec responseSpec;
-    @Mock
-    private SftpRemoteFileTemplate mockSftpRemoteFileTemplate;
-    @Mock
-    private SftpTargetConfig mockSftpTargetConfig;
-    @Mock
-    private Tika mockTika;
+    @Mock private RestClient mockRestClient;
+    @Mock private RestClient.RequestHeadersUriSpec mockRwquestSpec;
+    @Mock private RestClient.ResponseSpec responseSpec;
+    @Mock private SftpRemoteFileTemplate mockSftpRemoteFileTemplate;
+    @Mock private SftpTargetConfig mockSftpTargetConfig;
+    @Mock private Tika mockTika;
 
     // Constructed manually in setup() to avoid Mockito type-based injection confusion
     private MigrationService migrationServiceUnderTest;
@@ -76,8 +69,14 @@ class MigrationServiceTest {
      */
     @BeforeEach
     void setUp() {
-        migrationServiceUnderTest = new MigrationService(mockRestClient, mockSftpRemoteFileTemplate,
-                mockSftpTargetConfig, new XmlMapper(), new ObjectMapper(), mockTika);
+        migrationServiceUnderTest =
+                new MigrationService(
+                        mockRestClient,
+                        mockSftpRemoteFileTemplate,
+                        mockSftpTargetConfig,
+                        new XmlMapper(),
+                        new ObjectMapper(),
+                        mockTika);
 
         migrationServiceUnderTest.setWorkingDirectory("/tmp");
 
@@ -108,10 +107,10 @@ class MigrationServiceTest {
         // Setup
         // Configure RestClient.get(...).
 
-
         // Make fluent chain return itself (common pattern)
         when(mockRestClient.get()).thenReturn(mockRwquestSpec);
-        when(mockRwquestSpec.uri(anyString(), Optional.ofNullable(any()))).thenReturn(mockRwquestSpec);
+        when(mockRwquestSpec.uri(anyString(), Optional.ofNullable(any())))
+                .thenReturn(mockRwquestSpec);
         when(mockRwquestSpec.retrieve()).thenReturn(responseSpec);
 
         // Run the test
@@ -157,8 +156,8 @@ class MigrationServiceTest {
         when(mockSftpTargetConfig.getRemoteDirectory()).thenReturn("result");
 
         // Run the test
-        migrationServiceUnderTest.uploadToSftp(ctx, "docId", "xml", Path.of("filename.txt"),
-                Path.of("filename.txt"));
+        migrationServiceUnderTest.uploadToSftp(
+                ctx, "docId", "xml", Path.of("filename.txt"), Path.of("filename.txt"));
 
         // Verify the results
         verify(mockSftpRemoteFileTemplate).execute(any(SessionCallback.class));
@@ -172,10 +171,16 @@ class MigrationServiceTest {
     @Test
     void testMergeTiffToPdf_HappyPath() throws Exception {
         // Setup
-        final List<TiffPage> pages = List.of(
-                new TiffPage("sample1.tiff", Files.readAllBytes(Path.of("src/test/resources/tiffs/sample1.tiff"))),
-                new TiffPage("sample2.tiff", Files.readAllBytes(Path.of("src/test/resources/tiffs/sample2.tiff")))
-        );
+        final List<TiffPage> pages =
+                List.of(
+                        new TiffPage(
+                                "sample1.tiff",
+                                Files.readAllBytes(
+                                        Path.of("src/test/resources/tiffs/sample1.tiff"))),
+                        new TiffPage(
+                                "sample2.tiff",
+                                Files.readAllBytes(
+                                        Path.of("src/test/resources/tiffs/sample2.tiff"))));
 
         // Run the test
         final Path result = migrationServiceUnderTest.mergeTiffToPdf(pages, "docId");
@@ -183,7 +188,8 @@ class MigrationServiceTest {
         // Verify the results
         assertThat(result.toFile()).exists();
         byte[] resultBytes = Files.readAllBytes(result);
-        assertThat(migrationServiceUnderTest.getDetectedMimeType(resultBytes)).isEqualTo("application/pdf");
+        assertThat(migrationServiceUnderTest.getDetectedMimeType(resultBytes))
+                .isEqualTo("application/pdf");
     }
 
     /**
@@ -211,11 +217,14 @@ class MigrationServiceTest {
         final String result = migrationServiceUnderTest.transformMetadataToXml(meta, ctx);
 
         // Verify the results
-        Diff diff = DiffBuilder.compare(Input.fromFile("src/test/resources/xmls/ArchivalMetadata.xml"))
-                .withTest(result)
-                // Ignore all nodes with 'Date' name
-                .withNodeFilter(node -> !"migrationTimestamp".equals(node.getNodeName()))
-                .build();
+        String xmlFilename = "src/test/resources/xmls/ArchivalMetadata.xml";
+        Diff diff =
+                DiffBuilder.compare(Input.fromFile(xmlFilename))
+                        .withTest(result)
+                        .ignoreWhitespace()
+                        // Ignore all nodes with 'Date' name
+                        .withNodeFilter(node -> !"migrationTimestamp".equals(node.getNodeName()))
+                        .build();
 
         assertThat(diff.hasDifferences()).isFalse();
     }
@@ -263,7 +272,8 @@ class MigrationServiceTest {
         final InputStream in = new BrokenInputStream();
 
         // Run the test
-        assertThatThrownBy(() -> migrationServiceUnderTest.getDetectedMimeType(in)).isInstanceOf(IOException.class);
+        assertThatThrownBy(() -> migrationServiceUnderTest.getDetectedMimeType(in))
+                .isInstanceOf(IOException.class);
     }
 
     /**
@@ -271,16 +281,17 @@ class MigrationServiceTest {
      *
      * @throws Exception the exception
      */
-// ────────────────────────────────────────────────
+    // ────────────────────────────────────────────────
     // unzipTiffPages
     // ────────────────────────────────────────────────
     @Test
     void unzipTiffPages_shouldExtractAndPreserveOrder() throws Exception {
-        byte[] zip = createZipWithTiffs(List.of(
-                "page-001.tif", "TIFF content 1",
-                "page-002.tif", "TIFF content 2",
-                "page-003.tif", "TIFF content 3"
-        ));
+        byte[] zip =
+                createZipWithTiffs(
+                        List.of(
+                                "page-001.tif", "TIFF content 1",
+                                "page-002.tif", "TIFF content 2",
+                                "page-003.tif", "TIFF content 3"));
 
         List<TiffPage> pages = migrationServiceUnderTest.unzipTiffPages(zip);
 
@@ -298,11 +309,12 @@ class MigrationServiceTest {
      */
     @Test
     void unzipTiffPages_shouldIgnoreNonTiffFiles() throws Exception {
-        byte[] zip = createZipWithTiffs(List.of(
-                "page-001.tif", "TIFF1",
-                "readme.txt", "ignore me",
-                "page-002.tif", "TIFF2"
-        ));
+        byte[] zip =
+                createZipWithTiffs(
+                        List.of(
+                                "page-001.tif", "TIFF1",
+                                "readme.txt", "ignore me",
+                                "page-002.tif", "TIFF2"));
 
         List<TiffPage> pages = migrationServiceUnderTest.unzipTiffPages(zip);
 
@@ -317,9 +329,7 @@ class MigrationServiceTest {
      */
     @Test
     void unzipTiffPages_shouldThrowWhenNoTiffs() throws Exception {
-        byte[] zip = createZipWithTiffs(List.of(
-                "readme.txt", "no tiffs here"
-        ));
+        byte[] zip = createZipWithTiffs(List.of("readme.txt", "no tiffs here"));
 
         assertThatThrownBy(() -> migrationServiceUnderTest.unzipTiffPages(zip))
                 .isInstanceOf(IllegalStateException.class)
@@ -331,7 +341,7 @@ class MigrationServiceTest {
      *
      * @throws Exception the exception
      */
-// ────────────────────────────────────────────────
+    // ────────────────────────────────────────────────
     // createChainZip
     // ────────────────────────────────────────────────
     @Test
@@ -340,10 +350,16 @@ class MigrationServiceTest {
         assertThat(meta).isNotNull();
         assertThat(meta.getTitle()).isNotNull(); // fail fast if setup broken
 
-        List<TiffPage> pages = List.of(
-                new TiffPage("sample1.tiff", Files.readAllBytes(Path.of("src/test/resources/tiffs/sample1.tiff"))),
-                new TiffPage("sample2.tiff", Files.readAllBytes(Path.of("src/test/resources/tiffs/sample2.tiff")))
-        );
+        List<TiffPage> pages =
+                List.of(
+                        new TiffPage(
+                                "sample1.tiff",
+                                Files.readAllBytes(
+                                        Path.of("src/test/resources/tiffs/sample1.tiff"))),
+                        new TiffPage(
+                                "sample2.tiff",
+                                Files.readAllBytes(
+                                        Path.of("src/test/resources/tiffs/sample2.tiff"))));
         ctx.addPageHash("sample1.tiff", "hash-page1");
         ctx.addPageHash("sample2.tiff", "hash-page2");
 
@@ -369,11 +385,14 @@ class MigrationServiceTest {
 
             assertThat(tiffCount).isEqualTo(2);
             assertThat(manifestContent).isNotNull();
-            String expectedManifestContent = """
+            String expectedManifestContent =
+                    """
                     {"docId":"DOC-TEST-001","pageCount":2,"pageHashes":{"sample1.tiff"\
                     :"hash-page1"},"payloadHash":"payload-sha256-abc123","sourceMetadata":\
-                    {"docId":"DOC-TEST-001","title":"Test Invoice 2026","clientId":"CHE-123.456.789"}}""";
-            JSONAssert.assertEquals(expectedManifestContent, manifestContent, JSONCompareMode.LENIENT);
+                    {"docId":"DOC-TEST-001","title":"Test Invoice 2026","clientId":"CHE-123.456.789"}}\
+                    """;
+            JSONAssert.assertEquals(
+                    expectedManifestContent, manifestContent, JSONCompareMode.LENIENT);
         }
     }
 
@@ -382,14 +401,15 @@ class MigrationServiceTest {
      */
     @Test
     void createChainZip_shouldFailOnNullPages() {
-        assertThatThrownBy(() -> migrationServiceUnderTest.createChainZip("DOC-001", null, meta, ctx))
+        assertThatThrownBy(
+                        () -> migrationServiceUnderTest.createChainZip("DOC-001", null, meta, ctx))
                 .isInstanceOf(NullPointerException.class);
     }
 
     /**
      * Build xml should fill all relevant fields.
      */
-// ────────────────────────────────────────────────
+    // ────────────────────────────────────────────────
     // buildXml
     // ────────────────────────────────────────────────
     @Test
@@ -433,15 +453,21 @@ class MigrationServiceTest {
      *
      * @throws Exception the exception
      */
-// ────────────────────────────────────────────────
+    // ────────────────────────────────────────────────
     // mergeTiffToPdf
     // ────────────────────────────────────────────────
     @Test
     void mergeTiffToPdf_shouldCreatePdfWithCorrectPageCount() throws Exception {
-        List<TiffPage> pages = List.of(
-                new TiffPage("sample1.tif", Files.readAllBytes(Path.of("src/test/resources/tiffs/sample1.tiff"))),
-                new TiffPage("sample2.tif", Files.readAllBytes(Path.of("src/test/resources/tiffs/sample2.tiff")))
-        );
+        List<TiffPage> pages =
+                List.of(
+                        new TiffPage(
+                                "sample1.tif",
+                                Files.readAllBytes(
+                                        Path.of("src/test/resources/tiffs/sample1.tiff"))),
+                        new TiffPage(
+                                "sample2.tif",
+                                Files.readAllBytes(
+                                        Path.of("src/test/resources/tiffs/sample2.tiff"))));
         Path pdfPath = migrationServiceUnderTest.mergeTiffToPdf(pages, "DOC-TEST-PDF");
 
         assertThat(Files.exists(pdfPath)).isTrue();

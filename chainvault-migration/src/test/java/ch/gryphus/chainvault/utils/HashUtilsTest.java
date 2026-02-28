@@ -1,14 +1,13 @@
 package ch.gryphus.chainvault.utils;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * The type Hash utils test.
@@ -18,8 +17,7 @@ class HashUtilsTest {
     /**
      * The Temp dir.
      */
-    @TempDir
-    Path tempDir;
+    @TempDir Path tempDir;
 
     /**
      * Test sha 2561 with file paths.

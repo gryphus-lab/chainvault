@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Primary;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.dataformat.xml.XmlMapper;
 
-
 /**
  * The type Serialization config.
  */

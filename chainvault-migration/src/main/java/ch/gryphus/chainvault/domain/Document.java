@@ -1,8 +1,8 @@
 package ch.gryphus.chainvault.domain;
 
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * The type Document.

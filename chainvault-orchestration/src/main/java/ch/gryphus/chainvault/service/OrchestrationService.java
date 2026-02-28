@@ -1,12 +1,11 @@
 package ch.gryphus.chainvault.service;
 
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 /**
  * The type Orchestration service.
@@ -33,7 +32,8 @@ public class OrchestrationService {
      */
     @Transactional
     public String startProcess(Map<String, Object> variables) {
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("chainvault", variables);
+        ProcessInstance processInstance =
+                runtimeService.startProcessInstanceByKey("chainvault", variables);
         return processInstance.getProcessInstanceId();
     }
 }

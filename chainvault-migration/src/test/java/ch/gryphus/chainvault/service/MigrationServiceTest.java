@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -33,15 +32,16 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.tika.Tika;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.file.remote.SessionCallback;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -56,8 +56,6 @@ import tools.jackson.dataformat.xml.XmlMapper;
 class MigrationServiceTest {
 
     @Mock private RestClient mockRestClient;
-    @Mock private RestClient.RequestHeadersUriSpec mockRwquestSpec;
-    @Mock private RestClient.ResponseSpec responseSpec;
     @Mock private SftpRemoteFileTemplate mockSftpRemoteFileTemplate;
     @Mock private SftpTargetConfig mockSftpTargetConfig;
     @Mock private Tika mockTika;
@@ -97,31 +95,6 @@ class MigrationServiceTest {
         meta.setHash("sha256-abc123");
         meta.setAccountNo("ACC-123");
         meta.setPayloadUrl("/payload/12345.zip");
-    }
-
-    /**
-     * Test extract and hash when documents exist.
-     *
-     * @throws Exception the exception
-     */
-    @Disabled
-    @Test
-    void testExtractAndHash_whenDocumentsExist() throws Exception {
-        // Setup
-        // Configure RestClient.get(...).
-
-        // Make fluent chain return itself (common pattern)
-        when(mockRestClient.get()).thenReturn(mockRwquestSpec);
-        when(mockRwquestSpec.uri(anyString(), Optional.ofNullable(any())))
-                .thenReturn(mockRwquestSpec);
-        when(mockRwquestSpec.retrieve()).thenReturn(responseSpec);
-
-        // Run the test
-        final Map<String, Object> result = migrationServiceUnderTest.extractAndHash("DOC-TEST-001");
-
-        // Verify the results
-        assertThat(result).isNotNull();
-        assertThat(result.get("payloadHash")).hasToString("sha256-abc123");
     }
 
     /**

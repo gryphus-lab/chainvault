@@ -72,41 +72,40 @@ public class MigrationService {
         ctx.setDocId(docId);
         map.put("ctx", ctx);
 
+        RestClient.RequestHeadersSpec.ExchangeFunction<SourceMetadata>
+                sourceMetadataExchangeFunction =
+                        (request, response) -> {
+                            if (response.getStatusCode().is4xxClientError()) {
+                                throw new MigrationServiceException(
+                                        docId, response.getStatusCode(), response.getHeaders());
+                            } else {
+                                return response.bodyTo(SourceMetadata.class);
+                            }
+                        };
         var meta =
                 restClient
                         .get()
                         .uri("/documents/{id}", docId)
                         .accept(MediaType.APPLICATION_JSON)
-                        .exchange(
-                                (request, response) -> {
-                                    if (response.getStatusCode().is4xxClientError()) {
-                                        throw new MigrationServiceException(
-                                                docId,
-                                                response.getStatusCode(),
-                                                response.getHeaders());
-                                    } else {
-                                        return response.bodyTo(SourceMetadata.class);
-                                    }
-                                });
+                        .exchange(sourceMetadataExchangeFunction);
 
         map.put("meta", meta);
         if (meta.getPayloadUrl() != null) {
+            RestClient.RequestHeadersSpec.ExchangeFunction<byte[]> bytePayloadExchangeFunction =
+                    (request, response) -> {
+                        if (response.getStatusCode().is4xxClientError()) {
+                            throw new MigrationServiceException(
+                                    docId, response.getStatusCode(), response.getHeaders());
+                        } else {
+                            return response.bodyTo(byte[].class);
+                        }
+                    };
             payload =
                     restClient
                             .get()
                             .uri(meta.getPayloadUrl())
                             .accept(MediaType.APPLICATION_OCTET_STREAM)
-                            .exchange(
-                                    (request, response) -> {
-                                        if (response.getStatusCode().is4xxClientError()) {
-                                            throw new MigrationServiceException(
-                                                    docId,
-                                                    response.getStatusCode(),
-                                                    response.getHeaders());
-                                        } else {
-                                            return response.bodyTo(byte[].class);
-                                        }
-                                    });
+                            .exchange(bytePayloadExchangeFunction);
             ctx.setPayloadHash(HashUtils.sha256(payload));
             map.put("payload", payload);
         }

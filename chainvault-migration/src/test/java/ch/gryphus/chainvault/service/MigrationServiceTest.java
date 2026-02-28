@@ -36,8 +36,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.springframework.http.HttpStatus;
 import org.springframework.integration.file.remote.SessionCallback;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.web.client.RestClient;
@@ -50,16 +53,28 @@ import tools.jackson.dataformat.xml.XmlMapper;
 /**
  * The type Migration service test.
  */
+@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 class MigrationServiceTest {
 
     @Mock private RestClient mockRestClient;
+
+    @Mock
+    @SuppressWarnings("rawtypes")
+    private RestClient.RequestHeadersUriSpec mockRequestHeadersUriSpec;
+
+    @Mock
+    @SuppressWarnings("rawtypes")
+    private RestClient.RequestHeadersSpec mockRequestHeadersSpec;
+
+    @Mock private RestClient.RequestHeadersSpec.ConvertibleClientHttpResponse mockResponse;
+
     @Mock private SftpRemoteFileTemplate mockSftpRemoteFileTemplate;
     @Mock private SftpTargetConfig mockSftpTargetConfig;
     @Mock private Tika mockTika;
 
-    // Constructed manually in setup() to avoid Mockito type-based injection confusion
     private MigrationService migrationServiceUnderTest;
+
     private MigrationContext ctx;
     private SourceMetadata meta;
 
@@ -93,6 +108,42 @@ class MigrationServiceTest {
         meta.setHash("sha256-abc123");
         meta.setAccountNo("ACC-123");
         meta.setPayloadUrl("/payload/12345.zip");
+    }
+
+    @Test
+    void testExtractAndHash() throws Exception {
+        // Setup
+        // 1. Mock the Chain
+        when(mockRestClient.get()).thenReturn(mockRequestHeadersUriSpec);
+        when(mockRequestHeadersUriSpec.uri(anyString(), any(Object[].class)))
+                .thenReturn(mockRequestHeadersSpec);
+        when(mockRequestHeadersSpec.accept(any())).thenReturn(mockRequestHeadersSpec);
+
+        // 2. Mock the .exchange() behavior
+        when(mockRequestHeadersSpec.exchange(
+                        any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))
+                .thenAnswer(
+                        invocation -> {
+                            // This is the lambda from your service code
+                            RestClient.RequestHeadersSpec.ExchangeFunction function =
+                                    invocation.getArgument(0);
+
+                            // Set up what the mock response should return
+                            when(mockResponse.getStatusCode()).thenReturn(HttpStatus.OK);
+                            when(mockResponse.bodyTo(SourceMetadata.class)).thenReturn(meta);
+                            when(mockResponse.bodyTo(byte[].class)).thenReturn(new byte[] {});
+
+                            // Execute the lambda manually
+                            return function.exchange(null, mockResponse);
+                        });
+        // 2. Execute
+        final Map<String, Object> result = migrationServiceUnderTest.extractAndHash("docId");
+
+        // 3. Verify
+        assertThat(result).hasSize(3);
+        var context = result.get("ctx");
+        assertThat(context).isInstanceOf(MigrationContext.class);
+        assertThat(((MigrationContext) context).getPayloadHash()).isNotNull();
     }
 
     /**

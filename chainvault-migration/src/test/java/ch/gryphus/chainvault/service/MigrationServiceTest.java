@@ -97,7 +97,6 @@ class MigrationServiceTest {
         String docId = "DOC-TEST-001";
         ctx = new MigrationContext();
         ctx.setDocId(docId);
-        ctx.setPayloadHash("payload-sha256-abc123");
 
         meta = new SourceMetadata();
         meta.setDocId(docId);
@@ -125,9 +124,12 @@ class MigrationServiceTest {
                             RestClient.RequestHeadersSpec.ExchangeFunction function =
                                     invocation.getArgument(0);
 
-                            when(mockResponse.getStatusCode()).thenReturn(HttpStatus.OK);
-                            when(mockResponse.bodyTo(SourceMetadata.class)).thenReturn(meta);
-                            when(mockResponse.bodyTo(byte[].class)).thenReturn(new byte[] {});
+                            when(mockResponse.getStatusCode())
+                                    .thenReturn(HttpStatus.OK); // return 200 OK
+                            when(mockResponse.bodyTo(SourceMetadata.class))
+                                    .thenReturn(meta); // return valid metadata
+                            when(mockResponse.bodyTo(byte[].class))
+                                    .thenReturn(new byte[] {}); // return valid payload
 
                             // Execute the lambda manually
                             return function.exchange(null, mockResponse);
@@ -135,15 +137,17 @@ class MigrationServiceTest {
 
         final Map<String, Object> result = migrationServiceUnderTest.extractAndHash("DOC-TEST-001");
 
-        assertThat(result).hasSize(3);
-        var context = result.get("ctx");
-        assertThat(context).isInstanceOf(MigrationContext.class);
-        assertThat(((MigrationContext) context).getPayloadHash()).isNotNull();
+        assertThat(result).hasSize(3); // context + metadata + payload
+        Object obj = result.get("ctx");
+        assertThat(obj).isInstanceOf(MigrationContext.class);
+
+        MigrationContext migrationContext = (MigrationContext) obj;
+        assertThat(migrationContext.getMetadataHash()).isNotNull(); // metadata hash exists
+        assertThat(migrationContext.getPayloadHash()).isNotNull(); // payload hash exists
     }
 
     @Test
     void testExtractAndHash_whenDocumentDoesNotExist() {
-        // Setup
         when(mockRequestHeadersSpec.exchange(
                         any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))
                 .thenAnswer(
@@ -151,7 +155,8 @@ class MigrationServiceTest {
                             RestClient.RequestHeadersSpec.ExchangeFunction function =
                                     invocation.getArgument(0);
 
-                            when(mockResponse.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
+                            when(mockResponse.getStatusCode())
+                                    .thenReturn(HttpStatus.NOT_FOUND); // return 404 error
 
                             // Execute the lambda manually
                             return function.exchange(null, mockResponse);
@@ -160,15 +165,17 @@ class MigrationServiceTest {
         String docId = "DOC-NOT-EXISTS-001";
         assertThatExceptionOfType(MigrationServiceException.class)
                 .isThrownBy(() -> migrationServiceUnderTest.extractAndHash(docId))
-                .withMessageContaining("Unable to find document with id: " + docId);
+                .withMessageContaining("Unable to find document with id: %s".formatted(docId));
     }
 
     @Test
     void testExtractAndHash_whenPayloadDoesNotExist() {
-        when(mockRestClient.get()).thenReturn(mockRequestHeadersUriSpec);
-        when(mockRequestHeadersUriSpec.uri(anyString())).thenReturn(mockRequestHeadersSpec);
-        when(mockRequestHeadersSpec.accept(any())).thenReturn(mockRequestHeadersSpec);
+        String docId = "DOC-NO-PAYLOAD-002";
 
+        // setup
+        when(mockRequestHeadersUriSpec.uri(anyString(), any(Object[].class)))
+                .thenReturn(mockRequestHeadersSpec);
+        when(mockRequestHeadersSpec.accept(any())).thenReturn(mockRequestHeadersSpec);
         when(mockRequestHeadersSpec.exchange(
                         any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))
                 .thenAnswer(
@@ -176,15 +183,32 @@ class MigrationServiceTest {
                             RestClient.RequestHeadersSpec.ExchangeFunction function =
                                     invocation.getArgument(0);
 
-                            when(mockResponse.bodyTo(SourceMetadata.class)).thenReturn(meta);
-                            when(mockResponse.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
+                            when(mockResponse.getStatusCode())
+                                    .thenReturn(HttpStatus.OK); // return 2000 OK
+                            when(mockResponse.bodyTo(SourceMetadata.class))
+                                    .thenReturn(meta); // return valid metadata
 
                             return function.exchange(null, mockResponse);
                         });
 
-        String docId = "DOC-NO-PAYLOAD-002";
+        when(mockRequestHeadersUriSpec.uri(anyString())).thenReturn(mockRequestHeadersSpec);
+        when(mockRequestHeadersSpec.accept(any())).thenReturn(mockRequestHeadersSpec);
+        when(mockRequestHeadersSpec.exchange(
+                        any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))
+                .thenAnswer(
+                        invocation2 -> {
+                            RestClient.RequestHeadersSpec.ExchangeFunction function =
+                                    invocation2.getArgument(0);
+
+                            when(mockResponse.getStatusCode())
+                                    .thenReturn(HttpStatus.NOT_FOUND); // return 404
+
+                            return function.exchange(null, mockResponse);
+                        });
+
         assertThatExceptionOfType(MigrationServiceException.class)
-                .isThrownBy(() -> migrationServiceUnderTest.extractAndHash(docId));
+                .isThrownBy(() -> migrationServiceUnderTest.extractAndHash(docId))
+                .withMessageContaining("Unable to find document with id: " + docId);
     }
 
     /**
@@ -415,6 +439,7 @@ class MigrationServiceTest {
         // Arrange - ensure meta is non-null and has values
         assertThat(meta).isNotNull();
         assertThat(meta.getTitle()).isNotNull(); // fail fast if setup broken
+        ctx.setPayloadHash("payload-sha256-abc123");
 
         List<TiffPage> pages =
                 List.of(
@@ -480,6 +505,7 @@ class MigrationServiceTest {
     // ────────────────────────────────────────────────
     @Test
     void buildXml_shouldFillAllRelevantFields() {
+        ctx.setPayloadHash("payload-sha256-abc123");
         ctx.setZipHash("zip-xyz789");
         ctx.setPdfHash("pdf-abc456");
         ctx.addPageHash("p1.tif", "h1");

@@ -72,48 +72,54 @@ public class MigrationService {
         ctx.setDocId(docId);
         map.put("ctx", ctx);
 
-        var meta =
-                restClient
-                        .get()
-                        .uri("/documents/{id}", docId)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .exchange(
-                                (request, response) -> {
-                                    if (response.getStatusCode().is4xxClientError()) {
-                                        throw new MigrationServiceException(
-                                                "Unable to find document with id: %s"
-                                                        .formatted(docId),
-                                                response.getStatusCode(),
-                                                response.getHeaders());
-                                    } else {
-                                        return response.bodyTo(SourceMetadata.class);
-                                    }
-                                });
-
+        var meta = getSourceMetadata(docId);
+        ctx.setMetadataHash(HashUtils.sha256(objectMapper.writeValueAsBytes(meta)));
         map.put("meta", meta);
+
         if (meta.getPayloadUrl() != null) {
-            payload =
-                    restClient
-                            .get()
-                            .uri(meta.getPayloadUrl())
-                            .accept(MediaType.APPLICATION_OCTET_STREAM)
-                            .exchange(
-                                    (request, response) -> {
-                                        if (response.getStatusCode().is4xxClientError()) {
-                                            throw new MigrationServiceException(
-                                                    "Unable to find payload for document with id: %s"
-                                                            .formatted(docId),
-                                                    response.getStatusCode(),
-                                                    response.getHeaders());
-                                        } else {
-                                            return response.bodyTo(byte[].class);
-                                        }
-                                    });
+            payload = getPayload(docId, meta);
             ctx.setPayloadHash(HashUtils.sha256(payload));
             map.put("payload", payload);
         }
 
         return map;
+    }
+
+    private SourceMetadata getSourceMetadata(String docId) {
+        return restClient
+                .get()
+                .uri("/documents/{id}", docId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange(
+                        (request, response) -> {
+                            if (response.getStatusCode().is4xxClientError()) {
+                                throw new MigrationServiceException(
+                                        "Unable to find document with id: %s".formatted(docId),
+                                        response.getStatusCode(),
+                                        response.getHeaders());
+                            } else {
+                                return response.bodyTo(SourceMetadata.class);
+                            }
+                        });
+    }
+
+    private byte[] getPayload(String docId, SourceMetadata meta) {
+        return restClient
+                .get()
+                .uri(meta.getPayloadUrl())
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
+                .exchange(
+                        (request, response) -> {
+                            if (response.getStatusCode().is4xxClientError()) {
+                                throw new MigrationServiceException(
+                                        "Unable to find payload for document with id: %s"
+                                                .formatted(docId),
+                                        response.getStatusCode(),
+                                        response.getHeaders());
+                            } else {
+                                return response.bodyTo(byte[].class);
+                            }
+                        });
     }
 
     /**

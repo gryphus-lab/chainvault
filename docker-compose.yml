@@ -30,6 +30,11 @@ services:
       - sftp-test
       - fake-source-api
       - postgres
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     restart: unless-stopped
 
   postgres:

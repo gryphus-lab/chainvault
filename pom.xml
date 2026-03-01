@@ -12,7 +12,7 @@
     <artifactId>chainvault</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>ChainVault</name>
+    <name>${project.groupId}::${project.artifactId}</name>
     <url/>
     <licenses>
         <license/>

@@ -41,6 +41,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.http.HttpStatus;
 import org.springframework.integration.file.remote.SessionCallback;
+import org.springframework.integration.file.remote.session.Session;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.web.client.RestClient;
 import org.xmlunit.builder.DiffBuilder;
@@ -71,6 +72,8 @@ class MigrationServiceTest {
 
     @Mock private SftpRemoteFileTemplate mockSftpRemoteFileTemplate;
     @Mock private SftpTargetConfig mockSftpTargetConfig;
+    @Mock private Session mockSession;
+    @Mock private SessionCallback mockSessionCallback;
     @Mock private Tika mockTika;
 
     private MigrationService migrationServiceUnderTest;
@@ -235,19 +238,36 @@ class MigrationServiceTest {
      * Test upload to sftp.
      */
     @Test
-    void testUploadToSftp() {
+    void testUploadToSftp() throws IOException {
         // Setup
-        ctx.setDocId("docId");
+        String docId = "DOC-TEST-001";
+        ctx.setDocId(docId);
         ctx.setPayloadHash("payloadHash");
         ctx.setZipHash("zipHash");
         ctx.setPdfHash("pdfHash");
         ctx.setPageHashes(Map.ofEntries(Map.entry("value", "value")));
 
         when(mockSftpTargetConfig.getRemoteDirectory()).thenReturn("result");
+        when(mockSftpRemoteFileTemplate.execute(any(SessionCallback.class)))
+                .thenAnswer(
+                        invocation -> {
+                            SessionCallback<Session, SessionCallback> sessionCallback =
+                                    invocation.getArgument(0);
+                            when(mockSession.exists(anyString())).thenReturn(false);
+                            when(mockSession.mkdir(anyString())).thenReturn(true);
+                            doNothing()
+                                    .when(mockSession)
+                                    .write(any(InputStream.class), anyString());
+                            return sessionCallback.doInSession(mockSession);
+                        });
 
         // Run the test
         migrationServiceUnderTest.uploadToSftp(
-                ctx, "docId", "xml", Path.of("filename.txt"), Path.of("filename.txt"));
+                ctx,
+                docId,
+                Files.readString(Path.of("src/test/resources/sftp/sample_meta.xml")),
+                Path.of("src/test/resources/sftp/sample.zip"),
+                Path.of("src/test/resources/sftp/sample.pdf"));
 
         // Verify the results
         verify(mockSftpRemoteFileTemplate).execute(any(SessionCallback.class));

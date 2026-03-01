@@ -46,7 +46,7 @@ From the repository root:
 ```
 
 This produces a runnable JAR `chainvault-<version>.jar` in both `target/` (project root) and
-`chainvault-orchestration/target/` (e.g. `chainvault-0.0.1-SNAPSHOT.jar`).
+`chainvault-orchestration/target/` (e.g. `chainvault-1.0.0-SNAPSHOT.jar`).
 
 ## Run
 

@@ -13,6 +13,8 @@
     <artifactId>chainvault-orchestration</artifactId>
     <name>${project.groupId}::${project.artifactId}</name>
     <description>Flowable BPMN orchestration layer: process definition, delegates and REST API.</description>
+    <properties>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -147,6 +149,23 @@
                         <include>**/*Test.java</include>
                     </includes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>script-runner</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${maven.multiModuleProjectDirectory}/stop_chainvault_docker.sh</executable>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

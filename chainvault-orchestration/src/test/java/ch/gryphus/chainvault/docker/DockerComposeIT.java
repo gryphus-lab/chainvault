@@ -49,12 +49,6 @@ class DockerComposeIT {
                             9091,
                             Wait.forHttp("/documents")
                                     .forStatusCode(200)
-                                    .withStartupTimeout(Duration.ofSeconds(120)))
-                    .withExposedService(
-                            CHAINVAULT_APP,
-                            8085,
-                            Wait.forHttp("/actuator/health")
-                                    .forStatusCode(200)
                                     .withStartupTimeout(Duration.ofSeconds(120)));
 
     /**

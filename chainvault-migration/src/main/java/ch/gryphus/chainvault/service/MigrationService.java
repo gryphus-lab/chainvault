@@ -72,33 +72,28 @@ public class MigrationService {
      * @param docId the doc id
      * @return  the map
      */
-    public Map<String, Object> extractAndHash(String docId) {
+    public Map<String, Object> extractAndHash(String docId) throws NoSuchAlgorithmException {
         Map<String, Object> map = new HashMap<>();
         byte[] payload;
 
-        try {
-            var ctx = new MigrationContext();
-            ctx.setDocId(docId);
-            map.put("ctx", ctx);
+        var ctx = new MigrationContext();
+        ctx.setDocId(docId);
+        map.put("ctx", ctx);
 
-            var meta = getSourceMetadata(docId);
-            ctx.setMetadataHash(HashUtils.sha256(objectMapper.writeValueAsBytes(meta)));
-            map.put("meta", meta);
+        var meta = getSourceMetadata(docId);
+        ctx.setMetadataHash(HashUtils.sha256(objectMapper.writeValueAsBytes(meta)));
+        map.put("meta", meta);
 
-            if (meta.getPayloadUrl() != null) {
-                payload = getPayloadBytes(docId, meta);
-                ctx.setPayloadHash(HashUtils.sha256(payload));
-                map.put("payload", payload);
-            }
-
-            return map;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new MigrationServiceException(e.getMessage());
+        if (meta.getPayloadUrl() != null) {
+            payload = getPayloadBytes(docId, meta);
+            ctx.setPayloadHash(HashUtils.sha256(payload));
+            map.put("payload", payload);
         }
+
+        return map;
     }
 
-    private SourceMetadata getSourceMetadata(String docId) throws MigrationServiceException {
+    private SourceMetadata getSourceMetadata(String docId) {
         return restClient
                 .get()
                 .uri("/documents/{id}", docId)
@@ -116,8 +111,7 @@ public class MigrationService {
                         });
     }
 
-    private byte[] getPayloadBytes(String docId, SourceMetadata meta)
-            throws MigrationServiceException {
+    private byte[] getPayloadBytes(String docId, SourceMetadata meta) {
         return restClient
                 .get()
                 .uri(meta.getPayloadUrl())

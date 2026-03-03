@@ -5,15 +5,12 @@ package ch.gryphus.chainvault.entity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 /**
  * Main audit record for each document migration attempt.
@@ -22,6 +19,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(
         name = "migration_audit",
+        schema = "chainvault",
         indexes = {
             @Index(
                     name = "idx_migration_audit_process_instance_key",
@@ -63,10 +61,6 @@ public class MigrationAudit {
 
     @Column(name = "bpmn_process_id", nullable = false, length = 100)
     private String bpmnProcessId;
-
-    // Optional: business key if set in process variables
-    @Column(name = "business_key", length = 255)
-    private String businessKey;
 
     // ───────────────────────────────────────────────
     // Business Identifiers
@@ -140,24 +134,42 @@ public class MigrationAudit {
     @Column(name = "trace_id", length = 64)
     private String traceId; // OpenTelemetry trace ID for correlation
 
-    // Flexible extra context (e.g. variables snapshot, custom metadata)
-    @Column(name = "event_data", columnDefinition = "jsonb")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, Object> eventData;
-
+    /**
+     * The enum Migration status.
+     */
     // ───────────────────────────────────────────────
     // Status Enum (matches CHECK constraint in Liquibase)
     // ───────────────────────────────────────────────
     public enum MigrationStatus {
+        /**
+         * Pending migration status.
+         */
         PENDING,
+        /**
+         * Running migration status.
+         */
         RUNNING,
+        /**
+         * Success migration status.
+         */
         SUCCESS,
+        /**
+         * Failed migration status.
+         */
         FAILED,
+        /**
+         * Cancelled migration status.
+         */
         CANCELLED,
-        RETRYING,
-        COMPENSATED
+        /**
+         * Retrying migration status.
+         */
+        RETRYING
     }
 
+    /**
+     * On update.
+     */
     // Optional: auto-update last_updated_at
     @PreUpdate
     protected void onUpdate() {

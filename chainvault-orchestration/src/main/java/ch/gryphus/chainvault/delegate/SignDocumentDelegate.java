@@ -49,17 +49,21 @@ public class SignDocumentDelegate implements JavaDelegate {
         List<TiffPage> pages;
         try {
             pages = migrationService.signTiffPages(payload, ctx);
+            execution.setTransientVariable("pages", pages);
 
             // Record success event
             span.addEvent(
                     "signTiffs.success",
                     Attributes.of(AttributeKey.stringKey("document.id"), docId));
 
-            execution.setTransientVariable("pages", pages);
-
             // Update audit
             auditEventService.updateAuditEventEnd(
-                    piKey, MigrationAudit.MigrationStatus.RUNNING, null, null, null, null);
+                    piKey,
+                    MigrationAudit.MigrationStatus.SUCCESS,
+                    null,
+                    null,
+                    eventTaskType,
+                    "Sign document completed successfully");
         } catch (Exception e) {
             // Record failure event + exception
             span.addEvent(

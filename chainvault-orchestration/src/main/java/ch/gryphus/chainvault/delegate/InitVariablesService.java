@@ -36,7 +36,7 @@ public class InitVariablesService implements JavaDelegate {
         // Update audit
         auditEventService.updateAuditEventEnd(
                 piKey,
-                MigrationAudit.MigrationStatus.RUNNING,
+                MigrationAudit.MigrationStatus.SUCCESS,
                 null,
                 null,
                 eventTaskType,

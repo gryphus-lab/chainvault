@@ -39,9 +39,13 @@ public class SftpUploadDelegate implements JavaDelegate {
         String piKey = execution.getProcessInstanceId();
         String eventTaskType = "upload-sftp";
         String errorCode = "UPLOAD_FAILED";
-        auditEventService.updateAuditEventStart(piKey, docId, eventTaskType);
 
-        // Add attributes to the current span
+        // Record success event
+        span.addEvent(
+                "prepareFiles.success",
+                Attributes.of(AttributeKey.stringKey("document.id"), docId));
+
+        auditEventService.updateAuditEventStart(piKey, docId, eventTaskType);
 
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
         String xml = (String) execution.getTransientVariable("xml");

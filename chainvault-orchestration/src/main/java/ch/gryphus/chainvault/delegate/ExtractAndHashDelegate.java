@@ -57,7 +57,7 @@ public class ExtractAndHashDelegate implements JavaDelegate {
 
             auditEventService.updateAuditEventEnd(
                     piKey,
-                    MigrationAudit.MigrationStatus.RUNNING,
+                    MigrationAudit.MigrationStatus.SUCCESS,
                     null,
                     null,
                     eventTaskType,

@@ -10,11 +10,9 @@ import ch.gryphus.chainvault.service.MigrationService;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.StatusCode;
 import java.nio.file.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.flowable.engine.delegate.BpmnError;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
@@ -55,6 +53,11 @@ public class SftpUploadDelegate implements JavaDelegate {
         try {
             migrationService.uploadToSftp(ctx, docId, xml, zipPath, pdfPath);
 
+            // Record success event
+            span.addEvent(
+                    "%s.success".formatted(eventTaskType),
+                    Attributes.of(AttributeKey.stringKey("document.id"), docId));
+
             // Update audit
             auditEventService.updateAuditEventEnd(
                     piKey,
@@ -64,27 +67,7 @@ public class SftpUploadDelegate implements JavaDelegate {
                     eventTaskType,
                     "Sftp upload completed successfully");
         } catch (Exception e) {
-            // Record failure event + exception
-            span.addEvent(
-                    "sftpUpload.failed",
-                    Attributes.of(
-                            AttributeKey.stringKey("error.message"), e.getMessage(),
-                            AttributeKey.stringKey("error.type"), e.getClass().getSimpleName()));
-
-            span.recordException(e);
-            span.setStatus(StatusCode.ERROR, e.getMessage());
-
-            // Update audit
-            auditEventService.updateAuditEventEnd(
-                    piKey,
-                    MigrationAudit.MigrationStatus.FAILED,
-                    errorCode,
-                    e.getMessage(),
-                    eventTaskType,
-                    e.getMessage());
-
-            // Throw BPMN error to trigger boundary event
-            throw new BpmnError(errorCode, e.getMessage());
+            auditEventService.handleException(e, span, piKey, errorCode, eventTaskType);
         }
 
         log.info("SftpUploadDelegate completed for docId: {}", docId);

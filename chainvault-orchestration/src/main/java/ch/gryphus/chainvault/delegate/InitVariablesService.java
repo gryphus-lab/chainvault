@@ -5,6 +5,8 @@ package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.entity.MigrationAudit;
 import ch.gryphus.chainvault.service.AuditEventService;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,11 @@ public class InitVariablesService implements JavaDelegate {
         String piKey = execution.getProcessInstanceId();
         String eventTaskType = "init-variables";
         auditEventService.updateAuditEventStart(piKey, docId, eventTaskType);
+
+        // Record success event
+        span.addEvent(
+                "%s.success".formatted(eventTaskType),
+                Attributes.of(AttributeKey.stringKey("document.id"), docId));
 
         // Update audit
         auditEventService.updateAuditEventEnd(

@@ -7,9 +7,13 @@ import ch.gryphus.chainvault.entity.MigrationAudit;
 import ch.gryphus.chainvault.entity.MigrationEvent;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
 import ch.gryphus.chainvault.repository.MigrationEventRepository;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import org.flowable.engine.delegate.BpmnError;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -82,5 +86,30 @@ public class AuditEventService {
         event.setTaskType(eventTaskType);
         event.setMessage(eventMsg);
         eventRepo.save(event);
+    }
+
+    public void handleException(
+            Exception e, Span span, String piKey, String errorCode, String eventTaskType) {
+        // Record failure event + exception
+        span.addEvent(
+                "%s.failed".formatted(eventTaskType),
+                Attributes.of(
+                        AttributeKey.stringKey("error.message"), e.getMessage(),
+                        AttributeKey.stringKey("error.type"), e.getClass().getSimpleName()));
+
+        span.recordException(e);
+        span.setStatus(StatusCode.ERROR, e.getMessage());
+
+        // Update audit
+        updateAuditEventEnd(
+                piKey,
+                MigrationAudit.MigrationStatus.FAILED,
+                errorCode,
+                e.getMessage(),
+                eventTaskType,
+                e.getMessage());
+
+        // Throw BPMN error to trigger boundary event
+        throw new BpmnError(errorCode, e.getMessage());
     }
 }

@@ -13,14 +13,12 @@ import ch.gryphus.chainvault.utils.HashUtils;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.StatusCode;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.flowable.engine.delegate.BpmnError;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
@@ -63,7 +61,7 @@ public class PrepareFilesDelegate implements JavaDelegate {
 
             // Record success event
             span.addEvent(
-                    "prepareFiles.success",
+                    "%s.success".formatted(eventTaskType),
                     Attributes.of(AttributeKey.stringKey("document.id"), docId));
 
             auditEventService.updateAuditEventEnd(
@@ -74,27 +72,7 @@ public class PrepareFilesDelegate implements JavaDelegate {
                     eventTaskType,
                     "Prepare files completed successfully");
         } catch (IOException | NoSuchAlgorithmException e) {
-            // Record failure event + exception
-            span.addEvent(
-                    "prepareFiles.failed",
-                    Attributes.of(
-                            AttributeKey.stringKey("error.message"), e.getMessage(),
-                            AttributeKey.stringKey("error.type"), e.getClass().getSimpleName()));
-
-            span.recordException(e);
-            span.setStatus(StatusCode.ERROR, e.getMessage());
-
-            // Update audit
-            auditEventService.updateAuditEventEnd(
-                    piKey,
-                    MigrationAudit.MigrationStatus.FAILED,
-                    errorCode,
-                    e.getMessage(),
-                    eventTaskType,
-                    e.getMessage());
-
-            // Throw BPMN error to trigger boundary event
-            throw new BpmnError(errorCode, e.getMessage());
+            auditEventService.handleException(e, span, piKey, errorCode, eventTaskType);
         }
 
         log.info("PrepareFilesDelegate completed for docId:{}", docId);

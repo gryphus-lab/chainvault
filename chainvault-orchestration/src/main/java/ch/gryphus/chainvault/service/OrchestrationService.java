@@ -3,9 +3,7 @@
  */
 package ch.gryphus.chainvault.service;
 
-import ch.gryphus.chainvault.entity.MigrationAudit;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
-import java.time.Instant;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.RuntimeService;
@@ -45,16 +43,19 @@ public class OrchestrationService {
         ProcessInstance processInstance =
                 runtimeService.startProcessInstanceByKey("chainvault", variables);
 
+        String processInstanceId = processInstance.getProcessInstanceId();
+
         // Create audit record
-        MigrationAudit audit = new MigrationAudit();
-        audit.setProcessInstanceKey(Long.valueOf(processInstance.getProcessInstanceId()));
-        audit.setProcessDefinitionKey(Long.valueOf(processInstance.getProcessDefinitionKey()));
+        /*MigrationAudit audit = new MigrationAudit();
+
+        audit.setProcessInstanceKey(processInstanceId);
+        audit.setProcessDefinitionKey(processInstance.getProcessDefinitionKey());
         audit.setBpmnProcessId("chainvault");
         audit.setDocumentId((String) variables.get("docId"));
         audit.setStatus(MigrationAudit.MigrationStatus.RUNNING);
         audit.setStartedAt(Instant.now());
-        auditRepo.save(audit);
+        auditRepo.save(audit);*/
 
-        return processInstance.getProcessInstanceId();
+        return processInstanceId;
     }
 }

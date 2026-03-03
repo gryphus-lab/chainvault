@@ -56,10 +56,10 @@ public class MigrationAudit {
     // ───────────────────────────────────────────────
 
     @Column(name = "process_instance_key", nullable = false)
-    private Long processInstanceKey;
+    private String processInstanceKey;
 
     @Column(name = "process_definition_key", nullable = false)
-    private Long processDefinitionKey;
+    private String processDefinitionKey;
 
     @Column(name = "bpmn_process_id", nullable = false, length = 100)
     private String bpmnProcessId;

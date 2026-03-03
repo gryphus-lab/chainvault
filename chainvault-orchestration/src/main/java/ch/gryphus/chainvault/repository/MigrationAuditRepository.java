@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MigrationAuditRepository extends JpaRepository<MigrationAudit, Long> {
 
-    Optional<MigrationAudit> findByProcessInstanceKey(Long processInstanceKey);
+    Optional<MigrationAudit> findByProcessInstanceKey(String processInstanceKey);
 
     List<MigrationAudit> findByDocumentId(String documentId);
 

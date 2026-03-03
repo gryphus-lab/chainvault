@@ -3,14 +3,9 @@
  */
 package ch.gryphus.chainvault.delegate;
 
-import ch.gryphus.chainvault.domain.MigrationContext;
-import ch.gryphus.chainvault.entity.MigrationAudit;
-import ch.gryphus.chainvault.entity.MigrationEvent;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
 import ch.gryphus.chainvault.repository.MigrationEventRepository;
 import ch.gryphus.chainvault.service.MigrationService;
-import io.opentelemetry.api.trace.Span;
-import java.time.Instant;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -58,7 +53,8 @@ public class ExtractAndHashDelegate implements JavaDelegate {
         execution.setTransientVariable("ctx", map.get("ctx"));
         execution.setTransientVariable("meta", map.get("meta"));
         execution.setTransientVariable("payload", map.get("payload"));
-        Long piKey = Long.valueOf(execution.getProcessInstanceId());
+
+        /*String piKey = execution.getProcessInstanceId();
         MigrationAudit audit =
                 auditRepository
                         .findByProcessInstanceKey(piKey)
@@ -80,10 +76,10 @@ public class ExtractAndHashDelegate implements JavaDelegate {
                                 Map.of(
                                         "pageCount", ctx.getPageHashes().size(),
                                         "payloadHash", ctx.getPayloadHash()))
-                        .traceId(Span.current().getSpanContext().getTraceId())
+                        //.traceId(Span.current().getSpanContext().getTraceId())
                         .build();
 
-        migrationEventRepository.save(event);
+        migrationEventRepository.save(event);*/
         log.info("ExtractAndHashDelegate completed for docId: {}", docId);
     }
 }

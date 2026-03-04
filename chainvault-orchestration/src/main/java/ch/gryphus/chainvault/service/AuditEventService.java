@@ -34,11 +34,14 @@ public class AuditEventService {
                                         new IllegalStateException(
                                                 "No audit for " + processInstanceId));
 
+        String traceId = Span.current().getSpanContext().getTraceId();
+
         audit.setProcessInstanceKey(processInstanceId);
         audit.setDocumentId(docId);
         audit.setAttemptCount(audit.getAttemptCount() + 1);
         audit.setStatus(MigrationAudit.MigrationStatus.RUNNING);
         audit.setStartedAt(Instant.now());
+        audit.setTraceId(traceId);
         auditRepo.save(audit);
 
         MigrationEvent event = new MigrationEvent();
@@ -46,6 +49,7 @@ public class AuditEventService {
         event.setEventType(MigrationEvent.MigrationEventType.TASK_STARTED);
         event.setTaskType(eventTaskType);
         event.setCreatedAt(Instant.now());
+        event.setTraceId(traceId);
         eventRepo.save(event);
     }
 
@@ -70,9 +74,10 @@ public class AuditEventService {
             audit.setFailureReason(errorMsg);
             audit.setErrorCode(errorCode);
         }
+        String traceId = Span.current().getSpanContext().getTraceId();
 
         audit.setCompletedAt(Instant.now());
-        audit.setTraceId(Span.current().getSpanContext().getTraceId());
+        audit.setTraceId(traceId);
         auditRepo.save(audit);
 
         MigrationEvent event = new MigrationEvent();
@@ -85,6 +90,7 @@ public class AuditEventService {
 
         event.setTaskType(eventTaskType);
         event.setMessage(eventMsg);
+        event.setTraceId(traceId);
         eventRepo.save(event);
     }
 

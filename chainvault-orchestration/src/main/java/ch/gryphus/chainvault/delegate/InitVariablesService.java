@@ -3,11 +3,6 @@
  */
 package ch.gryphus.chainvault.delegate;
 
-import ch.gryphus.chainvault.entity.MigrationAudit;
-import ch.gryphus.chainvault.service.AuditEventService;
-import io.opentelemetry.api.common.AttributeKey;
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.trace.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -22,33 +17,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class InitVariablesService implements JavaDelegate {
 
-    private final AuditEventService auditEventService;
+    private final MigrationExecutor executor;
 
     @Override
     public void execute(DelegateExecution execution) {
-        Span span = Span.current();
-        String docId = (String) execution.getVariable("docId");
-        span.setAttribute("document.id", docId);
-        log.info("Initialize variables started for docId:{}", docId);
-
-        String piKey = execution.getProcessInstanceId();
-        String eventTaskType = "init-variables";
-        auditEventService.updateAuditEventStart(piKey, docId, eventTaskType);
-
-        // Record success event
-        span.addEvent(
-                "%s.success".formatted(eventTaskType),
-                Attributes.of(AttributeKey.stringKey("document.id"), docId));
-
-        // Update audit
-        auditEventService.updateAuditEventEnd(
-                piKey,
-                MigrationAudit.MigrationStatus.SUCCESS,
-                null,
-                null,
-                eventTaskType,
-                "Initialize variables completed");
-
-        log.info("Initialize variables completed for docId:{}", docId);
+        executor.executeStep(
+                execution,
+                "init-variables",
+                "INIT_FAILED",
+                (span, docId) -> {
+                    // do nothing
+                });
     }
 }

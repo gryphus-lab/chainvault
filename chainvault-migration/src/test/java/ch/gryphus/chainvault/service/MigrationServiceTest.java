@@ -117,8 +117,6 @@ class MigrationServiceTest {
 
     /**
      * Test extract and hash when documents exist.
-     *
-     * @throws Exception the exception
      */
     @Test
     void testExtractAndHash_whenDocumentsExist() throws Exception {
@@ -315,7 +313,6 @@ class MigrationServiceTest {
 
     /**
      * Test transform metadata to xml.
-     *
      */
     @Test
     void testTransformMetadataToXml() {

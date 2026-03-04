@@ -3,7 +3,6 @@
  */
 package ch.gryphus.chainvault.utils;
 
-import ch.gryphus.chainvault.service.MigrationServiceException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +24,7 @@ public class HashUtils {
      * @return  the string
      * @throws IOException the io exception
      */
-    public static String sha256(Path path) throws IOException {
+    public static String sha256(Path path) throws IOException, NoSuchAlgorithmException {
         return sha256(Files.readAllBytes(path));
     }
 
@@ -35,11 +34,7 @@ public class HashUtils {
      * @param data the data
      * @return the string
      */
-    public static String sha256(byte[] data) {
-        try {
-            return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(data));
-        } catch (NoSuchAlgorithmException e) {
-            throw new MigrationServiceException(e.getMessage());
-        }
+    public static String sha256(byte[] data) throws NoSuchAlgorithmException {
+        return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(data));
     }
 }

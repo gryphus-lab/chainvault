@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -60,7 +61,7 @@ public class MigrationService {
      * @param docId the doc id
      * @return  the map
      */
-    public Map<String, Object> extractAndHash(String docId) {
+    public Map<String, Object> extractAndHash(String docId) throws NoSuchAlgorithmException {
         Map<String, Object> map = new HashMap<>();
         byte[] payload;
 
@@ -126,7 +127,8 @@ public class MigrationService {
      * @return  the list
      * @throws IOException the io exception
      */
-    public List<TiffPage> signTiffPages(byte[] payload, MigrationContext ctx) throws IOException {
+    public List<TiffPage> signTiffPages(byte[] payload, MigrationContext ctx)
+            throws IOException, NoSuchAlgorithmException {
         List<TiffPage> pages = new ArrayList<>();
 
         // security hotspot fix against zip bombs
@@ -219,7 +221,7 @@ public class MigrationService {
      */
     public Path createChainZip(
             String docId, List<TiffPage> pages, SourceMetadata sourceMetadata, MigrationContext ctx)
-            throws IOException {
+            throws IOException, NoSuchAlgorithmException {
 
         Path zipPath = new File("%s/%s_chain.zip".formatted(workingDirectory, docId)).toPath();
 

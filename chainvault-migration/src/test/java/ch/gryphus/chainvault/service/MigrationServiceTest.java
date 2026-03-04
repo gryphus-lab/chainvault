@@ -119,7 +119,7 @@ class MigrationServiceTest {
      * Test extract and hash when documents exist.
      */
     @Test
-    void testExtractAndHash_whenDocumentsExist() {
+    void testExtractAndHash_whenDocumentsExist() throws Exception {
         // Setup
         when(mockRequestHeadersSpec.exchange(
                         any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))

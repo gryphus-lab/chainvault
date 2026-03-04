@@ -38,7 +38,7 @@ class HashUtilsTest {
      *
      */
     @Test
-    void testSha2562withByteArray() {
+    void testSha2562withByteArray() throws Exception {
         assertThat(HashUtils.sha256("content".getBytes()))
                 .isEqualTo("ed7002b439e9ac845f22357d822bac1444730fbdb6016d3ec9432297b9ec9f73");
     }

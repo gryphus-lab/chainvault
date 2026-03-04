@@ -10,6 +10,7 @@ import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -80,6 +81,7 @@ public class MigrationExecutor {
          * @throws IOException the io exception
          * @throws MigrationServiceException the migration service exception
          */
-        void run(Span span, String docId) throws IOException, MigrationServiceException;
+        void run(Span span, String docId)
+                throws IOException, MigrationServiceException, NoSuchAlgorithmException;
     }
 }

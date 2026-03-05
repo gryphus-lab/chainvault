@@ -32,7 +32,7 @@ public class AuditEventService {
      * @param processInstanceId the process instance id
      * @param docId             the doc id
      * @param eventTaskType     the event task type
-     * @param span
+     * @param span              the span
      */
     public void updateAuditEventStart(
             String processInstanceId, String docId, String eventTaskType, Span span) {
@@ -118,10 +118,10 @@ public class AuditEventService {
     /**
      * Handle exception.
      *
-     * @param e the e
-     * @param span the span
-     * @param piKey the pi key
-     * @param errorCode the error code
+     * @param e             the e
+     * @param span          the span
+     * @param piKey         the pi key
+     * @param errorCode     the error code
      * @param eventTaskType the event task type
      */
     public void handleException(
@@ -143,8 +143,7 @@ public class AuditEventService {
                 errorCode,
                 e.getMessage(),
                 eventTaskType,
-                e.getMessage()
-        );
+                e.getMessage());
 
         // Throw BPMN error to trigger boundary event
         throw new BpmnError(errorCode, e.getMessage());

@@ -59,8 +59,8 @@ public class MigrationExecutor {
                     null,
                     null,
                     taskType,
-                    taskType + " completed successfully",
-                    span);
+                    taskType + " completed successfully"
+            );
 
         } catch (Exception e) {
             auditEventService.handleException(e, span, piKey, errorCode, taskType);

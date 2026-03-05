@@ -73,7 +73,6 @@ public class AuditEventService {
      * @param errorMsg          the error msg
      * @param eventTaskType     the event task type
      * @param eventMsg          the event msg
-     * @param span
      */
     public void updateAuditEventEnd(
             String processInstanceId,
@@ -81,8 +80,7 @@ public class AuditEventService {
             String errorCode,
             String errorMsg,
             String eventTaskType,
-            String eventMsg,
-            Span span) {
+            String eventMsg) {
         MigrationAudit audit =
                 auditRepo
                         .findByProcessInstanceKey(processInstanceId)
@@ -145,8 +143,8 @@ public class AuditEventService {
                 errorCode,
                 e.getMessage(),
                 eventTaskType,
-                e.getMessage(),
-                span);
+                e.getMessage()
+        );
 
         // Throw BPMN error to trigger boundary event
         throw new BpmnError(errorCode, e.getMessage());

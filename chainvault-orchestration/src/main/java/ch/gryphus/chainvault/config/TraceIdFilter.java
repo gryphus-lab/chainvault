@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
-class TraceIdFilter extends OncePerRequestFilter {
+public class TraceIdFilter extends OncePerRequestFilter {
 
     private final Tracer tracer;
 
@@ -26,7 +26,7 @@ class TraceIdFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException, ServletException, IOException {
+            throws ServletException, IOException {
         String traceId = getTraceId();
         if (traceId != null) {
             response.setHeader("X-Trace-Id", traceId);

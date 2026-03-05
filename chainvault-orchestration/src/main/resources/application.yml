@@ -167,7 +167,7 @@ springdoc:
 
 otel:
   service:
-    name: chainvault-document-migration   # appears in traces
+    name: chainvault-document-migration
   exporter:
     otlp:
       endpoint: http://localhost:4317

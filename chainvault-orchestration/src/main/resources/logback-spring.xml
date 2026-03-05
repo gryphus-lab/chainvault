@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <!-- ============================================= -->
     <!-- CONSOLE - human readable during development  -->
@@ -27,10 +28,9 @@
 
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <!-- Add useful fields for traceability / FINMA audit -->
-            <includeMdcKeyName>traceId</includeMdcKeyName>
-            <includeMdcKeyName>spanId</includeMdcKeyName>
+            <includeMdcKeyName>trace_id</includeMdcKeyName>
+            <includeMdcKeyName>span_id</includeMdcKeyName>
             <includeMdcKeyName>docId</includeMdcKeyName>     <!-- if you put docId in MDC -->
-            <includeMdcKeyName>migrationBatch</includeMdcKeyName>
 
             <customFields>{"app":"chainvault","env":"prod","host":"${HOSTNAME:-unknown}"}</customFields>
 

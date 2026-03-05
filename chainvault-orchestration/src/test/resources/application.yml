@@ -1,0 +1,187 @@
+# application.yaml
+spring:
+  application:
+    name: chainvault-document-migration
+  # ───────────────────────────────────────────────
+  # Database Configuration (PostgreSQL example)
+  # ───────────────────────────────────────────────
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chainvault?currentSchema=chainvault
+    username: ${POSTGRES_USERNAME:chainvault}
+    password: ${POSTGRES_PASSWORD:secret}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+
+  # Liquibase
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: chainvault
+    liquibase-schema: chainvault
+
+  # JPA / Hibernate (optional - if you use entities/repositories)
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+server:
+  port: 8085
+  servlet:
+    context-path: /
+
+# Sftp config
+target:
+  sftp:
+    host: localhost
+    port: 22
+    username: migration_user
+    password: ${SFTP_PASSWORD:}
+    private-key-path: /run/secrets/id_rsa
+    known-hosts: /run/secrets/known_hosts
+    remote-directory: /incoming/migration/
+
+# Source Archive Config
+source:
+  api:
+    base-url: http://localhost:9091
+    token: dummy-for-test
+
+migration:
+  temp-dir: /tmp/migration-${random.uuid}
+  chunk-size-for-inventory: 500   # when fetching lists
+
+# Flowable configuration
+flowable:
+  check-process-definitions: true
+  database-schema: flowable
+  database-schema-update: true
+  async-executor-activate: true
+  async-executor-core-pool-size: 8
+  async-executor-max-pool-size: 32
+  db-history-used: true
+  deployment-name: SpringBootAutoDeployment
+  history-level: audit
+  http:
+    connect-timeout: 5s
+    connection-request-timeout: 5s
+    disable-cert-verify: false
+    request-retry-limit: 3
+    socket-timeout: 5s
+    user-system-properties: true
+  #  mail:
+  #    server:
+  #      default-from: flowable@localhost
+  #      host: localhost
+  #      port: '1025'
+  #      ssl-port: '1465'
+  #      use-ssl: false
+  #      use-tls: false
+  process:
+    async:
+      executor:
+        async-job-lock-time: PT5M
+        default-async-job-acquire-wait-time: PT10S
+        default-queue-size-full-wait-time: PT5S
+        default-timer-job-acquire-wait-time: PT10S
+        max-async-jobs-due-per-acquisition: '1'
+        timer-lock-time: PT5M
+    async-executor-activate: true
+    definition-cache-limit: '-1'
+    enable-safe-xml: true
+    servlet:
+      load-on-startup: '-1'
+      name: Flowable BPMN Rest API
+      path: /process-api
+  process-definition-location-prefix: 'classpath*:/processes/'
+  process-definition-location-suffixes: '**.bpmn20.xml,**.bpmn'
+  rest:
+    enabled: true
+    path: /flowable-restrest
+    app:
+      cors:
+        allow-credentials: true
+        allowed-headers: '*'
+        allowed-methods: 'DELETE,GET,PATCH,POST,PUT'
+        allowed-origins: '*'
+        enabled: true
+        exposed-headers: '*'
+  external-task:
+    client:
+      base-url: http://localhost:${server.port}/flowable-rest/service
+      worker-id: migration-worker-1
+      max-tasks: 20
+      lock-duration: 300000
+
+# Management endpoints
+management:
+  defaults:
+    metrics:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1.0  # 100% sampling for development
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/metrics
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/logs
+  metrics:
+    export:
+      otlp:
+        enabled: false
+        endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318)/v1/metricsmanagement
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    flowable:
+      cache:
+        time-to-live: 0ms
+      enabled: false
+
+# springdoc (OpenAPI) configuration: limit scanning to app controllers to avoid
+# including Flowable or other third-party endpoints which can produce invalid
+# or huge schemas that Swagger UI struggles to render.
+springdoc:
+  packagesToScan: ch.gryphus.chainvault.controller
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /swagger-ui.html
+
+otel:
+  service:
+    name: chainvault-document-migration
+  exporter:
+    otlp:
+      endpoint: http://localhost:4317
+      protocol: grpc
+      tls:
+        insecure: true
+
+logging:
+  level:
+    ch.gryphus.chainvault: INFO
+    io.opentelemetry: INFO
+    org.springframework.boot.actuator.autoconfigure.opentelemetry: DEBUG
+    org.springframework.boot.docker.compose: DEBUG

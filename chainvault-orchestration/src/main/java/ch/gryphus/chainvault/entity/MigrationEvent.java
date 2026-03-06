@@ -63,6 +63,7 @@ public class MigrationEvent {
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 

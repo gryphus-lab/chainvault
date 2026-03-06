@@ -12,6 +12,7 @@ target
 .factorypath
 .vscode
 .env
+.venv
 settings.xml
 
 kafka.properties*

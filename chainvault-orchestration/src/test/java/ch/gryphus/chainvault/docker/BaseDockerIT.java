@@ -29,7 +29,8 @@ public abstract class BaseDockerIT {
     /**
      * The constant postgres.
      */
-    @Container
+    @SuppressWarnings("resource")
+@Container
     static PostgreSQLContainer postgres =
             new PostgreSQLContainer(DockerImageName.parse("postgres:16-alpine"))
                     .withDatabaseName(DB_NAME)
@@ -46,7 +47,8 @@ public abstract class BaseDockerIT {
     /**
      * The constant sftpContainer.
      */
-    @Container
+    @SuppressWarnings("resource")
+@Container
     static GenericContainer<?> sftpContainer =
             new GenericContainer<>(DockerImageName.parse("atmoz/sftp:latest"))
                     .withCommand("testuser:testpass123:::upload")
@@ -57,7 +59,8 @@ public abstract class BaseDockerIT {
     /**
      * The constant apiContainer.
      */
-    @Container
+    @SuppressWarnings("resource")
+@Container
     static GenericContainer<?> apiContainer =
             new GenericContainer<>(DockerImageName.parse("node:25-alpine"))
                     .withPrivilegedMode(true)

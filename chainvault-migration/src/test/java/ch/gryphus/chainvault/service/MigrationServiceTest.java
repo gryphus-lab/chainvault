@@ -4,7 +4,6 @@
 package ch.gryphus.chainvault.service;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import ch.gryphus.chainvault.config.SftpTargetConfig;
@@ -82,6 +81,7 @@ class MigrationServiceTest {
     /**
      * Sets up.
      */
+    @SuppressWarnings("unchecked")
     @BeforeEach
     void setUp() {
         migrationServiceUnderTest =
@@ -118,6 +118,7 @@ class MigrationServiceTest {
     /**
      * Test extract and hash when documents exist.
      */
+    @SuppressWarnings("unchecked")
     @Test
     void testExtractAndHash_whenDocumentsExist() throws Exception {
         // Setup
@@ -153,6 +154,7 @@ class MigrationServiceTest {
     /**
      * Test extract and hash when document does not exist.
      */
+    @SuppressWarnings("unchecked")
     @Test
     void testExtractAndHash_whenDocumentDoesNotExist() {
         when(mockRequestHeadersSpec.exchange(
@@ -178,6 +180,7 @@ class MigrationServiceTest {
     /**
      * Test extract and hash when payload does not exist.
      */
+    @SuppressWarnings("unchecked")
     @Test
     void testExtractAndHash_whenPayloadDoesNotExist() {
         String docId = "DOC-NO-PAYLOAD-002";
@@ -246,6 +249,7 @@ class MigrationServiceTest {
      *
      * @throws IOException the io exception
      */
+    @SuppressWarnings("unchecked")
     @Test
     void testUploadToSftp() throws IOException {
         // Setup

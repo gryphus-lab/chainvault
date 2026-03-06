@@ -74,6 +74,7 @@ public class MigrationAudit {
     @Column(name = "source_system", length = 80)
     private String sourceSystem; // e.g. "legacy-archive", "sharepoint", "email"
 
+    @Builder.Default
     @Column(name = "target_system", length = 80)
     private String targetSystem = "finma-archive"; // default value
 
@@ -91,6 +92,7 @@ public class MigrationAudit {
     @Column(name = "error_code", length = 80)
     private String errorCode;
 
+    @Builder.Default
     @Column(name = "attempt_count", nullable = false)
     private Integer attemptCount = 1;
 
@@ -98,6 +100,7 @@ public class MigrationAudit {
     // Timestamps
     // ───────────────────────────────────────────────
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -107,6 +110,7 @@ public class MigrationAudit {
     @Column(name = "completed_at")
     private Instant completedAt;
 
+    @Builder.Default
     @Column(name = "last_updated_at", nullable = false)
     private Instant lastUpdatedAt = Instant.now();
 
@@ -117,7 +121,7 @@ public class MigrationAudit {
     @Column(name = "input_payload_hash", length = 128)
     private String inputPayloadHash; // e.g. SHA-256 of input metadata/payload
 
-    @Column(name = "output_file_key", length = 255)
+    @Column(name = "output_file_key")
     private String outputFileKey; // e.g. S3 key, SFTP path, archive reference
 
     @Column(name = "chain_of_custody_zip", length = 512)

@@ -74,14 +74,12 @@ services:
   fake-source-api:
     image: node:25-alpine
     working_dir: /app
-    command: >
-      sh -c "npm install -g json-server &&
-        json-server --watch /data/db.json --static /data/static --port 9091 --host 0.0.0.0"
+    entrypoint: sh -c "chmod +x /app/setup.sh && /app/setup.sh"
     ports:
       - "9091:9091"
     volumes:
-      - ./src/test/resources/db.json:/data/db.json:ro
-      - ./src/test/resources/static:/data/static:ro
+      - ./src/main/resources/json-server/scripts/setup.sh:/app/setup.sh
+      - ./src/main/resources/json-server/scripts/create_source_data.py:/data/create_source_data.py
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9091" ]
       interval: 5s

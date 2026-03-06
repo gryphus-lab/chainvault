@@ -36,8 +36,9 @@ class DockerServicesE2EIT extends BaseDockerIT {
     /**
      * The constant sftp.
      */
+    @SuppressWarnings("resource")
     @Container
-    static GenericContainer<?> sftp =
+    static final GenericContainer<?> sftp =
             new GenericContainer<>(DockerImageName.parse("atmoz/sftp:latest"))
                     .withCommand("testuser:testpass123:::upload")
                     .withExposedPorts(22)
@@ -47,8 +48,9 @@ class DockerServicesE2EIT extends BaseDockerIT {
     /**
      * The constant api.
      */
+    @SuppressWarnings("resource")
     @Container
-    static GenericContainer<?> api =
+    static final GenericContainer<?> api =
             new GenericContainer<>(DockerImageName.parse("node:25-alpine"))
                     .withPrivilegedMode(true)
                     .withCommand(

@@ -27,6 +27,7 @@ public class PrepareFilesDelegate implements JavaDelegate {
     private final MigrationService migrationService;
     private final MigrationExecutor executor;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void execute(DelegateExecution execution) {
         executor.executeStep(

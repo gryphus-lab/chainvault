@@ -35,7 +35,7 @@ class OrchestrationServiceIT extends BaseServiceIT {
     @SuppressWarnings("resource")
     // Fake REST API (json-server with db.json)
     @Container
-    static GenericContainer<?> jsonServer =
+    static final GenericContainer<?> jsonServer =
             new GenericContainer<>(DockerImageName.parse("node:25-alpine"))
                     .withPrivilegedMode(true)
                     .withCommand(
@@ -53,7 +53,7 @@ class OrchestrationServiceIT extends BaseServiceIT {
      */
     @SuppressWarnings("resource")
     @Container
-    static GenericContainer<?> sftpContainer =
+    static final GenericContainer<?> sftpContainer =
             new GenericContainer<>(DockerImageName.parse("atmoz/sftp:latest"))
                     .withCommand("testuser:testpass123:::upload")
                     .withExposedPorts(22)

@@ -29,9 +29,8 @@ class DockerComposeIT {
     /**
      * The constant dockerCompose.
      */
-    @SuppressWarnings("resource")
     @Container
-    static ComposeContainer dockerCompose =
+    static final ComposeContainer dockerCompose =
             new ComposeContainer(new File("../docker-compose.yml"))
                     .withExposedService(
                             POSTGRES_SERVICE,

@@ -121,7 +121,7 @@ public class MigrationAudit {
     @Column(name = "input_payload_hash", length = 128)
     private String inputPayloadHash; // e.g. SHA-256 of input metadata/payload
 
-    @Column(name = "output_file_key", length = 255)
+    @Column(name = "output_file_key")
     private String outputFileKey; // e.g. S3 key, SFTP path, archive reference
 
     @Column(name = "chain_of_custody_zip", length = 512)

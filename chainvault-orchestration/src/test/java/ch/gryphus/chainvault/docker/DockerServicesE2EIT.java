@@ -37,7 +37,7 @@ class DockerServicesE2EIT extends BaseDockerIT {
      * The constant sftp.
      */
     @SuppressWarnings("resource")
-@Container
+    @Container
     static GenericContainer<?> sftp =
             new GenericContainer<>(DockerImageName.parse("atmoz/sftp:latest"))
                     .withCommand("testuser:testpass123:::upload")
@@ -49,7 +49,7 @@ class DockerServicesE2EIT extends BaseDockerIT {
      * The constant api.
      */
     @SuppressWarnings("resource")
-@Container
+    @Container
     static GenericContainer<?> api =
             new GenericContainer<>(DockerImageName.parse("node:25-alpine"))
                     .withPrivilegedMode(true)

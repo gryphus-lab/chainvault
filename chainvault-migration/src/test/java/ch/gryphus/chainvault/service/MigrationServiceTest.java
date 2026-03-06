@@ -83,7 +83,7 @@ class MigrationServiceTest {
      * Sets up.
      */
     @SuppressWarnings("unchecked")
-@BeforeEach
+    @BeforeEach
     void setUp() {
         migrationServiceUnderTest =
                 new MigrationService(
@@ -120,7 +120,7 @@ class MigrationServiceTest {
      * Test extract and hash when documents exist.
      */
     @SuppressWarnings("unchecked")
-@Test
+    @Test
     void testExtractAndHash_whenDocumentsExist() throws Exception {
         // Setup
         when(mockRequestHeadersSpec.exchange(
@@ -156,7 +156,7 @@ class MigrationServiceTest {
      * Test extract and hash when document does not exist.
      */
     @SuppressWarnings("unchecked")
-@Test
+    @Test
     void testExtractAndHash_whenDocumentDoesNotExist() {
         when(mockRequestHeadersSpec.exchange(
                         any(RestClient.RequestHeadersSpec.ExchangeFunction.class)))
@@ -182,7 +182,7 @@ class MigrationServiceTest {
      * Test extract and hash when payload does not exist.
      */
     @SuppressWarnings("unchecked")
-@Test
+    @Test
     void testExtractAndHash_whenPayloadDoesNotExist() {
         String docId = "DOC-NO-PAYLOAD-002";
 
@@ -251,7 +251,7 @@ class MigrationServiceTest {
      * @throws IOException the io exception
      */
     @SuppressWarnings("unchecked")
-@Test
+    @Test
     void testUploadToSftp() throws IOException {
         // Setup
         String docId = "DOC-TEST-001";

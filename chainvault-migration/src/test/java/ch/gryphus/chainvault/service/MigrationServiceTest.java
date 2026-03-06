@@ -105,7 +105,6 @@ class MigrationServiceTest {
         meta.setCreationDate(Instant.now().toString());
         meta.setClientId("CHE-123.456.789");
         meta.setDocumentType("INVOICE");
-        meta.setHash("sha256-abc123");
         meta.setAccountNo("ACC-123");
         meta.setPayloadUrl("/payload/12345.zip");
 

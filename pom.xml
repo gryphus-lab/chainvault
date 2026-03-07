@@ -217,6 +217,16 @@
                             <sortExecutions>true</sortExecutions>
                         </sortPom>
                     </pom>
+                    <python>
+                        <includes>
+                            <include>src/main/**/*.py</include>
+                        </includes>
+                        
+                        <black>
+                            <version>26.3.0</version>
+                            <pathToExe>.venv/bin/black</pathToExe>
+                        </black>
+                    </python>
                     <markdown>
                         <includes>
                             <include>**/*.md</include>

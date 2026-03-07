@@ -6,6 +6,7 @@ import random
 from datetime import datetime, timedelta
 import numpy as np
 import tifffile as tf
+from PIL import Image, ImageDraw, ImageFont
 from concurrent.futures import ProcessPoolExecutor
 
 DEST_DIR = "./static/payloads/"
@@ -13,12 +14,41 @@ TOTAL_BUNDLES = 10
 COMPANIES = ["Acme Corp", "Globex", "Soylent Corp", "Initech", "Umbrella Corp", 
              "Stark Industries", "Wayne Ent", "Hooli", "Cyberdyne", "Wonka Ind"]
 
+import numpy as np
+import tifffile as tf
+from PIL import Image, ImageDraw, ImageFont
+
 def create_random_tiff(args):
     file_path, seed = args
-    shape = (1024, 1024) 
+    img_w, img_h = (1024, 1024) 
     rng = np.random.default_rng(seed)
-    data = rng.integers(0, 256, size=shape, dtype=np.uint8)
-    tf.imwrite(file_path, data, compression='zlib')
+    
+    sample_text = os.path.basename(file_path)
+    
+    data = rng.integers(0, 256, size=(img_h, img_w), dtype=np.uint8)
+    img = Image.fromarray(data)
+    draw = ImageDraw.Draw(img)
+    
+    font_size = 80
+    try:
+        font = ImageFont.truetype("arialbd.ttf", font_size) 
+    except IOError:
+        font = ImageFont.load_default()
+
+    bbox = draw.textbbox((0, 0), sample_text, font=font)
+    text_w = bbox[2] - bbox[0]
+    text_h = bbox[3] - bbox[1]
+    
+    x = (img_w - text_w) // 2
+    y = (img_h - text_h) // 2
+    
+    pad = 20
+    bg_coords = [x - pad, y - pad, x + text_w + pad, y + text_h + pad]
+    draw.rectangle(bg_coords, fill=255) 
+    
+    draw.text((x, y), sample_text, fill=0, font=font) 
+    
+    tf.imwrite(file_path, np.array(img), compression='zlib')
     return file_path
 
 def generate_random_metadata(doc_id, zip_filename):

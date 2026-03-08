@@ -57,11 +57,11 @@ class DockerServicesE2EIT extends BaseDockerIT {
                             "sh",
                             "-c",
                             "npm install -g json-server && json-server --watch /data/db.json"
-                                    + " --static /data/static --port 9090 --host 0.0.0.0")
+                                    + " --static /data/static --port 9091 --host 0.0.0.0")
                     .withClasspathResourceMapping("db.json", "/data/db.json", BindMode.READ_ONLY)
                     .withClasspathResourceMapping("static", "/data/static", BindMode.READ_ONLY)
-                    .withExposedPorts(9090)
-                    .waitingFor(Wait.forHttp("/").forStatusCode(200))
+                    .withExposedPorts(9091)
+                    .waitingFor(Wait.forHttp("/documents").forStatusCode(200))
                     .withStartupTimeout(Duration.ofSeconds(120));
 
     /**
@@ -105,7 +105,7 @@ class DockerServicesE2EIT extends BaseDockerIT {
     @DisplayName("Should retrieve documents from API service")
     void testApiConnectivity() {
         HttpClient client = HttpClient.newHttpClient();
-        String apiUrl = "http://%s:%d/documents".formatted(api.getHost(), api.getMappedPort(9090));
+        String apiUrl = "http://%s:%d/documents".formatted(api.getHost(), api.getMappedPort(9091));
 
         await().atMost(Duration.ofSeconds(5))
                 .pollInterval(Duration.ofMillis(500))
@@ -208,7 +208,7 @@ class DockerServicesE2EIT extends BaseDockerIT {
     @DisplayName("API service should be accessible via HTTP")
     void testApiHttpAccess() {
         HttpClient client = HttpClient.newHttpClient();
-        String apiUrl = "http://%s:%d/documents".formatted(api.getHost(), api.getMappedPort(9090));
+        String apiUrl = "http://%s:%d/documents".formatted(api.getHost(), api.getMappedPort(9091));
 
         await().atMost(Duration.ofSeconds(15))
                 .pollInterval(Duration.ofMillis(500))
@@ -317,7 +317,7 @@ class DockerServicesE2EIT extends BaseDockerIT {
     void testApiTimeoutHandling() {
         HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
-        String apiUrl = "http://%s:%d/documents".formatted(api.getHost(), api.getMappedPort(9090));
+        String apiUrl = "http://%s:%d/documents".formatted(api.getHost(), api.getMappedPort(9091));
         HttpRequest request =
                 HttpRequest.newBuilder()
                         .uri(URI.create(apiUrl))

@@ -81,7 +81,7 @@ services:
       - ./src/main/resources/json-server/scripts/create_source_data.py:/data/create_source_data.py
     entrypoint: sh -c "chmod +x /app/setup.sh && /app/setup.sh"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9091" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:9091/documents" ]
       interval: 5s
       timeout: 3s
       retries: 5

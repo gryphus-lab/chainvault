@@ -48,7 +48,6 @@ public class MigrationExecutor {
             // Run the unique logic
             task.run(span, docId);
 
-            // Duplicated Success Logic
             span.addEvent(
                     "%s.success".formatted(taskType),
                     Attributes.of(AttributeKey.stringKey("document.id"), docId));

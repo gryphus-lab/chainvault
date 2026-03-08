@@ -36,8 +36,7 @@ public class MergePdfDelegate implements JavaDelegate {
                     List<TiffPage> pages = (List<TiffPage>) execution.getTransientVariable("pages");
                     MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 
-                    Path pdfPath;
-                    pdfPath = migrationService.mergeTiffToPdf(pages, docId);
+                    Path pdfPath = migrationService.mergeTiffToPdf(pages, docId);
                     ctx.setPdfHash(HashUtils.sha256(pdfPath));
 
                     execution.setTransientVariable("ctx", ctx);

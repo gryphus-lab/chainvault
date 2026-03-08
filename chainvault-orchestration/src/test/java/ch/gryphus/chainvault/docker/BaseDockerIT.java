@@ -67,10 +67,10 @@ public abstract class BaseDockerIT {
                             "sh",
                             "-c",
                             "npm install -g json-server && json-server --watch /data/db.json"
-                                    + " --static /data/static --port 9090 --host 0.0.0.0")
+                                    + " --static /data/static --port 9091")
                     .withClasspathResourceMapping("db.json", "/data/db.json", BindMode.READ_ONLY)
                     .withClasspathResourceMapping("static", "/data/static", BindMode.READ_ONLY)
-                    .withExposedPorts(9090)
+                    .withExposedPorts(9091)
                     .waitingFor(Wait.forHttp("/").forStatusCode(200))
                     .withStartupTimeout(Duration.ofSeconds(120));
 }

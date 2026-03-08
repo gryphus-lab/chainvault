@@ -124,7 +124,7 @@ class DockerServicesIntegrationIT extends BaseDockerIT {
     void testApiServiceAvailability() {
         assertThat(apiContainer.isRunning()).isTrue();
 
-        Integer mappedPort = apiContainer.getMappedPort(9090);
+        Integer mappedPort = apiContainer.getMappedPort(9091);
         assertThat(mappedPort).isPositive();
     }
 
@@ -134,7 +134,8 @@ class DockerServicesIntegrationIT extends BaseDockerIT {
     @Test
     void testApiResponseFormat() {
         String apiUrl =
-                "http://%s:%d".formatted(apiContainer.getHost(), apiContainer.getMappedPort(9090));
+                "http://%s:%d/documents"
+                        .formatted(apiContainer.getHost(), apiContainer.getMappedPort(9091));
 
         // Wait for API to be fully ready
         await().atMost(Duration.ofSeconds(10))

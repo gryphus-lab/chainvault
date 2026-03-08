@@ -34,8 +34,7 @@ public class SignDocumentDelegate implements JavaDelegate {
                     byte[] payload = (byte[]) execution.getTransientVariable("payload");
                     MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 
-                    List<TiffPage> pages;
-                    pages = migrationService.signTiffPages(payload, ctx);
+                    List<TiffPage> pages = migrationService.signTiffPages(payload, ctx);
                     execution.setTransientVariable("pages", pages);
                 });
     }

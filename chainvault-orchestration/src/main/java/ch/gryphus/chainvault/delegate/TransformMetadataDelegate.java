@@ -29,8 +29,7 @@ public class TransformMetadataDelegate implements JavaDelegate {
                 execution,
                 "transform-metadata",
                 "ASSEMBLY_FAILED",
-                (_, _) -> {
-                    // ONLY the unique logic remains here
+                (span, docId) -> {
                     MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
                     SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
 

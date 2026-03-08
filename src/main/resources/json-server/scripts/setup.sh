@@ -17,4 +17,4 @@ python3 create_source_data.py
 
 echo "Starting json-server..."
 npm install -g json-server
-json-server --watch /data/db.json --static /data/static --port 9091 --host 0.0.0.0
+json-server --watch /data/db.json --static /data/static --port 9091

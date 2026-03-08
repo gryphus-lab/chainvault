@@ -134,7 +134,8 @@ class DockerServicesIntegrationIT extends BaseDockerIT {
     @Test
     void testApiResponseFormat() {
         String apiUrl =
-                "http://%s:%d/documents".formatted(apiContainer.getHost(), apiContainer.getMappedPort(9091));
+                "http://%s:%d/documents"
+                        .formatted(apiContainer.getHost(), apiContainer.getMappedPort(9091));
 
         // Wait for API to be fully ready
         await().atMost(Duration.ofSeconds(10))

@@ -20,6 +20,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -45,12 +46,14 @@ import tools.jackson.dataformat.xml.XmlMapper;
 public class MigrationService {
 
     private final RestClient restClient;
-    private final SftpRemoteFileTemplate sftpRemoteFileTemplate;
-    private final SftpTargetConfig sftpTargetConfig;
+    private final SftpRemoteFileTemplate remoteFileTemplate;
+
+    @Getter private final SftpTargetConfig sftpTargetConfig;
     private final XmlMapper xmlMapper;
     private final ObjectMapper objectMapper;
     private final Tika tika;
-    private final String tempDir;
+
+    @Getter private final String tempDir;
     private final int zipThresholdSize;
     private final double zipThresholdRatio;
     private final int zipThresholdEntries;
@@ -81,7 +84,7 @@ public class MigrationService {
             @Value("${migration.zip-threshold-ratio:10.0}") double zipThresholdRatio,
             @Value("${migration.zip-threshold-entries:10000}") int zipThresholdEntries) {
         this.restClient = restClient;
-        sftpRemoteFileTemplate = template;
+        remoteFileTemplate = template;
         this.sftpTargetConfig = sftpTargetConfig;
         this.xmlMapper = xmlMapper;
         this.objectMapper = objectMapper;
@@ -320,7 +323,7 @@ public class MigrationService {
     public void uploadToSftp(
             MigrationContext ctx, String docId, String xml, Path zipPath, Path pdfPath) {
         String folder = "%s/%s".formatted(sftpTargetConfig.getRemoteDirectory(), docId);
-        sftpRemoteFileTemplate.execute(
+        remoteFileTemplate.execute(
                 s -> {
                     if (!s.exists(folder)) {
                         s.mkdir(folder);
@@ -336,7 +339,7 @@ public class MigrationService {
                             "%s/%s_meta.xml".formatted(folder, docId));
                     return null;
                 });
-        log.info("Done {} | zipPath={} | pdf={}", docId, ctx.getZipHash(), ctx.getPdfHash());
+        log.info("Done {} | zipHash={} | pdfHash={}", docId, ctx.getZipHash(), ctx.getPdfHash());
     }
 
     /**

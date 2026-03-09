@@ -102,8 +102,11 @@ public class AuditEventService {
             audit.setErrorCode(errorCode);
         }
 
-        if (varMap.get("zipPath") != null) {
-            audit.setChainOfCustodyZip(String.valueOf(varMap.get("zipPath")));
+        if (varMap.get("outputFileKey") != null) {
+            audit.setOutputFileKey((String) varMap.get("outputFileKey"));
+        }
+        if (varMap.get("chainOfCustodyZip") != null) {
+            audit.setChainOfCustodyZip(String.valueOf(varMap.get("chainOfCustodyZip")));
         }
 
         var ctx = (MigrationContext) varMap.get("ctx");

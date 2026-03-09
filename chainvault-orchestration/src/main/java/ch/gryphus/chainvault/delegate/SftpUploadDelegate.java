@@ -34,6 +34,18 @@ public class SftpUploadDelegate implements JavaDelegate {
                     Path zipPath = (Path) execution.getTransientVariable("zipPath");
                     Path pdfPath = (Path) execution.getTransientVariable("pdfPath");
                     migrationService.uploadToSftp(ctx, docId, xml, zipPath, pdfPath);
+
+                    execution.setTransientVariable(
+                            "outputFileKey",
+                            "%s/%s"
+                                    .formatted(
+                                            migrationService
+                                                    .getSftpTargetConfig()
+                                                    .getRemoteDirectory(),
+                                            docId));
+                    String zipPathRef =
+                            zipPath.toString().replaceAll(migrationService.getTempDir(), "");
+                    execution.setTransientVariable("chainOfCustodyZip", zipPathRef);
                 });
     }
 }

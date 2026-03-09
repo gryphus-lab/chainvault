@@ -29,9 +29,12 @@ services:
       # OpenTelemetry
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
     depends_on:
-      - sftp-test
-      - fake-source-api
-      - postgres
+      sftp-test:
+        condition: service_healthy
+      fake-source-api:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
       interval: 5s

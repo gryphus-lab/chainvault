@@ -44,7 +44,8 @@ public class SftpUploadDelegate implements JavaDelegate {
                                                     .getRemoteDirectory(),
                                             docId));
                     String zipPathRef =
-                            zipPath.toString().replaceAll(migrationService.getTempDir(), "");
+                            zipPath.toString()
+                                    .replaceAll("%s/".formatted(migrationService.getTempDir()), "");
                     execution.setTransientVariable("chainOfCustodyZip", zipPathRef);
                 });
     }

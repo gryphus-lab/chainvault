@@ -32,7 +32,7 @@ public class MergePdfDelegate implements JavaDelegate {
                 execution,
                 "merge-pdfs",
                 "ASSEMBLY_FAILED",
-                (span, docId) -> {
+                (span, docId, map) -> {
                     List<TiffPage> pages = (List<TiffPage>) execution.getTransientVariable("pages");
                     MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 

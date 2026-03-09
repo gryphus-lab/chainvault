@@ -11,6 +11,7 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -46,7 +47,7 @@ public class MigrationExecutor {
 
         try {
             // Run the unique logic
-            task.run(span, docId);
+            task.run(span, docId, execution.getTransientVariables());
 
             span.addEvent(
                     "%s.success".formatted(taskType),
@@ -58,7 +59,8 @@ public class MigrationExecutor {
                     null,
                     null,
                     taskType,
-                    "%s completed successfully".formatted(taskType));
+                    "%s completed successfully".formatted(taskType),
+                    execution.getTransientVariables());
 
             log.info("{} completed for docId: {}", taskType, docId);
         } catch (Exception e) {
@@ -77,9 +79,11 @@ public class MigrationExecutor {
          *
          * @param span  the span
          * @param docId the doc id
+         * @param map   the map
          * @throws IOException              the io exception
          * @throws NoSuchAlgorithmException the no such algorithm exception
          */
-        void run(Span span, String docId) throws IOException, NoSuchAlgorithmException;
+        void run(Span span, String docId, Map<String, Object> map)
+                throws IOException, NoSuchAlgorithmException;
     }
 }

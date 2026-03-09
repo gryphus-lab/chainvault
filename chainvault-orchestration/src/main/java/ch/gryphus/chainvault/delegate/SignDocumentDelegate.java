@@ -30,7 +30,7 @@ public class SignDocumentDelegate implements JavaDelegate {
                 execution,
                 "sign-document",
                 "SIGN_FAILED",
-                (span, docId) -> {
+                (span, docId, map) -> {
                     byte[] payload = (byte[]) execution.getTransientVariable("payload");
                     MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 

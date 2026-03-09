@@ -28,7 +28,7 @@ public class SftpUploadDelegate implements JavaDelegate {
                 execution,
                 "upload-sftp",
                 "UPLOAD_FAILED",
-                (span, docId) -> {
+                (span, docId, map) -> {
                     MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
                     String xml = (String) execution.getTransientVariable("xml");
                     Path zipPath = (Path) execution.getTransientVariable("zipPath");

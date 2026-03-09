@@ -34,7 +34,7 @@ public class PrepareFilesDelegate implements JavaDelegate {
                 execution,
                 "prepare-files",
                 "ASSEMBLY_FAILED",
-                (span, docId) -> {
+                (span, docId, map) -> {
                     var pages = (List<TiffPage>) execution.getTransientVariable("pages");
                     SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
                     MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");

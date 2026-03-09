@@ -28,12 +28,12 @@ public class ExtractAndHashDelegate implements JavaDelegate {
                 execution,
                 "extract-hash",
                 "EXTRACTION_FAILED",
-                (span, docId) -> {
-                    Map<String, Object> map = migrationService.extractAndHash(docId);
+                (span, docId, map) -> {
+                    Map<String, Object> map1 = migrationService.extractAndHash(docId);
 
-                    execution.setTransientVariable("ctx", map.get("ctx"));
-                    execution.setTransientVariable("meta", map.get("meta"));
-                    execution.setTransientVariable("payload", map.get("payload"));
+                    execution.setTransientVariable("ctx", map1.get("ctx"));
+                    execution.setTransientVariable("meta", map1.get("meta"));
+                    execution.setTransientVariable("payload", map1.get("payload"));
                 });
     }
 }

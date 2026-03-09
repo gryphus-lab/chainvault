@@ -13,6 +13,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.engine.delegate.BpmnError;
 import org.springframework.stereotype.Service;
 
@@ -141,9 +142,9 @@ public class AuditEventService {
                 piKey,
                 MigrationAudit.MigrationStatus.FAILED,
                 errorCode,
-                e.getCause().getMessage(),
+                ExceptionUtils.getStackTrace(e),
                 eventTaskType,
-                e.getMessage());
+                ExceptionUtils.getMessage(e));
 
         // Throw BPMN error to trigger boundary event
         throw new BpmnError(errorCode, e.getMessage());

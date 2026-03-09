@@ -3,6 +3,7 @@
  */
 package ch.gryphus.chainvault.delegate;
 
+import ch.gryphus.chainvault.service.MigrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class InitVariablesService implements JavaDelegate {
 
+    private final MigrationService migrationService;
     private final MigrationExecutor executor;
 
     @Override
@@ -25,6 +27,6 @@ public class InitVariablesService implements JavaDelegate {
                 execution,
                 "init-variables",
                 "INIT_FAILED",
-                (span, docId) -> log.info("Init variables executed for docId: {}", docId));
+                (span, docId, map) -> log.info("Init variables executed for docId: {}", docId));
     }
 }

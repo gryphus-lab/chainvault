@@ -34,12 +34,16 @@ public class PrepareFilesDelegate implements JavaDelegate {
                 execution,
                 "prepare-files",
                 "ASSEMBLY_FAILED",
-                (span, docId) -> {
+                (span, docId, map) -> {
                     var pages = (List<TiffPage>) execution.getTransientVariable("pages");
                     SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
                     MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 
-                    Path zipPath = migrationService.createChainZip(docId, pages, meta, ctx);
+                    Path workingDirectory =
+                            (Path) execution.getTransientVariable("workingDirectory");
+                    Path zipPath =
+                            migrationService.createChainZip(
+                                    docId, pages, meta, ctx, workingDirectory.toString());
                     ctx.setZipHash(HashUtils.sha256(zipPath));
 
                     execution.setTransientVariable("ctx", ctx);

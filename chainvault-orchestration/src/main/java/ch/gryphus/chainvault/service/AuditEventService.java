@@ -3,6 +3,7 @@
  */
 package ch.gryphus.chainvault.service;
 
+import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.entity.MigrationAudit;
 import ch.gryphus.chainvault.entity.MigrationEvent;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
@@ -12,6 +13,8 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.engine.delegate.BpmnError;
@@ -74,6 +77,7 @@ public class AuditEventService {
      * @param errorMsg          the error msg
      * @param eventTaskType     the event task type
      * @param eventMsg          the event msg
+     * @param varMap            the var map
      */
     public void updateAuditEventEnd(
             String processInstanceId,
@@ -81,7 +85,8 @@ public class AuditEventService {
             String errorCode,
             String errorMsg,
             String eventTaskType,
-            String eventMsg) {
+            String eventMsg,
+            Map<String, Object> varMap) {
         var audit =
                 auditRepo
                         .findByProcessInstanceKey(processInstanceId)
@@ -96,6 +101,24 @@ public class AuditEventService {
             audit.setFailureReason(errorMsg);
             audit.setErrorCode(errorCode);
         }
+
+        if (varMap.get("outputFileKey") != null) {
+            audit.setOutputFileKey((String) varMap.get("outputFileKey"));
+        }
+        if (varMap.get("chainOfCustodyZip") != null) {
+            audit.setChainOfCustodyZip(String.valueOf(varMap.get("chainOfCustodyZip")));
+        }
+
+        var ctx = (MigrationContext) varMap.get("ctx");
+        if (ctx != null) {
+            if (ctx.getPayloadHash() != null) {
+                audit.setInputPayloadHash(ctx.getPayloadHash());
+            }
+            if (ctx.getPdfHash() != null) {
+                audit.setMergedPdfHash(ctx.getPdfHash());
+            }
+        }
+
         String traceId = Span.current().getSpanContext().getTraceId();
 
         audit.setCompletedAt(Instant.now());
@@ -111,6 +134,12 @@ public class AuditEventService {
                         : MigrationEvent.MigrationEventType.TASK_COMPLETED);
 
         event.setTaskType(eventTaskType);
+
+        if (errorMsg != null) {
+            event.setErrorCode(errorCode);
+            event.setErrorMessage(errorMsg);
+        }
+
         event.setMessage(eventMsg);
         event.setTraceId(traceId);
         eventRepo.save(event);
@@ -144,7 +173,8 @@ public class AuditEventService {
                 errorCode,
                 ExceptionUtils.getStackTrace(e),
                 eventTaskType,
-                ExceptionUtils.getMessage(e));
+                ExceptionUtils.getMessage(e),
+                Collections.emptyMap());
 
         // Throw BPMN error to trigger boundary event
         throw new BpmnError(errorCode, e.getMessage());

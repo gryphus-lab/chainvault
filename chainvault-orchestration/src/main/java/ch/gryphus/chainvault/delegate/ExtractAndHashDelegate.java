@@ -4,6 +4,9 @@
 package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.service.MigrationService;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +31,22 @@ public class ExtractAndHashDelegate implements JavaDelegate {
                 execution,
                 "extract-hash",
                 "EXTRACTION_FAILED",
-                (span, docId) -> {
-                    Map<String, Object> map = migrationService.extractAndHash(docId);
+                (span, docId, map) -> {
+                    Path path =
+                            Paths.get(
+                                    "%s-%s"
+                                            .formatted(
+                                                    migrationService.getTempDir(),
+                                                    execution.getProcessInstanceId()));
+                    Files.createDirectory(path);
+                    log.info("Created directory: {}", path);
+                    execution.setTransientVariable("workingDirectory", path);
 
-                    execution.setTransientVariable("ctx", map.get("ctx"));
-                    execution.setTransientVariable("meta", map.get("meta"));
-                    execution.setTransientVariable("payload", map.get("payload"));
+                    Map<String, Object> map1 = migrationService.extractAndHash(docId);
+
+                    execution.setTransientVariable("ctx", map1.get("ctx"));
+                    execution.setTransientVariable("meta", map1.get("meta"));
+                    execution.setTransientVariable("payload", map1.get("payload"));
                 });
     }
 }

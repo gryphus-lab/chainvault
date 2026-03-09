@@ -20,6 +20,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -45,12 +46,14 @@ import tools.jackson.dataformat.xml.XmlMapper;
 public class MigrationService {
 
     private final RestClient restClient;
-    private final SftpRemoteFileTemplate sftpRemoteFileTemplate;
-    private final SftpTargetConfig sftpTargetConfig;
+    private final SftpRemoteFileTemplate remoteFileTemplate;
+
+    @Getter private final SftpTargetConfig sftpTargetConfig;
     private final XmlMapper xmlMapper;
     private final ObjectMapper objectMapper;
     private final Tika tika;
-    private final String tempDir;
+
+    @Getter private final String tempDir;
     private final int zipThresholdSize;
     private final double zipThresholdRatio;
     private final int zipThresholdEntries;
@@ -81,7 +84,7 @@ public class MigrationService {
             @Value("${migration.zip-threshold-ratio:10.0}") double zipThresholdRatio,
             @Value("${migration.zip-threshold-entries:10000}") int zipThresholdEntries) {
         this.restClient = restClient;
-        sftpRemoteFileTemplate = template;
+        remoteFileTemplate = template;
         this.sftpTargetConfig = sftpTargetConfig;
         this.xmlMapper = xmlMapper;
         this.objectMapper = objectMapper;
@@ -160,18 +163,20 @@ public class MigrationService {
     /**
      * Sign tiff pages list.
      *
-     * @param payload the payload
-     * @param ctx     the ctx
+     * @param payload          the payload
+     * @param ctx              the ctx
+     * @param workingDirectory the working directory
      * @return the list
      * @throws IOException              the io exception
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
-    public List<TiffPage> signTiffPages(byte[] payload, MigrationContext ctx)
+    public List<TiffPage> signTiffPages(
+            byte[] payload, MigrationContext ctx, String workingDirectory)
             throws IOException, NoSuchAlgorithmException {
         List<TiffPage> pages = new ArrayList<>();
 
         // security hotspot fix against zip bombs
-        File file = new File("%s/temp_%s.zip".formatted(tempDir, ctx.getDocId()));
+        File file = new File("%s/temp_%s.zip".formatted(workingDirectory, ctx.getDocId()));
         FileUtils.writeByteArrayToFile(file, payload);
 
         try (ZipFile zipFile = new ZipFile(file)) {
@@ -188,7 +193,7 @@ public class MigrationService {
                                 new BufferedOutputStream(
                                         new FileOutputStream(
                                                 "%s/output_onlyfortesting.txt"
-                                                        .formatted(tempDir)))) {
+                                                        .formatted(workingDirectory)))) {
 
                     totalEntryArchive++;
 
@@ -249,19 +254,24 @@ public class MigrationService {
     /**
      * Create chain zip path.
      *
-     * @param docId          the doc id
-     * @param pages          the pages
-     * @param sourceMetadata the source metadata
-     * @param ctx            the ctx
+     * @param docId            the doc id
+     * @param pages            the pages
+     * @param sourceMetadata   the source metadata
+     * @param ctx              the ctx
+     * @param workingDirectory the working directory
      * @return the path
      * @throws IOException              the io exception
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
     public Path createChainZip(
-            String docId, List<TiffPage> pages, SourceMetadata sourceMetadata, MigrationContext ctx)
+            String docId,
+            List<TiffPage> pages,
+            SourceMetadata sourceMetadata,
+            MigrationContext ctx,
+            String workingDirectory)
             throws IOException, NoSuchAlgorithmException {
 
-        Path zipPath = new File("%s/%s_chain.zip".formatted(tempDir, docId)).toPath();
+        Path zipPath = new File("%s/%s_chain.zip".formatted(workingDirectory, docId)).toPath();
 
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
             for (int i = 0; i < pages.size(); i++) {
@@ -311,20 +321,26 @@ public class MigrationService {
     /**
      * Upload to sftp.
      *
-     * @param ctx     the ctx
-     * @param docId   the doc id
-     * @param xml     the XML
-     * @param zipPath the zip path
-     * @param pdfPath the PDF path
+     * @param ctx               the ctx
+     * @param docId             the doc id
+     * @param xml               the XML
+     * @param zipPath           the zip path
+     * @param pdfPath           the PDF path
+     * @param processInstanceId the process instance id
      */
     public void uploadToSftp(
-            MigrationContext ctx, String docId, String xml, Path zipPath, Path pdfPath) {
-        String folder = "%s/%s".formatted(sftpTargetConfig.getRemoteDirectory(), docId);
-        sftpRemoteFileTemplate.execute(
+            MigrationContext ctx,
+            String docId,
+            String xml,
+            Path zipPath,
+            Path pdfPath,
+            String processInstanceId) {
+        String folder =
+                "%s/%s-%s"
+                        .formatted(sftpTargetConfig.getRemoteDirectory(), processInstanceId, docId);
+        remoteFileTemplate.execute(
                 s -> {
-                    if (!s.exists(folder)) {
-                        s.mkdir(folder);
-                    }
+                    s.mkdir(folder);
                     s.write(
                             Files.newInputStream(zipPath.toFile().toPath()),
                             "%s/%s_chain.zip".formatted(folder, docId));
@@ -336,19 +352,21 @@ public class MigrationService {
                             "%s/%s_meta.xml".formatted(folder, docId));
                     return null;
                 });
-        log.info("Done {} | zipPath={} | pdf={}", docId, ctx.getZipHash(), ctx.getPdfHash());
+        log.info("Done {} | zipHash={} | pdfHash={}", docId, ctx.getZipHash(), ctx.getPdfHash());
     }
 
     /**
      * Merge tiff to PDF path.
      *
-     * @param pages the pages
-     * @param docId the doc id
+     * @param pages            the pages
+     * @param docId            the doc id
+     * @param workingDirectory the working directory
      * @return the path
      * @throws IOException the io exception
      */
-    public Path mergeTiffToPdf(List<TiffPage> pages, String docId) throws IOException {
-        Path pdf = new File("%s/%s.pdf".formatted(tempDir, docId)).toPath();
+    public Path mergeTiffToPdf(List<TiffPage> pages, String docId, String workingDirectory)
+            throws IOException {
+        Path pdf = new File("%s/%s.pdf".formatted(workingDirectory, docId)).toPath();
         try (var doc = new PDDocument()) {
             for (var page : pages) {
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(page.data()));

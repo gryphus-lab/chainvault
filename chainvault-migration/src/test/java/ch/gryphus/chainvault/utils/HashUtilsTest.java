@@ -6,6 +6,7 @@ package ch.gryphus.chainvault.utils;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,7 @@ class HashUtilsTest {
      */
     @Test
     void testSha2562withByteArray() throws Exception {
-        assertThat(HashUtils.sha256("content".getBytes()))
+        assertThat(HashUtils.sha256("content".getBytes(StandardCharsets.UTF_8)))
                 .isEqualTo("ed7002b439e9ac845f22357d822bac1444730fbdb6016d3ec9432297b9ec9f73");
     }
 
@@ -56,7 +57,7 @@ class HashUtilsTest {
         Path file = tempDir.resolve("test.txt");
         Files.writeString(file, "hello world");
 
-        String hashFromBytes = HashUtils.sha256("hello world".getBytes());
+        String hashFromBytes = HashUtils.sha256("hello world".getBytes(StandardCharsets.UTF_8));
         String hashFromPath = HashUtils.sha256(file);
 
         assertThat(hashFromPath).isEqualTo(hashFromBytes);

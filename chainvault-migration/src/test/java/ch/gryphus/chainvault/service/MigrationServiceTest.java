@@ -81,7 +81,7 @@ class MigrationServiceTest {
     private double zipThresholdRatio;
     private int zipThresholdEntries;
 
-    String workingDirectory = "/tmp";
+    static final String WORKING_DIRECTORY = "/tmp";
 
     /**
      * Sets up.
@@ -101,7 +101,7 @@ class MigrationServiceTest {
                         new XmlMapper(),
                         new ObjectMapper(),
                         new Tika(),
-                        workingDirectory,
+                        WORKING_DIRECTORY,
                         zipThresholdSize,
                         zipThresholdRatio,
                         zipThresholdEntries);
@@ -424,7 +424,7 @@ class MigrationServiceTest {
                 .allSatisfy(
                         page -> {
                             int i = pages.indexOf(page) + 1;
-                            assertThat(page.name()).isEqualTo((docId + "_%03d.tiff").formatted(i));
+                            assertThat(page.name()).isEqualTo("%s_%03d.tiff".formatted(docId, i));
                         });
     }
 
@@ -460,7 +460,7 @@ class MigrationServiceTest {
         byte[] zip = createZipWithTiffs(List.of("readme.txt", "no tiffs here"));
 
         assertThatThrownBy(
-                        () -> migrationServiceUnderTest.signTiffPages(zip, ctx, workingDirectory))
+                        () -> migrationServiceUnderTest.signTiffPages(zip, ctx, WORKING_DIRECTORY))
                 .isInstanceOf(MigrationServiceException.class)
                 .hasMessage("No TIFF pages found in ZIP");
     }
@@ -486,7 +486,7 @@ class MigrationServiceTest {
         assertThatThrownBy(
                         () ->
                                 migrationServiceUnderTest.signTiffPages(
-                                        payload, ctx, workingDirectory))
+                                        payload, ctx, WORKING_DIRECTORY))
                 .isInstanceOf(MigrationServiceException.class)
                 .hasMessage(
                         "Total size of the archive is greater than the threshold %d bytes"
@@ -513,7 +513,7 @@ class MigrationServiceTest {
         assertThatThrownBy(
                         () ->
                                 migrationServiceUnderTest.signTiffPages(
-                                        payload, ctx, workingDirectory))
+                                        payload, ctx, WORKING_DIRECTORY))
                 .isInstanceOf(MigrationServiceException.class)
                 .hasMessage(
                         "Ratio between compressed and uncompressed data is greater than %s"
@@ -530,7 +530,7 @@ class MigrationServiceTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             for (int i = 0; i < 10001; i++) {
-                zos.putNextEntry(new ZipEntry("file" + i + ".txt"));
+                zos.putNextEntry(new ZipEntry("file%d.txt".formatted(i)));
                 zos.write("data".getBytes(StandardCharsets.UTF_8));
                 zos.closeEntry();
             }
@@ -540,7 +540,7 @@ class MigrationServiceTest {
         assertThatThrownBy(
                         () ->
                                 migrationServiceUnderTest.signTiffPages(
-                                        payload, ctx, workingDirectory))
+                                        payload, ctx, WORKING_DIRECTORY))
                 .isInstanceOf(MigrationServiceException.class)
                 .hasMessage(
                         "Number of entries in the archive is greater than %d"
@@ -599,14 +599,13 @@ class MigrationServiceTest {
 
             assertThat(tiffCount).isEqualTo(2);
             assertThat(manifestContent).isNotNull();
-            String expectedManifestContent =
+            String expectedResult =
                     """
                     {"docId":"DOC-TEST-001","pageCount":2,"pageHashes":{"sample1.tiff"\
                     :"hash-page1"},"payloadHash":"payload-sha256-abc123","sourceMetadata":\
                     {"docId":"DOC-TEST-001","title":"Test Invoice 2026","clientId":"CHE-123.456.789"}}\
                     """;
-            JSONAssert.assertEquals(
-                    expectedManifestContent, manifestContent, JSONCompareMode.LENIENT);
+            JSONAssert.assertEquals(expectedResult, manifestContent, JSONCompareMode.LENIENT);
         }
     }
 
@@ -618,7 +617,7 @@ class MigrationServiceTest {
         assertThatThrownBy(
                         () ->
                                 migrationServiceUnderTest.createChainZip(
-                                        "DOC-001", null, meta, ctx, workingDirectory))
+                                        "DOC-001", null, meta, ctx, WORKING_DIRECTORY))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -716,7 +715,7 @@ class MigrationServiceTest {
     }
 
     // Helper to create small test ZIP
-    private byte[] createZipWithTiffs(List<String> entries) throws Exception {
+    private static byte[] createZipWithTiffs(List<String> entries) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             for (int i = 0; i < entries.size(); i += 2) {

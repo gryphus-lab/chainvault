@@ -11,10 +11,10 @@ import java.util.Objects;
  */
 public record TiffPage(String name, byte[] data) {
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TiffPage tiffPage = (TiffPage) o;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        TiffPage tiffPage = (TiffPage) obj;
         return Objects.equals(name, tiffPage.name) && Arrays.equals(data, tiffPage.data);
     }
 

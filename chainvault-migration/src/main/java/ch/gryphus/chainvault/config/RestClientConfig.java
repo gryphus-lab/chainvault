@@ -29,7 +29,7 @@ public class RestClientConfig {
         var builder = RestClient.builder().baseUrl(baseUrl);
 
         if (!token.isBlank()) {
-            builder = builder.defaultHeader("Authorization", "Bearer " + token);
+            builder = builder.defaultHeader("Authorization", "Bearer %s".formatted(token));
         }
 
         return builder.build();

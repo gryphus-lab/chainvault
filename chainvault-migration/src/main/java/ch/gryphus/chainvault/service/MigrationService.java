@@ -339,15 +339,15 @@ public class MigrationService {
                 "%s/%s-%s"
                         .formatted(sftpTargetConfig.getRemoteDirectory(), processInstanceId, docId);
         remoteFileTemplate.execute(
-                s -> {
-                    s.mkdir(folder);
-                    s.write(
+                session -> {
+                    session.mkdir(folder);
+                    session.write(
                             Files.newInputStream(zipPath.toFile().toPath()),
                             "%s/%s_chain.zip".formatted(folder, docId));
-                    s.write(
+                    session.write(
                             Files.newInputStream(pdfPath.toFile().toPath()),
                             "%s/%s.pdf".formatted(folder, docId));
-                    s.write(
+                    session.write(
                             new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
                             "%s/%s_meta.xml".formatted(folder, docId));
                     return null;

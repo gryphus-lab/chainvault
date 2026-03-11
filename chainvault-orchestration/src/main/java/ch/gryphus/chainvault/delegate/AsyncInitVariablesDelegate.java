@@ -4,6 +4,11 @@
 package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.service.MigrationService;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -20,15 +25,24 @@ public class AsyncInitVariablesDelegate implements JavaDelegate {
 
     private final MigrationService migrationService;
     private final MigrationExecutor executor;
+    private final Tracer tracer;
 
     @Override
     public void execute(DelegateExecution execution) {
-        executor.executeStep(
-                execution,
-                "async-init-vars",
-                "ASYNC-INIT_FAILED",
-                (span, docId, map) -> {
-                    // do nothing
-                });
+        Context parentContext = (Context) execution.getVariable("parentContext");
+        if (parentContext == null) {
+            parentContext = Context.current();
+        }
+
+        Span childSpan =
+                tracer.spanBuilder("Flowable: " + execution.getCurrentActivityId())
+                        .setParent(parentContext)
+                        .setSpanKind(SpanKind.INTERNAL)
+                        .startSpan();
+
+        try (Scope scope = childSpan.makeCurrent()) {
+            executor.executeStep(
+                    execution, "async-init-vars", "ASYNC-INIT_FAILED", (span, docId, map) -> {});
+        }
     }
 }

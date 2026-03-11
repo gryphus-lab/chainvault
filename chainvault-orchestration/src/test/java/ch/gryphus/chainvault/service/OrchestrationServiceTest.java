@@ -4,12 +4,15 @@
 package ch.gryphus.chainvault.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 import ch.gryphus.chainvault.config.Constants;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.Tracer;
 import java.util.Map;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -18,10 +21,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 /**
  * The type Orchestration service test.
  */
+@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 class OrchestrationServiceTest {
 
@@ -29,9 +35,14 @@ class OrchestrationServiceTest {
 
     @Mock private MigrationAuditRepository auditRepository;
 
+    @Mock private Tracer mockTracer;
     private OrchestrationService orchestrationServiceUnderTest;
 
     @Mock private ProcessInstance mockProcessInstance;
+
+    @Mock private SpanBuilder mockSpanBuilder;
+    @Mock private Span mockSpan;
+    @Mock private SpanContext mockSpanContext;
 
     /**
      * Sets up.
@@ -39,7 +50,12 @@ class OrchestrationServiceTest {
     @BeforeEach
     void setUp() {
         orchestrationServiceUnderTest =
-                new OrchestrationService(mockRuntimeService, auditRepository);
+                new OrchestrationService(mockRuntimeService, auditRepository, mockTracer);
+
+        when(mockTracer.spanBuilder(any())).thenReturn(mockSpanBuilder);
+        when(mockSpanBuilder.startSpan()).thenReturn(mockSpan);
+        when(mockSpan.getSpanContext()).thenReturn(mockSpanContext);
+        when(mockSpanContext.getTraceId()).thenReturn("12345");
         when(mockProcessInstance.getProcessInstanceId()).thenReturn("test");
     }
 

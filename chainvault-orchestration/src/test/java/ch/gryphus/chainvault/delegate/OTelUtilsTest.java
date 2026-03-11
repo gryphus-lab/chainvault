@@ -13,16 +13,24 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class OTelUtilsTest {
 
     private OpenTelemetry otel;
+    Span parentSpan;
 
     @BeforeEach
     void setUp() {
         otel = setupRealSdk();
+        parentSpan = otel.getTracer("test").spanBuilder("root").startSpan();
+    }
+
+    @AfterEach
+    void tearDown() {
+        parentSpan.end();
     }
 
     @Test
@@ -32,22 +40,34 @@ class OTelUtilsTest {
     }
 
     @Test
-    void testExtractContextIsValid() {
-        Span parentSpan = otel.getTracer("test").spanBuilder("root").startSpan();
+    void tesWhenTraceParentIsValidFormat() {
         SpanContext expectedContext = parentSpan.getSpanContext();
 
         String traceParent =
                 String.format(
                         "00-%s-%s-01", expectedContext.getTraceId(), expectedContext.getSpanId());
 
-        // 3. Act: Use the utility to extract the context
         Context extractedContext = OTelUtils.extractContext(otel, traceParent);
         SpanContext actualContext = Span.fromContext(extractedContext).getSpanContext();
 
-        // 4. Assert: The IDs must match exactly
-        assertThat(expectedContext.getTraceId()).isEqualTo(actualContext.getTraceId());
-        assertThat(expectedContext.getSpanId()).isEqualTo(actualContext.getSpanId());
-        parentSpan.end();
+        assertThat(actualContext.getTraceId()).isEqualTo(expectedContext.getTraceId());
+        assertThat(actualContext.getSpanId()).isEqualTo(expectedContext.getSpanId());
+    }
+
+    @Test
+    void testWithNullOrEmptyTraceParent() {
+        String traceParent = ""; // empty value
+        Context extractedContext = OTelUtils.extractContext(otel, traceParent);
+        SpanContext actualContext = Span.fromContext(extractedContext).getSpanContext();
+
+        assertThat(actualContext.getTraceId()).isNotNull();
+        assertThat(actualContext.getSpanId()).isNotNull();
+
+        extractedContext = OTelUtils.extractContext(otel, null); // null value
+        actualContext = Span.fromContext(extractedContext).getSpanContext();
+
+        assertThat(actualContext.getTraceId()).isNotNull();
+        assertThat(actualContext.getSpanId()).isNotNull();
     }
 
     private static OpenTelemetry setupRealSdk() {

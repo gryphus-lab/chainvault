@@ -48,8 +48,8 @@ public class OTelUtils {
         }
 
         @Override
-        public String get(Map<String, String> carrier, String key) {
-            return carrier == null ? null : carrier.get(key);
+        public String get(Map<String, String> carrier, String s) {
+            return carrier == null ? null : carrier.get(s);
         }
     }
 }

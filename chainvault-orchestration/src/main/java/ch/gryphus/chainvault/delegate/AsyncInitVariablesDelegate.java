@@ -4,7 +4,6 @@
 package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.service.AuditEventService;
-import ch.gryphus.chainvault.service.MigrationService;
 import io.opentelemetry.api.trace.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AsyncInitVariablesDelegate extends AbstractTracingDelegate {
 
-    private final MigrationService migrationService;
     private final AuditEventService auditEventService;
 
     @Override

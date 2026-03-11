@@ -9,14 +9,11 @@ import ch.gryphus.chainvault.service.AuditEventService;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.common.*;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.context.propagation.TextMapGetter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 
@@ -33,14 +30,16 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) {
+        // 1. Reconstruct Context from stored TraceParent string
         String traceParent = (String) execution.getVariable("traceParent");
-        Context parentContext = extractContext(traceParent);
+        Context parentContext = OTelUtils.extractContextFromTraceParent(traceParent);
 
-        // Start the span as a child
+        // 2. Start a child span
         Span span =
                 GlobalOpenTelemetry.getTracer("chainvault-tracer")
                         .spanBuilder(getTaskType())
                         .setParent(parentContext)
+                        .setSpanKind(SpanKind.INTERNAL)
                         .startSpan();
 
         try (Scope scope = span.makeCurrent()) {
@@ -59,7 +58,8 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
         }
     }
 
-    private void executeManagedStep(DelegateExecution execution, Span span) throws Exception {
+    private void executeManagedStep(DelegateExecution execution, Span span)
+            throws IOException, NoSuchAlgorithmException {
         String docId = (String) execution.getVariable(Constants.BPMN_PROC_VAR_DOC_ID);
         span.setAttribute(Constants.SPAN_ATTR_DOCUMENT_ID, docId);
 
@@ -67,7 +67,7 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
                 .updateAuditEventStart(
                         execution.getProcessInstanceId(), docId, getTaskType(), span);
 
-        // Run the specific task logic
+        // Execute unique business logic
         doExecute(execution, span, docId);
 
         span.addEvent(
@@ -80,36 +80,10 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
                         null,
                         null,
                         getTaskType(),
-                        getTaskType() + " completed",
+                        "%s completed".formatted(getTaskType()),
                         execution.getTransientVariables());
     }
 
     protected abstract void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException;
-
-    private static Context extractContext(String traceParent) {
-        if (traceParent == null) return Context.root();
-        return GlobalOpenTelemetry.getPropagators()
-                .getTextMapPropagator()
-                .extract(
-                        Context.current(),
-                        Collections.singletonMap("traceparent", traceParent),
-                        MapGetter.INSTANCE);
-    }
-
-    // Simple helper for the extractor
-    private static class MapGetter implements TextMapGetter<Map<String, String>> {
-        /**
-         * The Instance.
-         */
-        static final MapGetter INSTANCE = new MapGetter();
-
-        public String get(Map<String, String> carrier, String s) {
-            return Objects.requireNonNull(carrier).get(s);
-        }
-
-        public Iterable<String> keys(Map<String, String> carrier) {
-            return carrier.keySet();
-        }
-    }
 }

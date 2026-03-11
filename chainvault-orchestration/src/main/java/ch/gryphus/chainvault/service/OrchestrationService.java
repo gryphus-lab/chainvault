@@ -49,7 +49,8 @@ public class OrchestrationService {
      * @return the string
      */
     public String startProcess(Map<String, Object> variables) {
-        Span parentSpan = tracer.spanBuilder("http post /chainvault/process").startSpan();
+        log.info("start-process");
+        Span parentSpan = tracer.spanBuilder("POST /start-migration").startSpan();
 
         // Store the parent context for the async handoff
         Context parentContext = Context.current().with(parentSpan);

@@ -75,6 +75,7 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
                     taskType,
                     "Success",
                     execution.getTransientVariables());
+            log.info("{} finished", taskType);
         } catch (Exception e) {
             log.error("{} encountered an exception", taskType, e);
             span.recordException(e);
@@ -82,7 +83,6 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
                     e, span, execution.getProcessInstanceId(), errorCode, taskType);
         } finally {
             span.end();
-            log.info("{} finished", taskType);
         }
     }
 

@@ -3,7 +3,7 @@
 java = "temurin-25"
 maven = "3.9"
 python = "3.12"
-"aqua:astral-sh/uv" = "latest"   # uv is blazing fast for venv + pip installs
+"aqua:astral-sh/uv" = "latest" # uv is blazing fast for venv + pip installs
 
 # ────────────────────────────────────────
 # Environment (activated repo-wide)
@@ -37,20 +37,20 @@ test = { run = "mvn integration-test", description = "Run unit and integration T
 test-docker = { run = "mvn failsafe:integration-test -Dtest=Docker*", description = "Run integration Tests - Docker only" }
 
 dev = { run = [
-    "docker compose up -d postgres",
-    "sleep 5",
-    "docker compose exec -T postgres pg_isready -U postgres -t 30 || exit 1",
-    "cd chainvault-orchestration && mvn spring-boot:run -am -Dspring.profiles.active=local",
+  "docker compose up -d postgres",
+  "sleep 5",
+  "docker compose exec -T postgres pg_isready -U postgres -t 30 || exit 1",
+  "cd chainvault-orchestration && mvn spring-boot:run -am -Dspring.profiles.active=local",
 ], description = "Run Dev" }
 
 package = { run = "mvn clean package -DskipTests -am", description = "Package the executable JAR" }
 
 ci = { run = [
-    "mvn clean verify",
-    "docker compose up -d postgres",
-    "sleep 5",
-    "docker compose exec -T postgres pg_isready -U postgres -t 30 || exit 1",
-    "java -jar chainvault-orchestration/target/*.jar --spring.profiles.active=local",
+  "mvn clean verify",
+  "docker compose up -d postgres",
+  "sleep 5",
+  "docker compose exec -T postgres pg_isready -U postgres -t 30 || exit 1",
+  "java -jar chainvault-orchestration/target/*.jar --spring.profiles.active=local",
 ], description = "Full CI-style checkw" }
 
 docker-build = { run = "docker build -t gryphus-lab/chainvault:latest -f Dockerfile .", description = "Docker build" }

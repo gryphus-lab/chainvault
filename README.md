@@ -1,88 +1,89 @@
 # chainvault
 
-Lightweight orchestration service for document migration and processing used by Gryphus Lab.
-
-## Overview
-
-`chainvault` is a Spring Boot-based migration/orchestration application that coordinates document extraction,
-transformation, signing, merging and secure transfer. It exposes BPMN workflows (see the process definition), integrates
-with SFTP targets, and records migration audit/events via database migrations.
-
-Key responsibilities:
-
-- Extract and hash documents
-- Transform metadata and prepare files
-- Merge PDFs and sign documents
-- Upload artifacts to SFTP targets
-- Record audit and event logs via Liquibase migrations
+**Lightweight orchestration & migration engine for secure document processing**  
+Used by Gryphus Lab to coordinate extraction, transformation, signing, merging and secure SFTP delivery of documents.
 
 [![Java 25](https://img.shields.io/badge/Java-25-orange?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/)
 [![Spring Boot 4](https://img.shields.io/badge/Spring%20Boot-4.0+-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-C71A36?logo=apache-maven&logoColor=white)](https://maven.apache.org/)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Liquibase](https://img.shields.io/badge/Liquibase-managed-2962FF)](https://www.liquibase.org/)
+[![Flowable](https://img.shields.io/badge/orchestrated%20with-Flowable-0072C6)](https://www.flowable.com/)
 [![mise](https://img.shields.io/badge/managed%20with-mise-6f42c1)](https://mise.jdx.dev/)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gryphus-lab_chainvault&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gryphus-lab_chainvault)
 [![GitHub Actions CI](https://github.com/gryphus-lab/chainvault/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gryphus-lab/chainvault/actions/workflows/ci.yml)
 
-**Clean, modern, production-grade multi-module Spring Boot application** built with **Java 25**, strict modularization, real PostgreSQL for local development, Liquibase for schema versioning, **mise** for frictionless developer environments, and a full quality & deployment pipeline.
+## At a Glance
 
-## Key Highlights
+|      Aspect       |             Technology              |
+|-------------------|-------------------------------------|
+| Language          | Java 25                             |
+| Framework         | Spring Boot 4                       |
+| Orchestration     | Flowable (BPMN 2.0)                 |
+| Database          | PostgreSQL 17 (Docker)              |
+| Schema Migrations | Liquibase (YAML)                    |
+| Developer Tooling | mise                                |
+| Observability     | Prometheus + Loki + Grafana + Alloy |
+| CI / Quality      | GitHub Actions + SonarCloud         |
+| Testing           | JUnit 5 + Testcontainers            |
+| API Documentation | springdoc OpenAPI / Swagger UI      |
 
-- Java 25 first-class support (virtual threads, scoped values, ZGC improvements, faster startup)
-- Spring Boot 4.x (Jakarta EE 11, modular JARs, observability enhancements, better native support)
-- Multi-module Maven structure (separation of concerns: domain, services, API)
-- **No H2 in development** – real PostgreSQL via Docker Compose
-- Liquibase YAML changelogs (repeatable, rollback-capable, team-safe)
-- **mise** as single source of truth for tools, versions, tasks & environment
-- GitHub Actions CI with:
-  - Consistent tool setup via mise
-  - Full test suite + JaCoCo coverage
-  - SonarCloud analysis + **enforced quality gate on new code**
-  - Multi-stage Docker build → GHCR push (main branch only)
-- Developer-first local experience: one command starts everything
+## Overview
+
+Chainvault is a **Spring Boot 4 + Java 25** orchestration service that executes BPMN workflows to:
+
+- extract & hash documents
+- transform metadata and prepare files
+- merge PDFs and apply cryptographic signatures
+- securely upload artifacts to SFTP targets
+- record full audit trails and migration events
+
+It integrates Flowable for process orchestration, uses Liquibase for schema consistency, exposes a REST API, and
+provides observability via Micrometer + Prometheus/Loki.
+
+## Features
+
+- Java 25 first-class support (virtual threads, scoped values, ZGC tuning, faster startup)
+- Spring Boot 4.x (Jakarta EE 11 baseline, modular JARs, enhanced observability)
+- Strict multi-module Maven layout
+- Real PostgreSQL for local development (no H2)
+- Liquibase YAML changelogs (repeatable, rollback-capable)
+- Flowable BPMN 2.0 workflows with custom Java delegates
+- SFTP target integration (secure file delivery)
+- Full observability stack (Prometheus metrics, Loki logs, Grafana dashboards)
+- Aggregated JaCoCo coverage across modules (including Docker integration tests)
+- GitHub Actions CI with enforced SonarCloud quality gates on new code
+- Multi-stage Docker builds pushed to GHCR
 
 ## Project Structure
 
-- `chainvault-migration/` — migration service module: domain, extraction/transform/merge/sign/upload logic, SFTP and
-  REST client config
-- `chainvault-orchestration/` — Flowable BPMN orchestration module: process definition, delegates, REST API, main
-  application
-- `chainvault-report-aggregate/` — JaCoCo aggregate module combining coverage from `chainvault-migration` and
-  `chainvault-orchestration` (unit + integration/Docker tests), used for CI/Sonar
-- `docker-compose.yml` — main app stack (chainvault, postgres, sftp-test, fake-source-api)
-- `docker-compose-monitoring.yml` — observability stack (Prometheus, Loki, Alloy, Grafana)
-- `env/prometheus.yml` — Prometheus scrape config## Prerequisites
-
-## Configuration
-
-- Main Spring configuration: `chainvault-orchestration/src/main/resources/application.yml`.
-- Mapping and process definitions: `mapping-config.yml`, `processes/chainvault.bpmn` (in orchestration module).
-- Database migrations are in `chainvault-orchestration/src/main/resources/db/migration` and are applied via Liquibase on
-  startup (see `db/changelog/db.changelog-master.yaml`).
-- OpenAPI (springdoc) is configured in `application.yml`; Swagger UI is at `/swagger-ui.html` when the app is running.
-
-## Database
-
-The repository contains SQL migration scripts under `src/main/resources/db/migration`. These are applied by Liquibase
-using the master changelog at `src/main/resources/db/changelog/db.changelog-master.yaml`. A database must be configured
-in `application.yml` (spring.datasource settings). Spring Boot's auto‑configuration creates a `DataSource` bean
-automatically, so no custom config class is required.
+```
+.
+├── chainvault-migration/           # Core business logic: extraction, transformation, signing, merging, SFTP upload
+├── chainvault-orchestration/       # Flowable BPMN engine, REST API, main application, delegates
+├── chainvault-report-aggregate/    # JaCoCo aggregated coverage reports for CI & SonarCloud
+├── docker-compose.yml              # Core stack: app + postgres + sftp-test + fake-source-api
+├── docker-compose-lgtm.yml         # Observability: Prometheus, Loki, Alloy, Grafana
+├── env/
+│   └── prometheus.yml              # Prometheus scrape configuration
+└── mise.toml                       # Tool versions, environment, developer tasks
+```
 
 ## Prerequisites
 
-- Docker & Docker Compose (v2+)
-- [mise](https://mise.jdx.dev/) – the modern replacement for asdf + direnv + nvm + pyenv + ...
+- Docker & Docker Compose v2+
+- [mise](https://mise.jdx.dev/) — modern toolchain manager
 - Git
-- IDE of choice (IntelliJ IDEA Ultimate recommended for Spring Boot)
+- IDE with Spring Boot / Flowable support (IntelliJ Ultimate recommended)
 
-Install mise (one time per machine):
+One-time mise setup:
 
 ```bash
+# install mise
 curl https://mise.run | sh
-# Follow shell setup instructions (usually one line for .zshrc / .bashrc / config.fish)
-mise doctor     # should confirm Java 25 + Maven are ready
+# Add to shell (zsh/bash/fish) as shown during installation
+mise doctor     # should show Java 25 + Maven ready 
 ```
 
 ## Quick Start
@@ -97,56 +98,83 @@ mise trust
 mise dev
 ```
 
-## Testing
+After startup check:
 
-Run unit and integration tests with:
+* Health:     http://localhost:8085/actuator/health
+* Swagger UI: http://localhost:8085/swagger-ui.html
+
+## Local Development
+
+### Common mise Commands
 
 ```bash
+mise dev                # Start postgres + app (local profile)
+mise test               # Unit + basic integration tests
+mise test-docker        # Full Docker integration tests (Testcontainers)
+mise verify             # Full build + tests + JaCoCo aggregate coverage
+mise docker-build       # Build & tag local Docker image
+```
+
+### Observability Stack (optional but recommended)
+
+```bash
+docker compose -f docker-compose-lgtm.yml up -d
+```
+
+Access:
+
+* Grafana:     http://localhost:3000  (admin/admin by default)
+* Prometheus:  http://localhost:9090
+* Loki:        http://localhost:3100  (via Grafana datasource)
+
+## Configuration
+
+### Secrets note
+
+SFTP credentials, signing keys, API tokens and other sensitive values must be provided via environment variables or
+mounted secrets — never commit them.
+
+## Database & Migrations
+
+* Engine: PostgreSQL 17 (containerized via docker-compose.yml)
+* Host: localhost:5432
+* Database: configured in application.yml / application-local.yml
+* Migrations: Liquibase YAML
+  * Location: chainvault-orchestration/src/main/resources/db/changelog/
+  * Master: db.changelog-master.yaml
+  * Auto-applied on startup in local profile
+
+## Testing & Coverage
+
+```bash
+# Quick unit & basic integration tests
 mise test
-```
 
-Docker integration tests (Testcontainers) validate the full stack and individual services; see
-`chainvault-orchestration/src/test/java/ch/gryphus/chainvault/docker/README.md`. Run them with:
-
-```bash
+# Full suite including Docker-based integration tests
 mise test-docker
-```
 
-### Test coverage (JaCoCo, multi-module)
-
-To generate JaCoCo coverage reports (including integration/Docker tests) across all modules, use the `coverage` profile
-from the project root:
-
-```bash
+# Build + tests + aggregated JaCoCo coverage (for SonarCloud / CI)
 mise verify
 ```
 
-This will:
+Coverage report location after ```mise verify```:
 
-- Attach JaCoCo agents for both unit and integration tests in each module
-- Generate per-module reports, and
-- Produce an aggregated report in the `chainvault-report-aggregate` module (HTML + XML) suitable for CI/Sonar
-  consumption.
-
-## Docker Usage
-
-```bash
-mise docker-build
+```text
+chainvault-report-aggregate/target/site/jacoco-aggregate/index.html
 ```
 
-## Observability
+## Docker
 
-- **Prometheus**: Metrics are exposed at `/prometheus` (Micrometer). Use `docker-compose-monitoring.yml` to run
-  Prometheus, Loki, Alloy, and Grafana; scrape config is in `env/prometheus.yml`.
-- **OpenAPI**: REST API docs and Swagger UI at `/swagger-ui.html` (springdoc).
+```bash
+# Build locally
+mise docker-build
 
-## Useful files
+# Docker compose up - all services
+mise compose-up
 
-- Application entry: `chainvault-orchestration/src/main/java/ch/gryphus/chainvault/MigrationApplication.java`
-- BPMN process: `chainvault-orchestration/src/main/resources/processes/chainvault.bpmn`
-- Liquibase changelog: `chainvault-orchestration/src/main/resources/db/changelog/db.changelog-master.yaml`
-- OpenAPI config: `chainvault-orchestration/src/main/java/ch/gryphus/chainvault/config/OpenApiConfig.java`
-- Migration service: `chainvault-migration/src/main/java/ch/gryphus/chainvault/service/MigrationService.java`
+# Docker compose down - all services
+mise comoose-down
+```
 
 ## Contributing
 

@@ -24,6 +24,7 @@ jobs:
           version: latest
           install: true
           cache: true
+          cache_key_prefix: mise-v1
 
       - name: Verify tools (debug)
         run: mise doctor && mise ls --current

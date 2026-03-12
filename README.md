@@ -2,11 +2,6 @@
 
 Lightweight orchestration service for document migration and processing used by Gryphus Lab.
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gryphus-lab_chainvault&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gryphus-lab_chainvault)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=gryphus-lab_chainvault&metric=bugs)](https://sonarcloud.io/summary/new_code?id=gryphus-lab_chainvault)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=gryphus-lab_chainvault&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=gryphus-lab_chainvault)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=gryphus-lab_chainvault&metric=coverage)](https://sonarcloud.io/summary/new_code?id=gryphus-lab_chainvault)
-
 ## Overview
 
 `chainvault` is a Spring Boot-based migration/orchestration application that coordinates document extraction,
@@ -21,7 +16,34 @@ Key responsibilities:
 - Upload artifacts to SFTP targets
 - Record audit and event logs via Liquibase migrations
 
-## Repo layout
+[![Java 25](https://img.shields.io/badge/Java-25-orange?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/)
+[![Spring Boot 4](https://img.shields.io/badge/Spring%20Boot-4.0+-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Maven](https://img.shields.io/badge/Maven-3.9+-C71A36?logo=apache-maven&logoColor=white)](https://maven.apache.org/)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Liquibase](https://img.shields.io/badge/Liquibase-managed-2962FF)](https://www.liquibase.org/)
+[![mise](https://img.shields.io/badge/managed%20with-mise-6f42c1)](https://mise.jdx.dev/)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gryphus-lab_chainvault&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gryphus-lab_chainvault)
+[![GitHub Actions CI](https://github.com/gryphus-lab/chainvault/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gryphus-lab/chainvault/actions/workflows/ci.yml)
+
+**Clean, modern, production-grade multi-module Spring Boot application** built with **Java 25**, strict modularization, real PostgreSQL for local development, Liquibase for schema versioning, **mise** for frictionless developer environments, and a full quality & deployment pipeline.
+
+## Key Highlights
+
+- Java 25 first-class support (virtual threads, scoped values, ZGC improvements, faster startup)
+- Spring Boot 4.x (Jakarta EE 11, modular JARs, observability enhancements, better native support)
+- Multi-module Maven structure (separation of concerns: domain, services, API)
+- **No H2 in development** – real PostgreSQL via Docker Compose
+- Liquibase YAML changelogs (repeatable, rollback-capable, team-safe)
+- **mise** as single source of truth for tools, versions, tasks & environment
+- GitHub Actions CI with:
+  - Consistent tool setup via mise
+  - Full test suite + JaCoCo coverage
+  - SonarCloud analysis + **enforced quality gate on new code**
+  - Multi-stage Docker build → GHCR push (main branch only)
+- Developer-first local experience: one command starts everything
+
+## Project Structure
 
 - `chainvault-migration/` — migration service module: domain, extraction/transform/merge/sign/upload logic, SFTP and
   REST client config
@@ -31,49 +53,7 @@ Key responsibilities:
   `chainvault-orchestration` (unit + integration/Docker tests), used for CI/Sonar
 - `docker-compose.yml` — main app stack (chainvault, postgres, sftp-test, fake-source-api)
 - `docker-compose-monitoring.yml` — observability stack (Prometheus, Loki, Alloy, Grafana)
-- `env/prometheus.yml` — Prometheus scrape config
-- `run_chainvault_docker.sh` — script to build and run app + monitoring with Docker Compose
-
-## Prerequisites
-
-- Java 21+ (or the JDK version required by your environment)
-- Git
-- Docker & Docker Compose (optional, for containerized runs)
-
-The project includes the Maven wrapper (`mvnw`), so a local Maven install is not required.
-
-## Build
-
-From the repository root:
-
-```bash
-./mvnw clean package -DskipTests
-```
-
-This produces a runnable JAR `chainvault-<version>.jar` in both `target/` (project root) and
-`chainvault-orchestration/target/` (e.g. `chainvault-1.0.0-SNAPSHOT.jar`).
-
-## Run
-
-Run the packaged JAR:
-
-```bash
-java -jar target/chainvault-<version>.jar
-```
-
-Or use Docker Compose to start services as defined in `docker-compose.yml`:
-
-```bash
-docker-compose up --build
-```
-
-To build and run the app stack together with the monitoring stack (Prometheus, Loki, Alloy, Grafana):
-
-```bash
-./start_chainvault_docker.sh
-```
-
-This runs `docker-compose -f docker-compose-monitoring.yml -f docker-compose.yml up -d` after a clean build.
+- `env/prometheus.yml` — Prometheus scrape config## Prerequisites
 
 ## Configuration
 
@@ -90,19 +70,46 @@ using the master changelog at `src/main/resources/db/changelog/db.changelog-mast
 in `application.yml` (spring.datasource settings). Spring Boot's auto‑configuration creates a `DataSource` bean
 automatically, so no custom config class is required.
 
+## Prerequisites
+
+- Docker & Docker Compose (v2+)
+- [mise](https://mise.jdx.dev/) – the modern replacement for asdf + direnv + nvm + pyenv + ...
+- Git
+- IDE of choice (IntelliJ IDEA Ultimate recommended for Spring Boot)
+
+Install mise (one time per machine):
+
+```bash
+curl https://mise.run | sh
+# Follow shell setup instructions (usually one line for .zshrc / .bashrc / config.fish)
+mise doctor     # should confirm Java 25 + Maven are ready
+```
+
+## Quick Start
+
+```bash
+git clone https://github.com/gryphus-lab/chainvault.git
+cd chainvault
+
+mise install
+mise trust
+
+mise dev
+```
+
 ## Testing
 
 Run unit and integration tests with:
 
 ```bash
-./mvnw test
+mise test
 ```
 
 Docker integration tests (Testcontainers) validate the full stack and individual services; see
 `chainvault-orchestration/src/test/java/ch/gryphus/chainvault/docker/README.md`. Run them with:
 
 ```bash
-./mvnw test -Dtest=Docker*
+mise test-docker
 ```
 
 ### Test coverage (JaCoCo, multi-module)
@@ -111,7 +118,7 @@ To generate JaCoCo coverage reports (including integration/Docker tests) across 
 from the project root:
 
 ```bash
-./mvnw verify -Pcoverage
+mise verify
 ```
 
 This will:
@@ -120,6 +127,12 @@ This will:
 - Generate per-module reports, and
 - Produce an aggregated report in the `chainvault-report-aggregate` module (HTML + XML) suitable for CI/Sonar
   consumption.
+
+## Docker Usage
+
+```bash
+mise docker-build
+```
 
 ## Observability
 
@@ -144,4 +157,5 @@ PRs and issues are welcome. Follow the existing code style and add tests for sig
 - gryphus-lab / <gryphus-lab@users.noreply.github.com>
 
 ---
+
 _Generated README — edit with project-specific operational notes as needed._

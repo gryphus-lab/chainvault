@@ -56,8 +56,10 @@ jobs:
       - name: Build and verify
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
-          TESSDATA_PREFIX: /usr/share/tesseract-ocr/tessdata
-        run: mvn clean install -Pcoverage
+
+        run: |
+          mise set TESSDATA_PREFIX=/usr/share/tesseract-ocr/tessdata 
+          mise run github-build
 
       - name: SonarCloud Scan
         env:

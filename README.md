@@ -136,7 +136,7 @@ mounted secrets — never commit them.
 
 ## Database & Migrations
 
-* Engine: PostgreSQL 17 (containerized via docker-compose.yml)
+* Engine: PostgreSQL 18 (containerized via docker-compose.yml)
 * Host: localhost:5432
 * Database: configured in application.yml / application-local.yml
 * Migrations: Liquibase YAML

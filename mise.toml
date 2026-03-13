@@ -21,6 +21,9 @@ UV_PROJECT_ENVIRONMENT = ".venv"
 # Spring Boot 4 common defaults
 SPRING_PROFILES_ACTIVE = "local"
 
+# Tesseract test data
+TESSDATA_PREFIX = "/opt/homebrew/opt/tesseract/share/tessdata"
+
 # ────────────────────────────────────────
 # Tasks (run from anywhere — mise uses root config)
 # ────────────────────────────────────────

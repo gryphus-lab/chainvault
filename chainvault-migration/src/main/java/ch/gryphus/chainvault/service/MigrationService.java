@@ -469,8 +469,7 @@ public class MigrationService {
     public List<String> performOcrOnTiffPages(List<TiffPage> pages)
             throws IOException, TesseractException {
         Tesseract tesseract = new Tesseract();
-        tesseract.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata"); // adjust path
-        tesseract.setLanguage("eng+deu"); // languages you need
+        tesseract.setLanguage("eng");
         List<String> results = new ArrayList<>();
 
         if (pages != null && !pages.isEmpty()) {

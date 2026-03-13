@@ -38,6 +38,7 @@ jobs:
             tesseract-ocr \
             tesseract-ocr-deu \
             tesseract-ocr-eng
+          which tesseract
 
       - name: Cache SonarQube packages
         uses: actions/cache@v5

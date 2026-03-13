@@ -6,15 +6,23 @@ COPY chainvault-orchestration ./chainvault-orchestration
 COPY chainvault-report-aggregate ./chainvault-report-aggregate
 RUN mvn -DskipTests -q package
 
-FROM eclipse-temurin:25-jre-alpine-3.23 AS runtime
+FROM eclipse-temurin:25-jdk-jammy AS runtime
 ARG USERNAME=chainvault
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 ARG CHAINVAULT_VERSION=1.0.0-SNAPSHOT
 
-# Create the user
-RUN addgroup -S "$USERNAME" \
-    && adduser -S "$USERNAME" -G "$USERNAME"
+# Create the user, install Tesseract and libraries
+RUN addgroup --system "$USERNAME" \
+    && adduser --system "$USERNAME" --ingroup "$USERNAME" \
+    && apt-get update \
+    && apt-get install -y \
+        libleptonica-dev \
+        libtesseract-dev \
+        tesseract-ocr \
+        tesseract-ocr-deu \
+        tesseract-ocr-eng \
+    && rm -rf /var/lib/apt/lists/*
 
 USER $USERNAME
 WORKDIR /app

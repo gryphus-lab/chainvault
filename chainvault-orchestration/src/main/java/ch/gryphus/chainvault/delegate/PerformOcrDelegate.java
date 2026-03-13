@@ -3,6 +3,7 @@
  */
 package ch.gryphus.chainvault.delegate;
 
+import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.service.AuditEventService;
 import ch.gryphus.chainvault.service.MigrationService;
 import io.opentelemetry.api.OpenTelemetry;
@@ -45,15 +46,14 @@ public class PerformOcrDelegate extends AbstractTracingDelegate {
             throws IOException, NoSuchAlgorithmException, TesseractException {
 
         @SuppressWarnings("unchecked")
-        List<byte[]> tiffPages = (List<byte[]>) execution.getTransientVariable("pages");
-        Path workingDirectory = (Path) execution.getTransientVariable("workingDirectory");
+        List<TiffPage> tiffPages = (List<TiffPage>) execution.getTransientVariable("pages");
 
         if (tiffPages == null || tiffPages.isEmpty()) {
             throw new IllegalStateException("No TIFF pages found for OCR");
         }
 
         List<String> ocrResults =
-                migrationService.performOcrOnTiffPages(tiffPages, workingDirectory.toString());
+                migrationService.performOcrOnTiffPages(tiffPages);
 
         execution.setTransientVariable("ocrResults", ocrResults);
         execution.setTransientVariable(

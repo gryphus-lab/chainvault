@@ -461,26 +461,27 @@ public class MigrationService {
     /**
      * Perform ocr on tiff pages list.
      *
-     * @param tiffPages        the tiff pages
-     * @param workingDirectory the working directory
+     * @param pages the pages
      * @return the list
      * @throws IOException        the io exception
      * @throws TesseractException the tesseract exception
      */
-    public List<String> performOcrOnTiffPages(List<byte[]> tiffPages, String workingDirectory)
+    public List<String> performOcrOnTiffPages(List<TiffPage> pages)
             throws IOException, TesseractException {
         Tesseract tesseract = new Tesseract();
-        tesseract.setDatapath(workingDirectory); // adjust path
+        tesseract.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata"); // adjust path
         tesseract.setLanguage("eng+deu"); // languages you need
         List<String> results = new ArrayList<>();
-        for (byte[] page : tiffPages) {
+
+        for (TiffPage page : pages) {
+            byte[] payload = page.data();
             BufferedImage image;
-            try (ByteArrayInputStream bis = new ByteArrayInputStream(page)) {
-                image = ImageIO.read(bis);
-                String text = tesseract.doOCR(image);
-                results.add(text.trim());
-            }
+            ByteArrayInputStream bis = new ByteArrayInputStream(payload);
+            image = ImageIO.read(bis);
+            String text = tesseract.doOCR(image);
+            results.add(text.trim());
         }
+
         return results;
     }
 }

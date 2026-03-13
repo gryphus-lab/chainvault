@@ -473,13 +473,15 @@ public class MigrationService {
         tesseract.setLanguage("eng+deu"); // languages you need
         List<String> results = new ArrayList<>();
 
-        for (TiffPage page : pages) {
-            byte[] payload = page.data();
-            BufferedImage image;
-            ByteArrayInputStream bis = new ByteArrayInputStream(payload);
-            image = ImageIO.read(bis);
-            String text = tesseract.doOCR(image);
-            results.add(text.trim());
+        if (pages != null && !pages.isEmpty()) {
+            for (TiffPage page : pages) {
+                byte[] payload = page.data();
+                BufferedImage image;
+                ByteArrayInputStream bis = new ByteArrayInputStream(payload);
+                image = ImageIO.read(bis);
+                String text = tesseract.doOCR(image);
+                results.add(text.trim());
+            }
         }
 
         return results;

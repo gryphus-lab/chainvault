@@ -45,13 +45,9 @@ public class PerformOcrDelegate extends AbstractTracingDelegate {
             throws IOException, NoSuchAlgorithmException, TesseractException {
 
         @SuppressWarnings("unchecked")
-        List<TiffPage> tiffPages = (List<TiffPage>) execution.getTransientVariable("pages");
+        List<TiffPage> pages = (List<TiffPage>) execution.getTransientVariable("pages");
 
-        if (tiffPages == null || tiffPages.isEmpty()) {
-            throw new IllegalStateException("No TIFF pages found for OCR");
-        }
-
-        List<String> ocrResults = migrationService.performOcrOnTiffPages(tiffPages);
+        List<String> ocrResults = migrationService.performOcrOnTiffPages(pages);
 
         execution.setTransientVariable("ocrResults", ocrResults);
         execution.setTransientVariable(

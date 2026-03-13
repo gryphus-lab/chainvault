@@ -26,7 +26,7 @@ jobs:
           cache: true
           cache_key_prefix: mise-v1
 
-      - name: Verify tools (debug)
+      - name: Verify mise tools
         run: mise doctor && mise ls --current
 
       - name: Cache SonarQube packages
@@ -46,7 +46,7 @@ jobs:
       - name: Build and verify
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
-        run: mise run verify
+        run: mise run github-build
 
       - name: SonarCloud Scan
         env:

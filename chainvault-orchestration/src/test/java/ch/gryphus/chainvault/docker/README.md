@@ -126,7 +126,7 @@ mvn test -Dtest=Docker* -Pcoverage
 
 ### PostgreSQL 16-Alpine
 
-- **Image**: `postgres:16-alpine`
+- **Image**: `postgres:18-alpine`
 - **Purpose**: Primary data storage for the application
 - **Initialization**: Scripts from `src/main/resources/db/init-scripts` are automatically run
 - **Exposed Port**: 5432 (internal)

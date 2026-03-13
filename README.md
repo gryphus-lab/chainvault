@@ -7,7 +7,7 @@ Used by Gryphus Lab to coordinate extraction, transformation, signing, merging a
 [![Spring Boot 4](https://img.shields.io/badge/Spring%20Boot-4.0+-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-C71A36?logo=apache-maven&logoColor=white)](https://maven.apache.org/)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Liquibase](https://img.shields.io/badge/Liquibase-managed-2962FF)](https://www.liquibase.org/)
 [![Flowable](https://img.shields.io/badge/orchestrated%20with-Flowable-0072C6)](https://www.flowable.com/)
 [![mise](https://img.shields.io/badge/managed%20with-mise-6f42c1)](https://mise.jdx.dev/)
@@ -16,12 +16,12 @@ Used by Gryphus Lab to coordinate extraction, transformation, signing, merging a
 
 ## At a Glance
 
-|      Aspect       |             Technology              |
+|      Aspect       | Technology                          |
 |-------------------|-------------------------------------|
 | Language          | Java 25                             |
 | Framework         | Spring Boot 4                       |
 | Orchestration     | Flowable (BPMN 2.0)                 |
-| Database          | PostgreSQL 17 (Docker)              |
+| Database          | PostgreSQL 18 (Docker)              |
 | Schema Migrations | Liquibase (YAML)                    |
 | Developer Tooling | mise                                |
 | Observability     | Prometheus + Loki + Grafana + Alloy |

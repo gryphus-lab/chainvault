@@ -26,7 +26,7 @@ public abstract class BaseDockerIT {
     @SuppressWarnings("resource")
     @Container
     static final PostgreSQLContainer postgres =
-            new PostgreSQLContainer(DockerImageName.parse("postgres:16-alpine"))
+            new PostgreSQLContainer(DockerImageName.parse("postgres:18-alpine"))
                     .withDatabaseName(Constants.POSTGRES_DB_NAME)
                     .withUsername(Constants.POSTGRES_DB_USER)
                     .withPassword(POSTGRES_DB_PASSWORD)

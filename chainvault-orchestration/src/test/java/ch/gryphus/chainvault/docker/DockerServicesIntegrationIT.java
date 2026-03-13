@@ -67,7 +67,7 @@ class DockerServicesIntegrationIT extends BaseDockerIT {
             ResultSet rs = stmt.executeQuery("SELECT version()");
             assertThat(rs.next()).isTrue();
             String version = rs.getString(1);
-            assertThat(version).contains("PostgreSQL").contains("16");
+            assertThat(version).contains("PostgreSQL").contains("18");
         }
     }
 

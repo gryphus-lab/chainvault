@@ -38,7 +38,7 @@ jobs:
             tesseract-ocr \
             tesseract-ocr-deu \
             tesseract-ocr-eng
-          which tesseract
+          find /usr -type d -name "*tessdata*"
 
       - name: Cache SonarQube packages
         uses: actions/cache@v5

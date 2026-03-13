@@ -22,7 +22,7 @@ UV_PROJECT_ENVIRONMENT = ".venv"
 SPRING_PROFILES_ACTIVE = "local"
 
 # Tesseract test data
-TESSDATA_PREFIX = "/opt/homebrew/opt/tesseract/share/tessdata"
+TESSDATA_PREFIX = "/opt/homebrew/share/tessdata"
 
 # ────────────────────────────────────────
 # Tasks (run from anywhere — mise uses root config)

@@ -16,7 +16,7 @@ Used by Gryphus Lab to coordinate extraction, transformation, signing, merging a
 
 ## At a Glance
 
-|      Aspect       | Technology                          |
+|      Aspect       |             Technology              |
 |-------------------|-------------------------------------|
 | Language          | Java 25                             |
 | Framework         | Spring Boot 4                       |

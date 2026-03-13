@@ -29,6 +29,15 @@ jobs:
       - name: Verify mise tools
         run: mise doctor && mise ls --current
 
+      - name: Setup Tesseract
+        run: |
+          apt-get install -y \
+            libleptonica-dev \
+            libtesseract-dev \
+            tesseract-ocr \
+            tesseract-ocr-deu \
+            tesseract-ocr-eng
+
       - name: Cache SonarQube packages
         uses: actions/cache@v5
         with:

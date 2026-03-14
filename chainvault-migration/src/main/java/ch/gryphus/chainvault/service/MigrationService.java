@@ -20,8 +20,11 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -454,5 +457,36 @@ public class MigrationService {
      */
     public String getDetectedMimeType(byte[] bytes) {
         return tika.detect(bytes);
+    }
+
+    /**
+     * Perform ocr on tiff pages list.
+     *
+     * @param pages the pages
+     * @return the list
+     * @throws IOException        the io exception
+     * @throws TesseractException the tesseract exception
+     */
+    public List<String> performOcrOnTiffPages(List<TiffPage> pages)
+            throws IOException, TesseractException {
+        Tesseract tesseract = new Tesseract();
+        tesseract.setLanguage("eng+deu");
+        tesseract.setVariable("user_defined_dpi", "300");
+        tesseract.setPageSegMode(3);
+        tesseract.setOcrEngineMode(3);
+
+        List<String> results = new ArrayList<>();
+
+        if (pages != null && !pages.isEmpty()) {
+            for (TiffPage page : pages) {
+                ByteArrayInputStream input = new ByteArrayInputStream(page.data());
+                ImageInputStream iis = ImageIO.createImageInputStream(input);
+                BufferedImage image = ImageIO.read(iis);
+                String text = tesseract.doOCR(image);
+                results.add(text.trim());
+            }
+        }
+
+        return results;
     }
 }

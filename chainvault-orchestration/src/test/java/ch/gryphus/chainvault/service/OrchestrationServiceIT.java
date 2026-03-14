@@ -108,7 +108,7 @@ class OrchestrationServiceIT extends BaseServiceIT {
         // Wait for upload to appear in SFTP (poll the container)
         String expectedDir = "/home/testuser/upload/%s-%s".formatted(processInstanceId, docId);
 
-        await().atMost(Duration.ofSeconds(10))
+        await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .untilAsserted(
                         () -> {

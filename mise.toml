@@ -21,6 +21,9 @@ UV_PROJECT_ENVIRONMENT = ".venv"
 # Spring Boot 4 common defaults
 SPRING_PROFILES_ACTIVE = "local"
 
+# Tesseract test data
+TESSDATA_PREFIX = "/opt/homebrew/share/tessdata"
+
 # ────────────────────────────────────────
 # Tasks (run from anywhere — mise uses root config)
 # ────────────────────────────────────────
@@ -30,7 +33,10 @@ bootstrap = { run = "mvn dependency:go-offline", description = "One-time setup a
 
 build = { run = "mvn clean install -DskipTests", description = "Clean + install all modules (no tests)" }
 
-verify = { run = "mvn clean verify -Pcoverage", description = "Full build + tests + verifications + JaCoCo coverage" }
+verify = { run = [
+  "docker compose -p chainvault down",
+  "mvn clean verify -Pcoverage",
+], description = "Full build + tests + verifications + JaCoCo coverage" }
 
 test = { run = "mvn integration-test", description = "Run unit and integration Tests" }
 
@@ -51,7 +57,7 @@ ci = { run = [
   "sleep 5",
   "docker compose exec -T postgres pg_isready -U postgres -t 30 || exit 1",
   "java -jar chainvault-orchestration/target/*.jar --spring.profiles.active=local",
-], description = "Full CI-style checkw" }
+], description = "Full CI-style checks" }
 
 github-build = { run = "mvn clean install -Pcoverage", description = "GitHub CI Build (used by .github/workflows/ci.yml)" }
 

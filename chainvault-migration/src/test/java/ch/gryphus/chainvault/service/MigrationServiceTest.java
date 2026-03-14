@@ -383,7 +383,7 @@ class MigrationServiceTest {
         ctx.setPageHashes(Map.ofEntries(Map.entry("value", "value")));
 
         // Run the test
-        String result = migrationServiceUnderTest.transformMetadataToXml(meta, ctx);
+        String result = migrationServiceUnderTest.transformMetadataToXml(meta, ctx, null);
 
         // Verify the results
         String xmlFilename = "src/test/resources/xmls/ArchivalMetadata.xml";
@@ -675,7 +675,7 @@ class MigrationServiceTest {
         ctx.addPageHash("p1.tif", "h1");
         ctx.addPageHash("p2.tif", "h2");
 
-        ArchivalMetadata xml = MigrationService.buildXml(meta, ctx);
+        ArchivalMetadata xml = MigrationService.buildXml(meta, ctx, null);
 
         assertThat(xml.getDocumentId()).isEqualTo("DOC-TEST-001");
         assertThat(xml.getTitle()).isEqualTo("Test Invoice 2026");
@@ -696,7 +696,7 @@ class MigrationServiceTest {
     void buildXml_shouldHandleMissingMetadataGracefully() {
         SourceMetadata nullMeta = new SourceMetadata(); // all fields null
 
-        ArchivalMetadata xml = MigrationService.buildXml(nullMeta, ctx);
+        ArchivalMetadata xml = MigrationService.buildXml(nullMeta, ctx, null);
 
         assertThat(xml.getTitle()).isEqualTo("Untitled Document");
         assertThat(xml.getPageCount()).isZero();
@@ -754,6 +754,11 @@ class MigrationServiceTest {
         }
     }
 
+    /**
+     * Test perform ocr on tiff pages well formed returns expected content.
+     *
+     * @throws Exception the exception
+     */
     @Test
     void testPerformOcrOnTiffPagesWellFormedReturnsExpectedContent() throws Exception {
         // Setup
@@ -776,6 +781,9 @@ class MigrationServiceTest {
         assertThat(result).isEqualTo(List.of(expectedContent));
     }
 
+    /**
+     * Test perform ocr on tiff pages does not throw exception when input is null or empty.
+     */
     @Test
     void testPerformOcrOnTiffPagesDoesNotThrowExceptionWhenInputIsNullOrEmpty() {
         // Setup

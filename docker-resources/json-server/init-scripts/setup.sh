@@ -1,28 +1,47 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
-echo "Installing Python 3..."
-apk add python3 
-ln -sf python3 /usr/bin/python
-apk add --no-cache py3-pip
-apk add --no-cache build-base
-apk add --no-cache ttf-dejavu
-python3 -m venv .venv && . .venv/bin/activate
-echo "Python 3 installed"
+set -eu
 
+readonly VENV_PATH="/opt/venv"
+readonly DATA_DIR="/data"
 
-echo "Installing dependencies..."
-pip install --upgrade pip
-pip install pipreqs
-pipreqs --force /data
-pip install -r /data/requirements.txt
-echo "Dependencies installed"
+main() {
+    echo "--- Installing System Dependencies ---"
+    apk add --no-cache \
+        python3 \
+        py3-pip \
+        build-base \
+        ttf-dejavu
+    ln -sf /usr/bin/python3 /usr/bin/python
 
+    echo "--- Setting up Python Virtual Environment ---"
+    python3 -m venv "$VENV_PATH"
+    export PATH="$VENV_PATH/bin:$PATH"
 
-echo "Creating source data..."
-cd /data || exit 1
-python3 create_source_data.py
-echo "Source data generated"
+    pip install --no-cache-dir --upgrade pip pipreqs
 
-echo "Starting json-server..."
-npm install -g json-server
-json-server --watch /data/db.json --static /data/static --port 9091
+    echo "--- Handling Python Dependencies ---"
+    if [ -d "$DATA_DIR" ]; then
+        pipreqs --force "$DATA_DIR"
+        pip install --no-cache-dir -r "$DATA_DIR/requirements.txt"
+
+        echo "--- Generating Source Data ---"
+        (
+            cd "$DATA_DIR"
+            python3 create_source_data.py
+        )
+    else
+        echo "Error: $DATA_DIR not found" >&2
+        exit 1
+    fi
+
+    echo "--- Starting Services ---"
+    npm install -g json-server
+
+    exec json-server --watch "$DATA_DIR/db.json" \
+         --static "$DATA_DIR/static" \
+         --port 9091 \
+         --host 0.0.0.0
+}
+
+main "$@"

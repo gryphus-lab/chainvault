@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     name: Build and analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
         with:
@@ -28,6 +28,44 @@ jobs:
 
       - name: Verify mise tools
         run: mise doctor && mise ls --current
+
+      - name: Setup Tesseract
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libtesseract-dev \
+            tesseract-ocr \
+            tesseract-ocr-deu \
+            tesseract-ocr-eng
+
+      - name: Install Leptonica Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpng-dev libjpeg-dev libtiff-dev zlib1g-dev \
+                              libwebp-dev libopenjp2-7-dev libgif-dev \
+                              autoconf automake libtool pkg-config
+
+      - name: Build Leptonica 1.86.0 from Source
+        run: |
+          curl --proto "=https" --tlsv1.2 -sSfLO \
+            https://github.com/user-attachments/files/22412990/leptonica-1.86.0.tar.gz
+          tar -xf leptonica-1.86.0.tar.gz
+          cd leptonica-1.86.0
+          ./autogen.sh
+          ./configure --prefix=/usr/local
+          make -j$(nproc)
+          sudo make install
+          sudo ldconfig /usr/local/lib
+
+      - name: Set Environment Variables for Java
+        run: |
+          echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "JNA_LIBRARY_PATH=/usr/local/lib" >> $GITHUB_ENV
+
+      - name: Verify Leptonica Version
+        run: |
+          ldd /usr/local/lib/libleptonica.so | grep "not found" || echo "Linker OK"
+          pkg-config --modversion lept
 
       - name: Cache SonarQube packages
         uses: actions/cache@v5
@@ -46,7 +84,10 @@ jobs:
       - name: Build and verify
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
-        run: mise run github-build
+
+        run: |
+          mise set TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+          mise run github-build
 
       - name: SonarCloud Scan
         env:

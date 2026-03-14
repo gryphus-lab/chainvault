@@ -57,7 +57,7 @@ ci = { run = [
   "sleep 5",
   "docker compose exec -T postgres pg_isready -U postgres -t 30 || exit 1",
   "java -jar chainvault-orchestration/target/*.jar --spring.profiles.active=local",
-], description = "Full CI-style checkw" }
+], description = "Full CI-style checks" }
 
 github-build = { run = "mvn clean install -Pcoverage", description = "GitHub CI Build (used by .github/workflows/ci.yml)" }
 

@@ -9,6 +9,14 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  LEPTONICA_VERSION: "1.86.0"
+  LEPTONICA_URL: "https://github.com/DanBloomberg/leptonica/releases/download/${{ env.LEPTONICA_VERSION }}/leptonica-${{ env.LEPTONICA_VERSION }}.tar.gz"
+  TESSDATA_PREFIX: /usr/share/tesseract-ocr/5/tessdata
+  LD_LIBRARY_PATH: /usr/local/lib:$LD_LIBRARY_PATH
+  JNA_LIBRARY_PATH: /usr/local/lib
+  TESTCONTAINERS_RYUK_DISABLED: "true"
+
 jobs:
   build:
     name: Build and analyze
@@ -18,79 +26,56 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup mise (Java 25 + Maven from mise.toml)
-        uses: jdx/mise-action@v4.0.0
+      - name: Setup mise
+        uses: jdx/mise-action@v4
         with:
           version: 2026.3.8
           install: true
           cache: true
-          cache_key_prefix: mise-v1
 
-      - name: Verify mise tools
-        run: mise doctor && mise ls --current
+      - name: Restore Leptonica Cache
+        id: cache-leptonica
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/lib/liblept*
+          key: leptonica-${{ env.LEPTONICA_VERSION }}
 
-      - name: Setup Tesseract
+      - name: Install Dependencies & Build Leptonica
+        if: steps.cache-leptonica.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            libtesseract-dev \
-            tesseract-ocr \
-            tesseract-ocr-deu \
-            tesseract-ocr-eng
-
-      - name: Install Leptonica Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libpng-dev libjpeg-dev libtiff-dev zlib1g-dev \
-                              libwebp-dev libopenjp2-7-dev libgif-dev \
-                              autoconf automake libtool pkg-config
-
-      - name: Build Leptonica 1.86.0 from Source
-        run: |
-          curl --proto "=https" --tlsv1.2 -sSfLO \
-            https://github.com/user-attachments/files/22412990/leptonica-1.86.0.tar.gz
-          tar -xf leptonica-1.86.0.tar.gz
-          cd leptonica-1.86.0
-          ./autogen.sh
-          ./configure --prefix=/usr/local
+          sudo apt-get install -y libtesseract-dev tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng \
+            libpng-dev libjpeg-dev libtiff-dev zlib1g-dev libwebp-dev libopenjp2-7-dev libgif-dev \
+            autoconf automake libtool pkg-config
+          
+          curl --proto "=https" --tlsv1.2 -sSfLO ${{ env.LEPTONICA_URL }}
+          tar -xf leptonica-${{ env.LEPTONICA_VERSION }}.tar.gz
+          cd leptonica-${{ env.LEPTONICA_VERSION }}
+          ./autogen.sh && ./configure --prefix=/usr/local
           make -j$(nproc)
           sudo make install
           sudo ldconfig /usr/local/lib
 
-      - name: Set Environment Variables for Java
+      - name: Fix Runtime Deps (if cache hit)
+        if: steps.cache-leptonica.outputs.cache-hit == 'true'
         run: |
-          echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-          echo "JNA_LIBRARY_PATH=/usr/local/lib" >> $GITHUB_ENV
+          sudo apt-get update && sudo apt-get install -y libtesseract-dev tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
+          sudo ldconfig /usr/local/lib
 
-      - name: Verify Leptonica Version
-        run: |
-          ldd /usr/local/lib/libleptonica.so | grep "not found" || echo "Linker OK"
-          pkg-config --modversion lept
-
-      - name: Cache SonarQube packages
-        uses: actions/cache@v5
+      - name: Cache Maven/Sonar
+        uses: actions/cache@v4
         with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          path: |
+            ~/.m2/repository
+            ~/.sonar/cache
+          key: ${{ runner.os }}-build-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-build
 
-      - name: Cache Maven packages
-        uses: actions/cache@v5
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Build and verify
-        env:
-          TESTCONTAINERS_RYUK_DISABLED: "true"
-
-        run: |
-          mise set TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
-          mise run github-build
-
-      - name: SonarCloud Scan
+      - name: Build and Analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          mise set TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+          mise run github-build
           mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356:sonar

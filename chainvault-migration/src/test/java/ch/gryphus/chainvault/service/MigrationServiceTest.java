@@ -781,15 +781,29 @@ class MigrationServiceTest {
         assertThat(result).isEqualTo(List.of(expectedContent));
     }
 
+    @Test
+    void testPerformOcrOnTiffPagesThrowsException() throws Exception {
+        // Setup
+        List<TiffPage> pages =
+                List.of(
+                        new TiffPage(
+                                "bad_sample.tiff", "contents".getBytes(StandardCharsets.UTF_8)));
+
+        // Verify the results
+        assertThatException()
+                .isThrownBy(() -> migrationServiceUnderTest.performOcrOnTiffPages(pages));
+    }
+
     /**
      * Test perform ocr on tiff pages does not throw exception when input is null or empty.
      */
     @Test
     void testPerformOcrOnTiffPagesDoesNotThrowExceptionWhenInputIsNullOrEmpty() {
-        // Setup
+        // check for null
         assertThatNoException()
                 .isThrownBy(() -> migrationServiceUnderTest.performOcrOnTiffPages(null));
 
+        // check for empty list
         List<TiffPage> pages = Collections.emptyList();
         assertThatNoException()
                 .isThrownBy(() -> migrationServiceUnderTest.performOcrOnTiffPages(pages));

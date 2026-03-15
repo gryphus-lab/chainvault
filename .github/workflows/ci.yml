@@ -15,7 +15,7 @@ env:
   LD_LIBRARY_PATH: /usr/local/lib:$LD_LIBRARY_PATH
   JNA_LIBRARY_PATH: /usr/local/lib
   TESTCONTAINERS_RYUK_DISABLED: "true"
-
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # required for actions using Node.js 20
 jobs:
   build:
     name: Build and analyze

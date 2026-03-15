@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -754,7 +755,10 @@ class MigrationServiceTest {
         ctx.addPageHash("p1.tif", "h1");
         ctx.addPageHash("p2.tif", "h2");
 
-        ArchivalMetadata xml = MigrationService.buildXml(meta, ctx, null);
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("ocrResults", "test");
+        inputMap.put("ocrFullTextLength", 123);
+        ArchivalMetadata xml = MigrationService.buildXml(meta, ctx, inputMap);
 
         assertThat(xml.getDocumentId()).isEqualTo("DOC-TEST-001");
         assertThat(xml.getTitle()).isEqualTo("Test Invoice 2026");

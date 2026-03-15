@@ -781,6 +781,9 @@ class MigrationServiceTest {
         assertThat(result).isEqualTo(List.of(expectedContent));
     }
 
+    /**
+     * Test perform ocr on tiff pages throws exception.
+     */
     @Test
     void testPerformOcrOnTiffPagesThrowsException() {
         // Setup

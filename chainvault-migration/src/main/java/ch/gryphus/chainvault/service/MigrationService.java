@@ -8,7 +8,6 @@ import ch.gryphus.chainvault.config.MigrationProperties;
 import ch.gryphus.chainvault.config.SftpTargetConfig;
 import ch.gryphus.chainvault.domain.*;
 import ch.gryphus.chainvault.utils.HashUtils;
-import jakarta.annotation.PostConstruct;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;

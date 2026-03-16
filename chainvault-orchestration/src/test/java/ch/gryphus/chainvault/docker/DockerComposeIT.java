@@ -67,7 +67,7 @@ class DockerComposeIT {
                     .withBuild(true);
 
     /**
-     * Test docker compose starts.
+     * Test all services start.
      */
     @Test
     @DisplayName("Test all services defined in docker compose YAMLs start successfully")
@@ -129,6 +129,9 @@ class DockerComposeIT {
         assertThat(port).isGreaterThan(9091);
     }
 
+    /**
+     * Test chainvault rest api accessibility.
+     */
     @Test
     @DisplayName("Chainvault REST API should be accessible")
     void testChainvaultRestApiAccessibility() {
@@ -164,7 +167,7 @@ class DockerComposeIT {
     }
 
     /**
-     * Test service definitions.
+     * Test expected service definitions.
      */
     @Test
     @DisplayName("Test all expected services are defined")

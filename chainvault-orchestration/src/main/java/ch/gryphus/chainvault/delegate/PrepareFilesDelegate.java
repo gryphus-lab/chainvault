@@ -46,8 +46,7 @@ public class PrepareFilesDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        var obj = execution.getTransientVariable("pages");
-        var pages = (List<TiffPage>) obj;
+        List<TiffPage> pages = (List<TiffPage>) execution.getTransientVariable("pages");
         SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
         MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
 

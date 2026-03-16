@@ -35,8 +35,8 @@ class TraceIdFilterTest {
 
     private TraceIdFilter traceIdFilterUnderTest;
 
-    MockHttpServletRequest request;
-    MockHttpServletResponse response;
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
 
     /**
      * Sets up.
@@ -82,6 +82,9 @@ class TraceIdFilterTest {
                                         request, response, mockFilterChain));
     }
 
+    /**
+     * Test do filter internal throws null pointer exception when request is null.
+     */
     @Test
     void testDoFilterInternalThrowsNullPointerException_whenRequestIsNull() {
         // Setup
@@ -96,6 +99,9 @@ class TraceIdFilterTest {
                                         null, response, mockFilterChain));
     }
 
+    /**
+     * Test do filter internal throws null pointer exception when response is null.
+     */
     @Test
     void testDoFilterInternalThrowsNullPointerException_whenResponseIsNull() {
         // Setup
@@ -110,6 +116,9 @@ class TraceIdFilterTest {
                                         request, null, mockFilterChain));
     }
 
+    /**
+     * Test do filter internal throws null pointer exception when filter chain is null.
+     */
     @Test
     void testDoFilterInternalThrowsNullPointerException_whenFilterChainIsNull() {
         // Setup

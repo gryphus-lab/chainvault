@@ -66,8 +66,8 @@ class DockerComposeIT {
                     .withExposedService(
                             CHAINVAULT_SERVICE,
                             8085,
-                            Wait.forLogMessage(".*Started MigrationApplication.*", 1)
-                                    .withStartupTimeout(Duration.ofSeconds(240)));
+                            Wait.forHttp("/actuator/health").forStatusCode(200))
+                    .withBuild(true);
 
     /**
      * Test docker compose starts.

@@ -19,6 +19,5 @@ public record MigrationProperties(
         @Min(1) long zipThresholdSize,
         @Positive double zipThresholdRatio,
         @Min(10) int zipThresholdEntries,
-        @NotBlank String tesseractDatapath,
         @NotBlank String tesseractLanguage,
         @Min(72) int tesseractDpi) {}

@@ -104,7 +104,6 @@ class MigrationServiceTest {
                                 5000000,
                                 10.0,
                                 10000,
-                                "/opt/homebrew/share/tessdata",
                                 "eng+deu",
                                 300));
 

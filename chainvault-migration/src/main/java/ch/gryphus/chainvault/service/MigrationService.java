@@ -90,7 +90,6 @@ public class MigrationService {
 
         // Initialize Tesseract from properties
         tesseract = new Tesseract();
-        tesseract.setDatapath(props.tesseractDatapath());
         tesseract.setLanguage(props.tesseractLanguage());
         tesseract.setVariable("user_defined_dpi", String.valueOf(props.tesseractDpi()));
         tesseract.setPageSegMode(3);
@@ -103,9 +102,8 @@ public class MigrationService {
     @PostConstruct
     public void logConfig() {
         log.info(
-                "Migration config loaded: tempDir={}, tesseractDatapath={}, language={}, dpi={}",
+                "Migration config loaded: tempDir={},, tesseract:language={}, dpi={}",
                 props.tempDir(),
-                props.tesseractDatapath(),
                 props.tesseractLanguage(),
                 props.tesseractDpi());
     }

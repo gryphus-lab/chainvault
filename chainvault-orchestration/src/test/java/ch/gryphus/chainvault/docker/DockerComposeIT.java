@@ -25,9 +25,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DisplayName("Docker Compose Integration Tests")
 class DockerComposeIT {
 
+    // observability services
     private static final String OTEL_LGTM_SERVICE = "otel-lgtm";
     private static final String ALLOY_SERVICE = "alloy";
 
+    // application services
     private static final String POSTGRES_SERVICE = "postgres";
     private static final String SFTP_SERVICE = "sftp-test";
     private static final String API_SERVICE = "fake-source-api";
@@ -64,7 +66,8 @@ class DockerComposeIT {
                     .withExposedService(
                             CHAINVAULT_SERVICE,
                             8085,
-                            Wait.forHealthcheck().withStartupTimeout(Duration.ofSeconds(120)));
+                            Wait.forLogMessage(".*Started MigrationApplication.*", 1)
+                                    .withStartupTimeout(Duration.ofSeconds(120)));
 
     /**
      * Test docker compose starts.

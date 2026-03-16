@@ -99,13 +99,7 @@ class MigrationServiceTest {
                         new XmlMapper(),
                         new ObjectMapper(),
                         new Tika(),
-                        new MigrationProperties(
-                                "/tmp",
-                                5000000,
-                                10.0,
-                                10000,
-                                "eng+deu",
-                                300));
+                        new MigrationProperties("/tmp", 5000000, 10.0, 10000, "eng+deu", 300));
 
         String docId = "DOC-TEST-001";
         ctx = new MigrationContext();

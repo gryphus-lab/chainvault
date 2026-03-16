@@ -1,35 +1,10 @@
 ####################################################################################################################
 # WARNING: Do not store sensitive information in this file, as its contents will be included in the Qodana report. #
 ####################################################################################################################
+
 version: "1.0"
 linter: jetbrains/qodana-jvm:2025.3
 profile:
   name: qodana.recommended
 include:
   - name: CheckDependencyLicenses
-exclude:
-  - name: All
-    paths:
-      - chainvault-orchestration
-      - chainvault-orchestration/src
-      - chainvault-orchestration/src/main
-      - chainvault-orchestration/src/main/java
-      - chainvault-orchestration/src/main/java/ch
-      - chainvault-orchestration/src/main/java/ch/gryphus
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault/config
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault/config/TraceIdFilter.java
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault/controller
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault/controller/OrchestrationRestController.java
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault/delegate
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault/delegate/MergePdfDelegate.java
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault/delegate/PerformOcrDelegate.java
-      - chainvault-orchestration/src/main/java/ch/gryphus/chainvault/delegate/PrepareFilesDelegate.java
-      - chainvault-orchestration/src/main/resources
-      - chainvault-orchestration/src/main/resources/application.yml
-      - chainvault-orchestration/src/test
-      - chainvault-orchestration/src/test/resources
-      - chainvault-orchestration/src/test/resources/application.yml
-      - chainvault-orchestration/pom.xml
-      - chainvault-report-aggregate
-      - chainvault-report-aggregate/pom.xml

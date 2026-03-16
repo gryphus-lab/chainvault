@@ -4,6 +4,7 @@
 package ch.gryphus.chainvault.service;
 
 import ch.gryphus.chainvault.config.Constants;
+import ch.gryphus.chainvault.config.MigrationProperties;
 import ch.gryphus.chainvault.config.SftpTargetConfig;
 import ch.gryphus.chainvault.domain.*;
 import ch.gryphus.chainvault.utils.HashUtils;
@@ -22,6 +23,7 @@ import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -32,7 +34,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.tika.Tika;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.stereotype.Service;
@@ -56,24 +57,19 @@ public class MigrationService {
     private final ObjectMapper objectMapper;
     private final Tika tika;
 
-    @Getter private final String tempDir;
-    private final int zipThresholdSize;
-    private final double zipThresholdRatio;
-    private final int zipThresholdEntries;
+    private final MigrationProperties props;
+    private final Tesseract tesseract;
 
     /**
      * Instantiates a new Migration service.
      *
-     * @param restClient          the rest client
-     * @param template            the template
-     * @param sftpTargetConfig    the sftp target config
-     * @param xmlMapper           the xml mapper
-     * @param objectMapper        the object mapper
-     * @param tika                the tika
-     * @param tempDir             the temp dir
-     * @param zipThresholdSize    the zip threshold size
-     * @param zipThresholdRatio   the zip threshold ratio
-     * @param zipThresholdEntries the zip threshold entries
+     * @param restClient       the rest client
+     * @param template         the template
+     * @param sftpTargetConfig the sftp target config
+     * @param xmlMapper        the xml mapper
+     * @param objectMapper     the object mapper
+     * @param tika             the tika
+     * @param props            the props
      */
     public MigrationService(
             RestClient restClient,
@@ -82,20 +78,57 @@ public class MigrationService {
             XmlMapper xmlMapper,
             ObjectMapper objectMapper,
             Tika tika,
-            @Value("${migration.temp-dir:/tmp}") String tempDir,
-            @Value("${migration.zip-threshold-size:1000000000}") int zipThresholdSize,
-            @Value("${migration.zip-threshold-ratio:10.0}") double zipThresholdRatio,
-            @Value("${migration.zip-threshold-entries:10000}") int zipThresholdEntries) {
+            MigrationProperties props) {
         this.restClient = restClient;
         remoteFileTemplate = template;
         this.sftpTargetConfig = sftpTargetConfig;
         this.xmlMapper = xmlMapper;
         this.objectMapper = objectMapper;
         this.tika = tika;
-        this.tempDir = tempDir;
-        this.zipThresholdSize = zipThresholdSize;
-        this.zipThresholdRatio = zipThresholdRatio;
-        this.zipThresholdEntries = zipThresholdEntries;
+        this.props = props;
+
+        // Initialize Tesseract from properties
+        tesseract = new Tesseract();
+        tesseract.setLanguage(props.tesseractLanguage());
+        tesseract.setVariable("user_defined_dpi", String.valueOf(props.tesseractDpi()));
+        tesseract.setPageSegMode(3);
+        tesseract.setOcrEngineMode(3);
+    }
+
+    /**
+     * Gets temp dir.
+     *
+     * @return the temp dir
+     */
+    public String getTempDir() {
+        return props.tempDir();
+    }
+
+    /**
+     * Gets zip threshold ratio.
+     *
+     * @return the zip threshold ratio
+     */
+    public double getZipThresholdRatio() {
+        return props.zipThresholdRatio();
+    }
+
+    /**
+     * Gets zip threshold size.
+     *
+     * @return the zip threshold size
+     */
+    public long getZipThresholdSize() {
+        return props.zipThresholdSize();
+    }
+
+    /**
+     * Gets zip threshold entries.
+     *
+     * @return the zip threshold entries
+     */
+    public int getZipThresholdEntries() {
+        return props.zipThresholdEntries();
     }
 
     /**
@@ -174,7 +207,7 @@ public class MigrationService {
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
     public List<TiffPage> signTiffPages(
-            byte[] payload, MigrationContext ctx, String workingDirectory)
+            byte[] payload, @NonNull MigrationContext ctx, String workingDirectory)
             throws IOException, NoSuchAlgorithmException {
         List<TiffPage> pages = new ArrayList<>();
 
@@ -211,24 +244,24 @@ public class MigrationService {
 
                         double compressionRatio =
                                 (double) totalSizeEntry / entry.getCompressedSize();
-                        if (compressionRatio > zipThresholdRatio) {
+                        if (compressionRatio > getZipThresholdRatio()) {
                             throw new MigrationServiceException(
                                     "Ratio between compressed and uncompressed data is greater than %s"
-                                            .formatted(zipThresholdRatio));
+                                            .formatted(getZipThresholdRatio()));
                         }
                     }
                 }
 
-                if (totalSizeArchive > zipThresholdSize) {
+                if (totalSizeArchive > getZipThresholdSize()) {
                     throw new MigrationServiceException(
                             "Total size of the archive is greater than the threshold %d bytes"
-                                    .formatted(zipThresholdSize));
+                                    .formatted(getZipThresholdSize()));
                 }
 
-                if (totalEntryArchive > zipThresholdEntries) {
+                if (totalEntryArchive > getZipThresholdEntries()) {
                     throw new MigrationServiceException(
                             "Number of entries in the archive is greater than %d"
-                                    .formatted(zipThresholdEntries));
+                                    .formatted(getZipThresholdEntries()));
                 }
             }
         }
@@ -269,7 +302,7 @@ public class MigrationService {
     public Path createChainZip(
             String docId,
             List<TiffPage> pages,
-            SourceMetadata sourceMetadata,
+            @NonNull SourceMetadata sourceMetadata,
             MigrationContext ctx,
             String workingDirectory)
             throws IOException, NoSuchAlgorithmException {
@@ -277,34 +310,36 @@ public class MigrationService {
         Path zipPath = new File("%s/%s_chain.zip".formatted(workingDirectory, docId)).toPath();
 
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
-            for (TiffPage page : pages) {
-                String entryName = "%s".formatted(page.name());
-
-                zos.putNextEntry(new ZipEntry(entryName));
-                zos.write(page.data());
-                zos.closeEntry();
-            }
-
             Map<String, Object> manifest = new LinkedHashMap<>();
             manifest.put(Constants.BPMN_PROC_VAR_DOC_ID, docId);
-            manifest.put("timestamp", Instant.now().toString());
-            manifest.put("pageCount", pages.size());
-            manifest.put("pageHashes", ctx.getPageHashes());
-            manifest.put("payloadHash", ctx.getPayloadHash());
 
-            if (sourceMetadata != null) {
-                manifest.put(
-                        "sourceMetadata",
-                        Map.of(
-                                Constants.BPMN_PROC_VAR_DOC_ID,
-                                sourceMetadata.getDocId(),
-                                "title",
-                                sourceMetadata.getTitle(),
-                                "creationDate",
-                                sourceMetadata.getCreationDate(),
-                                "clientId",
-                                sourceMetadata.getClientId()));
+            if (pages != null && !pages.isEmpty()) {
+                for (TiffPage page : pages) {
+                    String entryName = "%s".formatted(page.name());
+
+                    zos.putNextEntry(new ZipEntry(entryName));
+                    zos.write(page.data());
+                    zos.closeEntry();
+                }
+
+                manifest.put("pageCount", pages.size());
+                manifest.put("pageHashes", ctx.getPageHashes());
+                manifest.put("payloadHash", ctx.getPayloadHash());
             }
+
+            manifest.put("timestamp", Instant.now().toString());
+
+            manifest.put(
+                    "sourceMetadata",
+                    Map.of(
+                            Constants.BPMN_PROC_VAR_DOC_ID,
+                            sourceMetadata.getDocId(),
+                            "title",
+                            sourceMetadata.getTitle(),
+                            "creationDate",
+                            sourceMetadata.getCreationDate(),
+                            "clientId",
+                            sourceMetadata.getClientId()));
 
             String manifestJson =
                     objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(manifest);
@@ -331,7 +366,7 @@ public class MigrationService {
      * @param processInstanceId the process instance id
      */
     public void uploadToSftp(
-            MigrationContext ctx,
+            @NonNull MigrationContext ctx,
             String docId,
             String xml,
             Path zipPath,
@@ -346,9 +381,11 @@ public class MigrationService {
                     session.write(
                             Files.newInputStream(zipPath.toFile().toPath()),
                             "%s/%s_chain.zip".formatted(folder, docId));
-                    session.write(
-                            Files.newInputStream(pdfPath.toFile().toPath()),
-                            "%s/%s.pdf".formatted(folder, docId));
+                    if (pdfPath != null) { // when pdf was not generated
+                        session.write(
+                                Files.newInputStream(pdfPath.toFile().toPath()),
+                                "%s/%s.pdf".formatted(folder, docId));
+                    }
                     session.write(
                             new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
                             "%s/%s_meta.xml".formatted(folder, docId));
@@ -366,7 +403,7 @@ public class MigrationService {
      * @return the path
      * @throws IOException the io exception
      */
-    public Path mergeTiffToPdf(List<TiffPage> pages, String docId, String workingDirectory)
+    public static Path mergeTiffToPdf(List<TiffPage> pages, String docId, String workingDirectory)
             throws IOException {
         Path pdf = new File("%s/%s.pdf".formatted(workingDirectory, docId)).toPath();
         try (var doc = new PDDocument()) {
@@ -479,12 +516,6 @@ public class MigrationService {
      */
     public List<String> performOcrOnTiffPages(List<TiffPage> pages)
             throws IOException, TesseractException {
-        Tesseract tesseract = new Tesseract();
-        tesseract.setLanguage("eng+deu");
-        tesseract.setVariable("user_defined_dpi", "300");
-        tesseract.setPageSegMode(3);
-        tesseract.setOcrEngineMode(3);
-
         List<String> results = new ArrayList<>();
 
         if (pages != null && !pages.isEmpty()) {

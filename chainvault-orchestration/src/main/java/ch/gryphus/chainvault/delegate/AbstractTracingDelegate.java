@@ -70,13 +70,13 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
 
             doExecute(execution, span, docId);
 
-            // filter out byte array payloads
+            // filter out byte array payloads and TiffPages instances
             Map<String, Object> outputMap = new HashMap<>();
             execution
                     .getTransientVariables()
                     .forEach(
                             (key, value) -> {
-                                if (!(value instanceof byte[])) {
+                                if (!(value instanceof byte[]) && !"pages".equals(key)) {
                                     outputMap.put(key, value);
                                 }
                             });
@@ -107,6 +107,7 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
      * @param docId     the doc id
      * @throws IOException              the io exception
      * @throws NoSuchAlgorithmException the no such algorithm exception
+     * @throws TesseractException       the tesseract exception
      */
     protected abstract void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException, TesseractException;

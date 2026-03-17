@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
@@ -38,11 +39,15 @@ public class MergePdfDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        var pages = (List<TiffPage>) getTransientVariableSafely(execution, "pages", List.class);
+        List<TiffPage> pages =
+                Objects.requireNonNull(
+                        (List<TiffPage>)
+                                getTransientVariableSafely(execution, "pages", List.class));
         var migrationContext =
-                (MigrationContext)
-                        getTransientVariableSafely(
-                                execution, "migrationContext", MigrationContext.class);
+                Objects.requireNonNull(
+                        (MigrationContext)
+                                getTransientVariableSafely(
+                                        execution, "migrationContext", MigrationContext.class));
 
         var workingDirectory =
                 (Path) getTransientVariableSafely(execution, "workingDirectory", Path.class);

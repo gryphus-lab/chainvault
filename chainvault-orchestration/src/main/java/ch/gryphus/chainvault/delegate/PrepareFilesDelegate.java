@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
@@ -51,15 +52,21 @@ public class PrepareFilesDelegate extends AbstractTracingDelegate {
                 (SourceMetadata)
                         getTransientVariableSafely(execution, "meta", SourceMetadata.class);
         var migrationContext =
-                (MigrationContext)
-                        getTransientVariableSafely(
-                                execution, "migrationContext", MigrationContext.class);
+                Objects.requireNonNull(
+                        (MigrationContext)
+                                getTransientVariableSafely(
+                                        execution, "migrationContext", MigrationContext.class));
 
         var workingDirectory =
                 (Path) getTransientVariableSafely(execution, "workingDirectory", Path.class);
+
         Path zipPath =
                 migrationService.createChainZip(
-                        docId, pages, meta, migrationContext, workingDirectory.toString());
+                        docId,
+                        pages,
+                        Objects.requireNonNull(meta),
+                        migrationContext,
+                        workingDirectory);
         migrationContext.setZipHash(HashUtils.sha256(zipPath));
 
         execution.setTransientVariable("migrationContext", migrationContext);

@@ -9,6 +9,8 @@ import lombok.NonNull;
 
 /**
  * The type Tiff page.
+ * @param name
+ * @param data
  */
 public record TiffPage(String name, byte[] data) {
     @Override

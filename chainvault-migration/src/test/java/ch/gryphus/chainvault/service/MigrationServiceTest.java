@@ -648,11 +648,7 @@ class MigrationServiceTest {
         // Act
         Path zip =
                 migrationServiceUnderTest.createChainZip(
-                        "DOC-TEST-001",
-                        pages,
-                        meta,
-                        migrationContext,
-                        migrationServiceUnderTest.getTempDir());
+                        "DOC-TEST-001", pages, meta, migrationContext, workingDirectory);
 
         assertThat(Files.exists(zip)).isTrue();
 
@@ -700,11 +696,7 @@ class MigrationServiceTest {
         // Act
         Path zip =
                 migrationServiceUnderTest.createChainZip(
-                        "DOC-TEST-001",
-                        pages,
-                        meta,
-                        migrationContext,
-                        migrationServiceUnderTest.getTempDir());
+                        "DOC-TEST-001", pages, meta, migrationContext, workingDirectory);
 
         assertThat(Files.exists(zip)).isTrue();
 
@@ -713,11 +705,7 @@ class MigrationServiceTest {
 
         zip =
                 migrationServiceUnderTest.createChainZip(
-                        "DOC-TEST-001",
-                        null,
-                        meta,
-                        migrationContext,
-                        migrationServiceUnderTest.getTempDir());
+                        "DOC-TEST-001", null, meta, migrationContext, workingDirectory);
 
         assertThat(Files.exists(zip)).isTrue();
 

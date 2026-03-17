@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
@@ -46,9 +47,10 @@ public class SignDocumentDelegate extends AbstractTracingDelegate {
             throws IOException, NoSuchAlgorithmException {
         var payload = (byte[]) getTransientVariableSafely(execution, "payload", byte[].class);
         var migrationContext =
-                (MigrationContext)
-                        getTransientVariableSafely(
-                                execution, "migrationContext", MigrationContext.class);
+                Objects.requireNonNull(
+                        (MigrationContext)
+                                getTransientVariableSafely(
+                                        execution, "migrationContext", MigrationContext.class));
         var workingDirectory =
                 (Path) getTransientVariableSafely(execution, "workingDirectory", Path.class);
 

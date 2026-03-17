@@ -11,6 +11,7 @@ import io.opentelemetry.api.trace.Span;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
@@ -44,14 +45,20 @@ public class SftpUploadDelegate extends AbstractTracingDelegate {
             throws IOException, NoSuchAlgorithmException {
 
         var migrationContext =
-                (MigrationContext)
-                        getTransientVariableSafely(
-                                execution, "migrationContext", MigrationContext.class);
+                Objects.requireNonNull(
+                        (MigrationContext)
+                                getTransientVariableSafely(
+                                        execution, "migrationContext", MigrationContext.class));
         var xml = (String) getTransientVariableSafely(execution, "xml", String.class);
-        var zipPath = (Path) getTransientVariableSafely(execution, "zipPath", Path.class);
+        var zipPath =
+                Objects.requireNonNull(
+                        (Path) getTransientVariableSafely(execution, "zipPath", Path.class));
         var pdfPath = (Path) getTransientVariableSafely(execution, "pdfPath", Path.class);
         var workingDirectory =
-                (Path) getTransientVariableSafely(execution, "workingDirectory", Path.class);
+                Objects.requireNonNull(
+                        (Path)
+                                getTransientVariableSafely(
+                                        execution, "workingDirectory", Path.class));
 
         String processInstanceId = execution.getProcessInstanceId();
         migrationService.uploadToSftp(

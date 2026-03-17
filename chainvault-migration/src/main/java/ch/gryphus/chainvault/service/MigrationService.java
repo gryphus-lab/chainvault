@@ -307,7 +307,7 @@ public class MigrationService {
             List<TiffPage> pages,
             @NonNull SourceMetadata sourceMetadata,
             MigrationContext migrationContext,
-            String workingDirectory)
+            Path workingDirectory)
             throws IOException, NoSuchAlgorithmException {
 
         Path zipPath = new File("%s/%s_chain.zip".formatted(workingDirectory, docId)).toPath();

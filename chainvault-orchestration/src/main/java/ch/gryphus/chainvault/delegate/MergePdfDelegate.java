@@ -4,6 +4,7 @@
 package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.domain.MigrationContext;
+import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.service.AuditEventService;
 import ch.gryphus.chainvault.service.MigrationService;
 import ch.gryphus.chainvault.utils.HashUtils;
@@ -38,7 +39,7 @@ public class MergePdfDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        var pages = getTransientVariableSafely(execution, "pages", List.class);
+        List<TiffPage> pages = getTransientVariableSafely(execution, "pages", List.class);
         if (pages != null && !pages.isEmpty()) {
             var migrationContext =
                     Objects.requireNonNull(

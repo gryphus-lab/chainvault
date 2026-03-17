@@ -9,12 +9,11 @@ import ch.gryphus.chainvault.service.AuditEventService;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Context;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.TesseractException;
 import org.flowable.engine.delegate.DelegateExecution;

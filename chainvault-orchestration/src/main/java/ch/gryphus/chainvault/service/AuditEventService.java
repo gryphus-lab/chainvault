@@ -121,7 +121,6 @@ public class AuditEventService {
             }
         }
 
-
         // Update OCR related audit table fields
         if (varMap.get("ocrResults") != null) {
             audit.setOcrAttempted(true);

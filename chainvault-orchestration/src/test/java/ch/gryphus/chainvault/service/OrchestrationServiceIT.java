@@ -114,10 +114,15 @@ class OrchestrationServiceIT extends BaseServiceIT {
                 .pollInterval(Duration.ofSeconds(1))
                 .untilAsserted(
                         () -> {
-                            String checkDirResult = sftpContainer.execInContainer(
-                                    "[ -d %s ] && echo exists || echo 'not found'".formatted(expectedDir)
-                            ).getStdout();
-                            assertThat(checkDirResult).as("SFTP check directory should exist").contains("exists");
+                            String checkDirResult =
+                                    sftpContainer
+                                            .execInContainer(
+                                                    "[ -d %s ] && echo exists || echo 'not found'"
+                                                            .formatted(expectedDir))
+                                            .getStdout();
+                            assertThat(checkDirResult)
+                                    .as("SFTP check directory should exist")
+                                    .contains("exists");
 
                             String lsResult =
                                     sftpContainer
@@ -164,10 +169,15 @@ class OrchestrationServiceIT extends BaseServiceIT {
                 .pollInterval(Duration.ofSeconds(1))
                 .untilAsserted(
                         () -> {
-                            String checkDirResult = sftpContainer.execInContainer(
-                                    "[ -d %s ] && echo exists || echo 'not found'".formatted(expectedDir)
-                            ).getStdout();
-                            assertThat(checkDirResult).as("SFTP check directory should exist").contains("exists");
+                            String checkDirResult =
+                                    sftpContainer
+                                            .execInContainer(
+                                                    "[ -d %s ] && echo exists || echo 'not found'"
+                                                            .formatted(expectedDir))
+                                            .getStdout();
+                            assertThat(checkDirResult)
+                                    .as("SFTP check directory should exist")
+                                    .contains("exists");
 
                             String lsResult =
                                     sftpContainer

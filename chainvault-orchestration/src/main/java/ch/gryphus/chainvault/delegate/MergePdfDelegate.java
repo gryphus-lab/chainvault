@@ -4,7 +4,6 @@
 package ch.gryphus.chainvault.delegate;
 
 import ch.gryphus.chainvault.domain.MigrationContext;
-import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.service.AuditEventService;
 import ch.gryphus.chainvault.service.MigrationService;
 import ch.gryphus.chainvault.utils.HashUtils;
@@ -39,18 +38,20 @@ public class MergePdfDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        var pages = (List<TiffPage>) getTransientVariableSafely(execution, "pages", List.class);
-        var migrationContext =
-                Objects.requireNonNull(
-                        getTransientVariableSafely(
-                                execution, "migrationContext", MigrationContext.class));
+        var pages = getTransientVariableSafely(execution, "pages", List.class);
+        if (pages != null && !pages.isEmpty()) {
+            var migrationContext =
+                    Objects.requireNonNull(
+                            getTransientVariableSafely(
+                                    execution, "migrationContext", MigrationContext.class));
 
-        var workingDirectory =
-                getTransientVariableSafely(execution, "workingDirectory", Path.class);
-        Path pdfPath = MigrationService.mergeTiffToPdf(pages, docId, workingDirectory);
-        migrationContext.setPdfHash(HashUtils.sha256(pdfPath));
+            var workingDirectory =
+                    getTransientVariableSafely(execution, "workingDirectory", Path.class);
+            Path pdfPath = MigrationService.mergeTiffToPdf(pages, docId, workingDirectory);
+            migrationContext.setPdfHash(HashUtils.sha256(pdfPath));
 
-        execution.setTransientVariable("migrationContext", migrationContext);
-        execution.setTransientVariable("pdfPath", pdfPath);
+            execution.setTransientVariable("migrationContext", migrationContext);
+            execution.setTransientVariable("pdfPath", pdfPath);
+        }
     }
 }

@@ -14,7 +14,9 @@ import io.opentelemetry.api.trace.Span;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
@@ -46,17 +48,26 @@ public class PrepareFilesDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        List<TiffPage> pages = (List<TiffPage>) execution.getTransientVariable("pages");
-        SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
-        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
+        List<TiffPage> pages = getTransientVariableSafely(execution, "pages", ArrayList.class);
+        var meta = getTransientVariableSafely(execution, "meta", SourceMetadata.class);
+        var migrationContext =
+                Objects.requireNonNull(
+                        getTransientVariableSafely(
+                                execution, "migrationContext", MigrationContext.class));
 
-        Path workingDirectory = (Path) execution.getTransientVariable("workingDirectory");
+        var workingDirectory =
+                getTransientVariableSafely(execution, "workingDirectory", Path.class);
+
         Path zipPath =
                 migrationService.createChainZip(
-                        docId, pages, meta, ctx, workingDirectory.toString());
-        ctx.setZipHash(HashUtils.sha256(zipPath));
+                        docId,
+                        pages,
+                        Objects.requireNonNull(meta),
+                        migrationContext,
+                        workingDirectory);
+        migrationContext.setZipHash(HashUtils.sha256(zipPath));
 
-        execution.setTransientVariable("ctx", ctx);
+        execution.setTransientVariable("migrationContext", migrationContext);
         execution.setTransientVariable("zipPath", zipPath);
     }
 }

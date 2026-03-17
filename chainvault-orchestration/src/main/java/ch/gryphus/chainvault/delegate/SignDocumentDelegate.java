@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
@@ -44,12 +45,17 @@ public class SignDocumentDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        byte[] payload = (byte[]) execution.getTransientVariable("payload");
-        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
+        var payload = getTransientVariableSafely(execution, "payload", byte[].class);
+        var migrationContext =
+                Objects.requireNonNull(
+                        getTransientVariableSafely(
+                                execution, "migrationContext", MigrationContext.class));
+        var workingDirectory =
+                getTransientVariableSafely(execution, "workingDirectory", Path.class);
 
-        Path workingDirectory = (Path) execution.getTransientVariable("workingDirectory");
         List<TiffPage> pages =
-                migrationService.signTiffPages(payload, ctx, workingDirectory.toString());
+                migrationService.signTiffPages(payload, migrationContext, workingDirectory);
+
         execution.setTransientVariable("pages", pages);
     }
 }

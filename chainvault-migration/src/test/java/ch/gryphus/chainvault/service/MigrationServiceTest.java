@@ -41,6 +41,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.integration.file.remote.SessionCallback;
 import org.springframework.integration.file.remote.session.Session;
@@ -61,6 +62,7 @@ import tools.jackson.dataformat.xml.XmlMapper;
 class MigrationServiceTest {
 
     @Mock private RestClient mockRestClient;
+    @Mock private HttpRequest mockRequest;
 
     @Mock
     @SuppressWarnings("rawtypes")
@@ -78,13 +80,13 @@ class MigrationServiceTest {
 
     private MigrationService migrationServiceUnderTest;
 
-    private MigrationContext ctx;
+    private MigrationContext migrationContext;
     private SourceMetadata meta;
 
     /**
      * The Working directory.
      */
-    static final String WORKING_DIRECTORY = "/tmp";
+    Path workingDirectory;
 
     /**
      * Sets up.
@@ -101,14 +103,16 @@ class MigrationServiceTest {
                         new Tika(),
                         new MigrationProperties("/tmp", 5000000, 10.0, 10000, "eng+deu", 300));
 
+        workingDirectory = Path.of(migrationServiceUnderTest.getTempDir());
+        migrationContext = migrationServiceUnderTest.getMigrationContext();
+
         String docId = "DOC-TEST-001";
-        ctx = new MigrationContext();
-        ctx.setDocId(docId);
+        migrationContext.setDocId(docId);
 
         meta = new SourceMetadata();
         meta.setDocId(docId);
         meta.setTitle("Test Invoice 2026");
-        meta.setCreationDate(Instant.now().toString());
+        meta.setCreationDate(String.valueOf(Instant.now()));
         meta.setClientId("CHE-123.456.789");
         meta.setDocumentType("INVOICE");
         meta.setAccountNo("ACC-123");
@@ -143,16 +147,16 @@ class MigrationServiceTest {
                                     .thenReturn(new byte[] {}); // return valid payload
 
                             // Execute the lambda manually
-                            return function.exchange(null, mockResponse);
+                            return function.exchange(mockRequest, mockResponse);
                         });
 
         Map<String, Object> result = migrationServiceUnderTest.extractAndHash("DOC-TEST-001");
 
         assertThat(result).hasSize(3); // context + metadata + payload
-        Object obj = result.get("ctx");
+        Object obj = result.get("migrationContext");
         assertThat(obj).isInstanceOf(MigrationContext.class);
 
-        MigrationContext migrationContext = (MigrationContext) obj;
+        migrationContext = (MigrationContext) obj;
         assertThat(migrationContext.getMetadataHash()).isNotNull(); // metadata hash exists
         assertThat(migrationContext.getPayloadHash()).isNotNull(); // payload hash exists
     }
@@ -173,7 +177,7 @@ class MigrationServiceTest {
                                     .thenReturn(HttpStatus.NOT_FOUND); // return 404 error
 
                             // Execute the lambda manually
-                            return function.exchange(null, mockResponse);
+                            return function.exchange(mockRequest, mockResponse);
                         });
 
         String docId = "DOC-NOT-EXISTS-001";
@@ -204,15 +208,15 @@ class MigrationServiceTest {
                                     .thenReturn(HttpStatus.OK); // return 200 OK
                             when(mockResponse.bodyTo(SourceMetadata.class))
                                     .thenReturn(meta); // return valid metadata
-                            return function.exchange(null, mockResponse);
+                            return function.exchange(mockRequest, mockResponse);
                         });
 
         Map<String, Object> result = migrationServiceUnderTest.extractAndHash(docId);
         assertThat(result).hasSize(2); // context + metadata
-        Object obj = result.get("ctx");
+        Object obj = result.get("migrationContext");
         assertThat(obj).isInstanceOf(MigrationContext.class);
 
-        MigrationContext migrationContext = (MigrationContext) obj;
+        migrationContext = (MigrationContext) obj;
         assertThat(migrationContext.getMetadataHash()).isNotNull(); // metadata hash exists
         assertThat(migrationContext.getPayloadHash()).isNull(); // payload hash does not exist
     }
@@ -236,7 +240,7 @@ class MigrationServiceTest {
                                     .thenReturn(HttpStatus.OK); // return 200 OK
                             when(mockResponse.bodyTo(SourceMetadata.class))
                                     .thenReturn(meta); // return valid metadata
-                            return function.exchange(null, mockResponse);
+                            return function.exchange(mockRequest, mockResponse);
                         })
                 .thenAnswer( // returns payload not found
                         invocation -> {
@@ -244,7 +248,7 @@ class MigrationServiceTest {
                                     invocation.getArgument(0);
                             when(mockResponse.getStatusCode())
                                     .thenReturn(HttpStatus.NOT_FOUND); // return 404 NOT FOUND
-                            return function.exchange(null, mockResponse);
+                            return function.exchange(mockRequest, mockResponse);
                         });
 
         assertThatExceptionOfType(MigrationServiceException.class)
@@ -265,7 +269,7 @@ class MigrationServiceTest {
         // Run the test
         List<TiffPage> result =
                 migrationServiceUnderTest.signTiffPages(
-                        payload, ctx, migrationServiceUnderTest.getTempDir());
+                        payload, migrationContext, workingDirectory);
 
         // Verify the results
         assertThat(result).hasSize(5);
@@ -275,7 +279,7 @@ class MigrationServiceTest {
     }
 
     /**
-     * Test upload to sftp.
+     * Test upload to sftp when valid metadata and payload exist.
      *
      * @throws IOException the io exception
      */
@@ -283,11 +287,11 @@ class MigrationServiceTest {
     void testUploadToSftp_WhenValidMetadataAndPayloadExist() throws IOException {
         // Setup
         String docId = "DOC-TEST-001";
-        ctx.setDocId(docId);
-        ctx.setPayloadHash("payloadHash");
-        ctx.setZipHash("zipHash");
-        ctx.setPdfHash("pdfHash");
-        ctx.setPageHashes(Map.ofEntries(Map.entry("value", "value")));
+        migrationContext.setDocId(docId);
+        migrationContext.setPayloadHash("payloadHash");
+        migrationContext.setZipHash("zipHash");
+        migrationContext.setPdfHash("pdfHash");
+        migrationContext.setPageHashes(Map.ofEntries(Map.entry("value", "value")));
 
         when(mockSftpTargetConfig.getRemoteDirectory()).thenReturn("result");
         when(mockSftpRemoteFileTemplate.execute(any(SessionCallback.class)))
@@ -305,7 +309,7 @@ class MigrationServiceTest {
 
         // Run the test
         migrationServiceUnderTest.uploadToSftp(
-                ctx,
+                migrationContext,
                 docId,
                 Files.readString(Path.of("src/test/resources/sftp/sample_meta.xml")),
                 Path.of("src/test/resources/sftp/sample.zip"),
@@ -325,9 +329,9 @@ class MigrationServiceTest {
     void testUploadToSftp_WhenOnlyValidMetadataExists() throws IOException {
         // Setup
         String docId = "DOC-TEST-001";
-        ctx.setDocId(docId);
-        ctx.setZipHash("zipHash");
-        ctx.setPageHashes(Map.ofEntries(Map.entry("value", "value")));
+        migrationContext.setDocId(docId);
+        migrationContext.setZipHash("zipHash");
+        migrationContext.setPageHashes(Map.ofEntries(Map.entry("value", "value")));
 
         when(mockSftpTargetConfig.getRemoteDirectory()).thenReturn("result");
         when(mockSftpRemoteFileTemplate.execute(any(SessionCallback.class)))
@@ -345,7 +349,7 @@ class MigrationServiceTest {
 
         // Run the test
         migrationServiceUnderTest.uploadToSftp(
-                ctx,
+                migrationContext,
                 docId,
                 Files.readString(Path.of("src/test/resources/sftp/sample_meta.xml")),
                 Path.of("src/test/resources/sftp/sample.zip"),
@@ -378,9 +382,7 @@ class MigrationServiceTest {
         // Run the test
         Path result =
                 MigrationService.mergeTiffToPdf(
-                        pages,
-                        Constants.BPMN_PROC_VAR_DOC_ID,
-                        migrationServiceUnderTest.getTempDir());
+                        pages, Constants.BPMN_PROC_VAR_DOC_ID, workingDirectory);
 
         // Verify the results
         assertThat(result.toFile()).exists();
@@ -402,14 +404,15 @@ class MigrationServiceTest {
         meta.setDocumentType("documentType");
         meta.setPayloadUrl("payloadUrl");
 
-        ctx.setDocId(Constants.BPMN_PROC_VAR_DOC_ID);
-        ctx.setPayloadHash("payloadHash");
-        ctx.setZipHash("zipHash");
-        ctx.setPdfHash("pdfHash");
-        ctx.setPageHashes(Map.ofEntries(Map.entry("value", "value")));
+        migrationContext.setDocId(Constants.BPMN_PROC_VAR_DOC_ID);
+        migrationContext.setPayloadHash("payloadHash");
+        migrationContext.setZipHash("zipHash");
+        migrationContext.setPdfHash("pdfHash");
+        migrationContext.setPageHashes(Map.ofEntries(Map.entry("value", "value")));
 
         // Run the test
-        String result = migrationServiceUnderTest.transformMetadataToXml(meta, ctx, null);
+        String result =
+                migrationServiceUnderTest.transformMetadataToXml(meta, migrationContext, null);
 
         // Verify the results
         String xmlFilename = "src/test/resources/xmls/ArchivalMetadata.xml";
@@ -482,8 +485,7 @@ class MigrationServiceTest {
         String docId = "DOC-ARCH-2025-001";
 
         List<TiffPage> pages =
-                migrationServiceUnderTest.signTiffPages(
-                        zip, ctx, migrationServiceUnderTest.getTempDir());
+                migrationServiceUnderTest.signTiffPages(zip, migrationContext, workingDirectory);
 
         assertThat(pages)
                 .hasSize(5)
@@ -509,8 +511,7 @@ class MigrationServiceTest {
                                 "page-002.tif", "TIFF2"));
 
         List<TiffPage> pages =
-                migrationServiceUnderTest.signTiffPages(
-                        zip, ctx, migrationServiceUnderTest.getTempDir());
+                migrationServiceUnderTest.signTiffPages(zip, migrationContext, workingDirectory);
 
         assertThat(pages).hasSize(2);
         assertThat(pages.get(1).name()).isEqualTo("page-002.tif");
@@ -526,7 +527,9 @@ class MigrationServiceTest {
         byte[] zip = createZipWithTiffs(List.of("readme.txt", "no tiffs here"));
 
         assertThatThrownBy(
-                        () -> migrationServiceUnderTest.signTiffPages(zip, ctx, WORKING_DIRECTORY))
+                        () ->
+                                migrationServiceUnderTest.signTiffPages(
+                                        zip, migrationContext, workingDirectory))
                 .isInstanceOf(MigrationServiceException.class)
                 .hasMessage("No TIFF pages found in ZIP");
     }
@@ -552,7 +555,7 @@ class MigrationServiceTest {
         assertThatThrownBy(
                         () ->
                                 migrationServiceUnderTest.signTiffPages(
-                                        payload, ctx, WORKING_DIRECTORY))
+                                        payload, migrationContext, workingDirectory))
                 .isInstanceOf(MigrationServiceException.class)
                 .hasMessage(
                         "Total size of the archive is greater than the threshold %d bytes"
@@ -579,7 +582,7 @@ class MigrationServiceTest {
         assertThatThrownBy(
                         () ->
                                 migrationServiceUnderTest.signTiffPages(
-                                        payload, ctx, WORKING_DIRECTORY))
+                                        payload, migrationContext, workingDirectory))
                 .isInstanceOf(MigrationServiceException.class)
                 .hasMessage(
                         "Ratio between compressed and uncompressed data is greater than %s"
@@ -606,7 +609,7 @@ class MigrationServiceTest {
         assertThatThrownBy(
                         () ->
                                 migrationServiceUnderTest.signTiffPages(
-                                        payload, ctx, WORKING_DIRECTORY))
+                                        payload, migrationContext, workingDirectory))
                 .isInstanceOf(MigrationServiceException.class)
                 .hasMessage(
                         "Number of entries in the archive is greater than %d"
@@ -614,7 +617,7 @@ class MigrationServiceTest {
     }
 
     /**
-     * Create chain zip should produce valid zip with manifest.
+     * Test create chain zip should produce valid zip with manifest when metadata and payload exists.
      *
      * @throws Exception the exception
      */
@@ -627,7 +630,7 @@ class MigrationServiceTest {
         // Arrange - ensure meta is non-null and has values
         assertThat(meta).isNotNull();
         assertThat(meta.getTitle()).isNotNull(); // fail fast if setup broken
-        ctx.setPayloadHash("payload-sha256-abc123");
+        migrationContext.setPayloadHash("payload-sha256-abc123");
 
         List<TiffPage> pages =
                 List.of(
@@ -639,13 +642,13 @@ class MigrationServiceTest {
                                 "sample2.tiff",
                                 Files.readAllBytes(
                                         Path.of("src/test/resources/tiffs/sample2.tiff"))));
-        ctx.addPageHash("sample1.tiff", "hash-page1");
-        ctx.addPageHash("sample2.tiff", "hash-page2");
+        migrationContext.addPageHash("sample1.tiff", "hash-page1");
+        migrationContext.addPageHash("sample2.tiff", "hash-page2");
 
         // Act
         Path zip =
                 migrationServiceUnderTest.createChainZip(
-                        "DOC-TEST-001", pages, meta, ctx, migrationServiceUnderTest.getTempDir());
+                        "DOC-TEST-001", pages, meta, migrationContext, workingDirectory);
 
         assertThat(Files.exists(zip)).isTrue();
 
@@ -693,7 +696,7 @@ class MigrationServiceTest {
         // Act
         Path zip =
                 migrationServiceUnderTest.createChainZip(
-                        "DOC-TEST-001", pages, meta, ctx, migrationServiceUnderTest.getTempDir());
+                        "DOC-TEST-001", pages, meta, migrationContext, workingDirectory);
 
         assertThat(Files.exists(zip)).isTrue();
 
@@ -702,7 +705,7 @@ class MigrationServiceTest {
 
         zip =
                 migrationServiceUnderTest.createChainZip(
-                        "DOC-TEST-001", null, meta, ctx, migrationServiceUnderTest.getTempDir());
+                        "DOC-TEST-001", null, meta, migrationContext, workingDirectory);
 
         assertThat(Files.exists(zip)).isTrue();
 
@@ -739,16 +742,16 @@ class MigrationServiceTest {
     // ────────────────────────────────────────────────
     @Test
     void buildXml_shouldFillAllRelevantFields() {
-        ctx.setPayloadHash("payload-sha256-abc123");
-        ctx.setZipHash("zip-xyz789");
-        ctx.setPdfHash("pdf-abc456");
-        ctx.addPageHash("p1.tif", "h1");
-        ctx.addPageHash("p2.tif", "h2");
+        migrationContext.setPayloadHash("payload-sha256-abc123");
+        migrationContext.setZipHash("zip-xyz789");
+        migrationContext.setPdfHash("pdf-abc456");
+        migrationContext.addPageHash("p1.tif", "h1");
+        migrationContext.addPageHash("p2.tif", "h2");
 
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("ocrResults", "test");
         inputMap.put("ocrFullTextLength", 123);
-        ArchivalMetadata xml = MigrationService.buildXml(meta, ctx, inputMap);
+        ArchivalMetadata xml = MigrationService.buildXml(meta, migrationContext, inputMap);
 
         assertThat(xml.getDocumentId()).isEqualTo("DOC-TEST-001");
         assertThat(xml.getTitle()).isEqualTo("Test Invoice 2026");
@@ -769,7 +772,7 @@ class MigrationServiceTest {
     void buildXml_shouldHandleMissingMetadataGracefully() {
         SourceMetadata nullMeta = new SourceMetadata(); // all fields null
 
-        ArchivalMetadata xml = MigrationService.buildXml(nullMeta, ctx, null);
+        ArchivalMetadata xml = MigrationService.buildXml(nullMeta, migrationContext, null);
 
         assertThat(xml.getTitle()).isEqualTo("Untitled Document");
         assertThat(xml.getPageCount()).isZero();
@@ -797,9 +800,7 @@ class MigrationServiceTest {
                                 "sample2.tif",
                                 Files.readAllBytes(
                                         Path.of("src/test/resources/tiffs/sample2.tiff"))));
-        Path pdfPath =
-                MigrationService.mergeTiffToPdf(
-                        pages, "DOC-TEST-PDF", migrationServiceUnderTest.getTempDir());
+        Path pdfPath = MigrationService.mergeTiffToPdf(pages, "DOC-TEST-PDF", workingDirectory);
 
         assertThat(Files.exists(pdfPath)).isTrue();
 
@@ -818,9 +819,7 @@ class MigrationServiceTest {
      */
     @Test
     void mergeTiffToPdf_shouldHandleEmptyList() throws Exception {
-        Path pdf =
-                MigrationService.mergeTiffToPdf(
-                        List.of(), "DOC-EMPTY", migrationServiceUnderTest.getTempDir());
+        Path pdf = MigrationService.mergeTiffToPdf(List.of(), "DOC-EMPTY", workingDirectory);
 
         try (PDDocument doc = Loader.loadPDF(pdf.toFile())) {
             assertThat(doc.getNumberOfPages()).isZero();
@@ -828,7 +827,7 @@ class MigrationServiceTest {
     }
 
     /**
-     * Test perform ocr on tiff pages well-formed returns expected content.
+     * Test perform ocr on tiff pages well formed returns expected content.
      *
      * @throws Exception the exception
      */

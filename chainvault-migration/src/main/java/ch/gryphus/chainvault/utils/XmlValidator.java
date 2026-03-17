@@ -12,6 +12,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
@@ -19,12 +21,11 @@ import org.xml.sax.SAXException;
  * The type Xml validator.
  */
 public class XmlValidator {
-
     private XmlValidator() {
-        // empty constructor
+        /* This utility class should not be instantiated */
     }
 
-    private static String xsdPath;
+    @Getter @Setter private static String xsdPath = "";
 
     private static Validator initValidator(String xsdPath) throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -54,14 +55,5 @@ public class XmlValidator {
         } catch (SAXException | IOException _) {
             return false;
         }
-    }
-
-    /**
-     * Sets xsd path.
-     *
-     * @param xsdPath the xsd path
-     */
-    public static void setXsdPath(String xsdPath) {
-        XmlValidator.xsdPath = xsdPath;
     }
 }

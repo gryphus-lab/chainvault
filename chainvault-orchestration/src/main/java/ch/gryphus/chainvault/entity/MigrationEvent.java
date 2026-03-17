@@ -16,8 +16,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 /**
- * Represents a fine-grained event logged during a document migration process.
- * Each event is tied to one MigrationAudit record and captures a specific step or state change.
+ * The type Migration event.
  */
 @Entity
 @Table(

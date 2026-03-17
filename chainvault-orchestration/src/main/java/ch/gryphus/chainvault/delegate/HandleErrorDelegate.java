@@ -35,7 +35,8 @@ public class HandleErrorDelegate extends AbstractTracingDelegate {
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
         // cleanup temporary working directory
-        Path workingDirectory = (Path) execution.getTransientVariable("workingDirectory");
+        var workingDirectory =
+                getTransientVariableSafely(execution, "workingDirectory", Path.class);
 
         FileSystemUtils.deleteRecursively(workingDirectory);
         log.info("Deleted working directory {}", workingDirectory);

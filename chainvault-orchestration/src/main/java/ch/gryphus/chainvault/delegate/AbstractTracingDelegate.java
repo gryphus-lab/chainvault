@@ -9,6 +9,7 @@ import ch.gryphus.chainvault.service.AuditEventService;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Context;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -51,7 +52,7 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) {
         // Use the utility to get the parent context
-        String traceParent = (String) execution.getVariable("traceParent");
+        String traceParent = getVariableSafely(execution, "traceParent", String.class);
         Context parentContext = OTelUtils.extractContext(openTelemetry, traceParent);
 
         // Start Child Span
@@ -64,7 +65,8 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
 
         try (var _ = span.makeCurrent()) {
             log.info("{} started", taskType);
-            String docId = (String) execution.getVariable(Constants.BPMN_PROC_VAR_DOC_ID);
+            String docId =
+                    getVariableSafely(execution, Constants.BPMN_PROC_VAR_DOC_ID, String.class);
             auditService.updateAuditEventStart(
                     execution.getProcessInstanceId(), docId, taskType, span);
 
@@ -111,4 +113,63 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
      */
     protected abstract void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException, TesseractException;
+
+    /**
+     * Gets transient variable safely.
+     *
+     * @param <T>          the type parameter
+     * @param execution    the execution
+     * @param variableName the variable name
+     * @param castToClass  the cast to class
+     * @return the transient variable safely
+     */
+    public static <T> @Nullable T getTransientVariableSafely(
+            DelegateExecution execution, String variableName, Class<T> castToClass) {
+        Object obj = execution.getTransientVariable(variableName);
+        if (obj == null) {
+            return null;
+        } else if (isInstanceOf(execution, variableName, castToClass)) {
+            return castToClass.cast(obj);
+        } else {
+            throw new IllegalArgumentException(
+                    "Variable " + variableName + " is not instance of " + castToClass.getName());
+        }
+    }
+
+    /**
+     * Gets variable safely.
+     *
+     * @param <T>          the type parameter
+     * @param execution    the execution
+     * @param variableName the variable name
+     * @param castToClass  the cast to class
+     * @return the variable safely
+     */
+    public static <T> @Nullable T getVariableSafely(
+            DelegateExecution execution, String variableName, Class<T> castToClass) {
+        Object obj = execution.getVariable(variableName);
+        if (obj == null) {
+            return null;
+        }
+        if (isInstanceOf(execution, variableName, castToClass)) {
+            return castToClass.cast(obj);
+        } else {
+            throw new IllegalArgumentException(
+                    "Variable " + variableName + " is not instance of " + castToClass.getName());
+        }
+    }
+
+    /**
+     * Is instance of boolean.
+     *
+     * @param <T>          the type parameter
+     * @param execution    the execution
+     * @param variableName the variable name
+     * @param expectedType the expected type
+     * @return the boolean
+     */
+    static <T> boolean isInstanceOf(
+            DelegateExecution execution, String variableName, Class<T> expectedType) {
+        return expectedType.isInstance(execution.getVariable(variableName));
+    }
 }

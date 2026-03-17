@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
@@ -44,15 +45,20 @@ public class TransformMetadataDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
-        SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
+        var migrationContext =
+                Objects.requireNonNull(
+                        getTransientVariableSafely(
+                                execution, "migrationContext", MigrationContext.class));
+        var meta =
+                Objects.requireNonNull(
+                        getTransientVariableSafely(execution, "meta", SourceMetadata.class));
 
         Map<String, Object> map = new HashMap<>();
         map.put("ocrResults", execution.getTransientVariable(("ocrResults")));
         map.put("ocrTextLength", execution.getTransientVariable(("ocrTextLength")));
         map.put("ocrPageCount", execution.getTransientVariable(("ocrPageCount")));
 
-        String xml = migrationService.transformMetadataToXml(meta, ctx, map);
+        String xml = migrationService.transformMetadataToXml(meta, migrationContext, map);
         execution.setTransientVariable("xml", xml);
     }
 }

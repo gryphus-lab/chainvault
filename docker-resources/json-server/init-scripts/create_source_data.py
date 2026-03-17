@@ -123,7 +123,6 @@ def apply_random_transforms(image: Image.Image, quality: str = "valid") -> Image
     rotated = image.rotate(angle, resample=Image.BICUBIC, expand=True)
 
     # Random scale 98–102%
-    scale_min = 0.98 if quality != "rotated_heavy" else 0.92
     scale = (
         0.92 + secrets.randbelow(1001) / 10000
         if quality == "rotated_heavy"

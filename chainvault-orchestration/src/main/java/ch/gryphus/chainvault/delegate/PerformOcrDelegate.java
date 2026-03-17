@@ -40,6 +40,7 @@ public class PerformOcrDelegate extends AbstractTracingDelegate {
         this.migrationService = migrationService;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException, TesseractException {

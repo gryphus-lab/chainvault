@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -539,7 +538,7 @@ public class MigrationService {
      * @throws IOException        the io exception
      * @throws TesseractException the tesseract exception
      */
-    public List<String> performOcrOnTiffPages(Collection<TiffPage> pages)
+    public List<String> performOcrOnTiffPages(List<TiffPage> pages)
             throws IOException, TesseractException {
         List<String> results = new ArrayList<>();
 

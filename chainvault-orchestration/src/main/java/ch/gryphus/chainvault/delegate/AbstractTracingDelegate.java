@@ -132,7 +132,7 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
             return null;
         }
 
-        // Verify the raw class (e.g., is it an ArrayList?)
+        // Verify the raw class
         if (!expectedRawType.isInstance(value)) {
             throw new IllegalArgumentException(
                     ("Variable '%s' is type %s, expected %s")
@@ -161,7 +161,7 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
             return null;
         }
 
-        // Verify the raw class (e.g., is it an ArrayList?)
+        // Verify the raw class
         if (!expectedRawType.isInstance(value)) {
             throw new IllegalArgumentException(
                     ("Variable '%s' is type %s, expected %s")

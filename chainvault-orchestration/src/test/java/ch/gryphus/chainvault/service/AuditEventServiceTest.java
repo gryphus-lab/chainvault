@@ -35,6 +35,7 @@ class AuditEventServiceTest {
     @Mock private MigrationEventRepository mockEventRepo;
 
     private AuditEventService auditEventServiceUnderTest;
+    private MigrationContext migrationContext;
 
     /**
      * Sets up.
@@ -42,6 +43,7 @@ class AuditEventServiceTest {
     @BeforeEach
     void setUp() {
         auditEventServiceUnderTest = new AuditEventService(mockAuditRepo, mockEventRepo);
+        migrationContext = new MigrationContext();
     }
 
     /**
@@ -111,17 +113,16 @@ class AuditEventServiceTest {
     @Test
     void testUpdateAuditEventEnd() {
         // Setup
-        MigrationContext ctx = new MigrationContext();
-        ctx.setPayloadHash("payloadHash");
-        ctx.setPdfHash("pdfHash");
+        migrationContext.setPayloadHash("payloadHash");
+        migrationContext.setPdfHash("pdfHash");
         Map<String, Object> varMap =
                 Map.of(
                         "outputFileKey",
                         "pathToOutputFile",
                         "chainOfCustodyZip",
                         "pathToChainOfCustodyZipFile",
-                        "ctx",
-                        ctx);
+                        "migrationContext",
+                        migrationContext);
 
         // Configure MigrationAuditRepository.findByProcessInstanceKey(...).
         Optional<MigrationAudit> migrationAudit =

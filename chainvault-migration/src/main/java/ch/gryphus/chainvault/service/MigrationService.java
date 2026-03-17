@@ -57,35 +57,38 @@ public class MigrationService {
     private final ObjectMapper objectMapper;
     private final Tika tika;
 
+    @Getter private final MigrationContext migrationContext;
     private final MigrationProperties props;
     private final Tesseract tesseract;
 
     /**
      * Instantiates a new Migration service.
      *
-     * @param restClient       the rest client
-     * @param template         the template
-     * @param sftpTargetConfig the sftp target config
-     * @param xmlMapper        the xml mapper
-     * @param objectMapper     the object mapper
-     * @param tika             the tika
-     * @param props            the props
+     * @param restClient         the rest client
+     * @param remoteFileTemplate the remoteFileTemplate
+     * @param sftpTargetConfig   the sftp target config
+     * @param xmlMapper          the xml mapper
+     * @param objectMapper       the object mapper
+     * @param tika               the tika
+     * @param props              the props
      */
     public MigrationService(
             RestClient restClient,
-            SftpRemoteFileTemplate template,
+            SftpRemoteFileTemplate remoteFileTemplate,
             SftpTargetConfig sftpTargetConfig,
             XmlMapper xmlMapper,
             ObjectMapper objectMapper,
             Tika tika,
             MigrationProperties props) {
         this.restClient = restClient;
-        remoteFileTemplate = template;
+        this.remoteFileTemplate = remoteFileTemplate;
         this.sftpTargetConfig = sftpTargetConfig;
         this.xmlMapper = xmlMapper;
         this.objectMapper = objectMapper;
         this.tika = tika;
         this.props = props;
+
+        migrationContext = new MigrationContext();
 
         // Initialize Tesseract from properties
         tesseract = new Tesseract();
@@ -142,17 +145,16 @@ public class MigrationService {
         Map<String, Object> map = new HashMap<>();
         byte[] payload;
 
-        var ctx = new MigrationContext();
-        ctx.setDocId(docId);
-        map.put("ctx", ctx);
+        migrationContext.setDocId(docId);
+        map.put("migrationContext", migrationContext);
 
         var meta = getSourceMetadata(docId);
-        ctx.setMetadataHash(HashUtils.sha256(objectMapper.writeValueAsBytes(meta)));
+        migrationContext.setMetadataHash(HashUtils.sha256(objectMapper.writeValueAsBytes(meta)));
         map.put("meta", meta);
 
         if (meta.getPayloadUrl() != null) {
             payload = getPayloadBytes(docId, meta);
-            ctx.setPayloadHash(HashUtils.sha256(payload));
+            migrationContext.setPayloadHash(HashUtils.sha256(payload));
             map.put("payload", payload);
         }
 
@@ -200,19 +202,20 @@ public class MigrationService {
      * Sign tiff pages list.
      *
      * @param payload          the payload
-     * @param ctx              the ctx
+     * @param migrationContext the migration context
      * @param workingDirectory the working directory
      * @return the list
      * @throws IOException              the io exception
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
     public List<TiffPage> signTiffPages(
-            byte[] payload, @NonNull MigrationContext ctx, String workingDirectory)
+            byte[] payload, @NonNull MigrationContext migrationContext, Path workingDirectory)
             throws IOException, NoSuchAlgorithmException {
         List<TiffPage> pages = new ArrayList<>();
 
         // security hotspot fix against zip bombs
-        File file = new File("%s/temp_%s.zip".formatted(workingDirectory, ctx.getDocId()));
+        File file =
+                new File("%s/temp_%s.zip".formatted(workingDirectory, migrationContext.getDocId()));
         FileUtils.writeByteArrayToFile(file, payload);
 
         try (ZipFile zipFile = new ZipFile(file)) {
@@ -274,7 +277,7 @@ public class MigrationService {
                     byte[] data = zis.readAllBytes();
 
                     String pageHash = HashUtils.sha256(data);
-                    ctx.addPageHash(entry.getName(), pageHash);
+                    migrationContext.addPageHash(entry.getName(), pageHash);
                     pages.add(new TiffPage(entry.getName(), data));
                 }
             }
@@ -293,7 +296,7 @@ public class MigrationService {
      * @param docId            the doc id
      * @param pages            the pages
      * @param sourceMetadata   the source metadata
-     * @param ctx              the ctx
+     * @param migrationContext the migration context
      * @param workingDirectory the working directory
      * @return the path
      * @throws IOException              the io exception
@@ -303,7 +306,7 @@ public class MigrationService {
             String docId,
             List<TiffPage> pages,
             @NonNull SourceMetadata sourceMetadata,
-            MigrationContext ctx,
+            MigrationContext migrationContext,
             String workingDirectory)
             throws IOException, NoSuchAlgorithmException {
 
@@ -323,8 +326,8 @@ public class MigrationService {
                 }
 
                 manifest.put("pageCount", pages.size());
-                manifest.put("pageHashes", ctx.getPageHashes());
-                manifest.put("payloadHash", ctx.getPayloadHash());
+                manifest.put("pageHashes", migrationContext.getPageHashes());
+                manifest.put("payloadHash", migrationContext.getPayloadHash());
             }
 
             manifest.put("timestamp", Instant.now().toString());
@@ -358,7 +361,7 @@ public class MigrationService {
     /**
      * Upload to sftp.
      *
-     * @param ctx               the ctx
+     * @param migrationContext  the migration context
      * @param docId             the doc id
      * @param xml               the xml
      * @param zipPath           the zip path
@@ -366,7 +369,7 @@ public class MigrationService {
      * @param processInstanceId the process instance id
      */
     public void uploadToSftp(
-            @NonNull MigrationContext ctx,
+            @NonNull MigrationContext migrationContext,
             String docId,
             String xml,
             Path zipPath,
@@ -374,7 +377,7 @@ public class MigrationService {
             String processInstanceId) {
         String folder =
                 "%s/%s-%s"
-                        .formatted(sftpTargetConfig.getRemoteDirectory(), processInstanceId, docId);
+                        .formatted(sftpTargetConfig.getRemoteDirectory(), docId, processInstanceId);
         remoteFileTemplate.execute(
                 session -> {
                     session.mkdir(folder);
@@ -391,7 +394,11 @@ public class MigrationService {
                             "%s/%s_meta.xml".formatted(folder, docId));
                     return null;
                 });
-        log.info("Done {} | zipHash={} | pdfHash={}", docId, ctx.getZipHash(), ctx.getPdfHash());
+        log.info(
+                "Done {} | zipHash={} | pdfHash={}",
+                docId,
+                migrationContext.getZipHash(),
+                migrationContext.getPdfHash());
     }
 
     /**
@@ -403,9 +410,9 @@ public class MigrationService {
      * @return the path
      * @throws IOException the io exception
      */
-    public static Path mergeTiffToPdf(List<TiffPage> pages, String docId, String workingDirectory)
+    public static Path mergeTiffToPdf(List<TiffPage> pages, String docId, Path workingDirectory)
             throws IOException {
-        Path pdf = new File("%s/%s.pdf".formatted(workingDirectory, docId)).toPath();
+        Path pdf = Path.of("%s/%s.pdf".formatted(workingDirectory, docId));
         try (var doc = new PDDocument()) {
             for (var page : pages) {
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(page.data()));
@@ -425,16 +432,18 @@ public class MigrationService {
     /**
      * Build xml archival metadata.
      *
-     * @param sourceMetadata the source metadata
-     * @param ctx            the ctx
-     * @param inputMap       the input map
+     * @param sourceMetadata   the source metadata
+     * @param migrationContext the migration context
+     * @param inputMap         the input map
      * @return the archival metadata
      */
     public static ArchivalMetadata buildXml(
-            SourceMetadata sourceMetadata, MigrationContext ctx, Map<String, Object> inputMap) {
+            SourceMetadata sourceMetadata,
+            MigrationContext migrationContext,
+            Map<String, Object> inputMap) {
         ArchivalMetadata metadata = new ArchivalMetadata();
 
-        metadata.setDocumentId(ctx.getDocId());
+        metadata.setDocumentId(migrationContext.getDocId());
         metadata.setTitle(
                 sourceMetadata.getTitle() != null
                         ? sourceMetadata.getTitle()
@@ -442,17 +451,17 @@ public class MigrationService {
         metadata.setCreationDate(sourceMetadata.getCreationDate());
         metadata.setClientId(sourceMetadata.getClientId());
         metadata.setDocumentType(sourceMetadata.getDocumentType());
-        metadata.setPageCount(ctx.getPageHashes().size());
+        metadata.setPageCount(migrationContext.getPageHashes().size());
 
-        metadata.setPayloadHash(ctx.getPayloadHash());
-        metadata.setZipHash(ctx.getZipHash());
-        metadata.setPdfHash(ctx.getPdfHash());
+        metadata.setPayloadHash(migrationContext.getPayloadHash());
+        metadata.setZipHash(migrationContext.getZipHash());
+        metadata.setPdfHash(migrationContext.getPdfHash());
 
         MigrationProvenance provenance = new MigrationProvenance();
         provenance.setMigrationTimestamp(Instant.now().toString());
         provenance.setToolVersion("1.0.0");
         provenance.setOperator("migration-service");
-        provenance.setPageHashes(ctx.getPageHashes());
+        provenance.setPageHashes(migrationContext.getPageHashes());
 
         metadata.setProvenance(provenance);
 

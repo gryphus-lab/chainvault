@@ -107,20 +107,25 @@ class OrchestrationServiceIT extends BaseServiceIT {
         assertThat(processInstanceId).isNotNull();
 
         // Wait for upload to appear in SFTP (poll the container)
-        String expectedDir = "/home/testuser/upload/%s-%s".formatted(processInstanceId, docId);
+        String expectedDir = "/home/testuser/upload/%s-%s".formatted(docId, processInstanceId);
 
         // Check if uploaded contents are chain zip file, merged pdf and xml
         await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .untilAsserted(
                         () -> {
+                            String checkDirResult = sftpContainer.execInContainer(
+                                    "[ -d %s ] && echo exists || echo 'not found'".formatted(expectedDir)
+                            ).getStdout();
+                            assertThat(checkDirResult).as("SFTP check directory should exist").contains("exists");
+
                             String lsResult =
                                     sftpContainer
                                             .execInContainer("ls", "-l", expectedDir)
                                             .getStdout();
 
                             assertThat(lsResult)
-                                    .as("SFTP directory should contain uploaded files")
+                                    .as("SFTP directory should contain 3 uploaded files")
                                     .contains("_chain.zip")
                                     .contains(".pdf")
                                     .contains("_meta.xml");
@@ -152,20 +157,25 @@ class OrchestrationServiceIT extends BaseServiceIT {
         assertThat(processInstanceId).isNotNull();
 
         // Wait for upload to appear in SFTP (poll the container)
-        String expectedDir = "/home/testuser/upload/%s-%s".formatted(processInstanceId, docId);
+        String expectedDir = "/home/testuser/upload/%s-%s".formatted(docId, processInstanceId);
 
         // Check if uploaded contents are chain zip file and xml
         await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .untilAsserted(
                         () -> {
+                            String checkDirResult = sftpContainer.execInContainer(
+                                    "[ -d %s ] && echo exists || echo 'not found'".formatted(expectedDir)
+                            ).getStdout();
+                            assertThat(checkDirResult).as("SFTP check directory should exist").contains("exists");
+
                             String lsResult =
                                     sftpContainer
                                             .execInContainer("ls", "-l", expectedDir)
                                             .getStdout();
 
                             assertThat(lsResult)
-                                    .as("SFTP directory should contain uploaded files")
+                                    .as("SFTP directory should contain 2 uploaded files")
                                     .contains("_chain.zip")
                                     .contains("_meta.xml");
                         });

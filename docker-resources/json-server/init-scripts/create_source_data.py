@@ -10,6 +10,10 @@ import numpy as np
 import tifffile as tf
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 
+LINE_SEPARATOR = (
+    "────────────────────────────────────────────────────────────────────────────────"
+)
+
 DEST_DIR = "./static/payloads/"
 TOTAL_BUNDLES = 10
 PAGES_PER_INVOICE = (1, 5)  # min–max pages per invoice
@@ -200,7 +204,7 @@ def create_invoice_pages(quality: str = "valid"):
         page_text += [
             "",
             "Pos.  Beschreibung                                      Anz.   Einzelpreis     Betrag",
-            "────────────────────────────────────────────────────────────────────────────────",
+            ("%s" % LINE_SEPARATOR),
         ]
 
         start_pos = 1 + (page_idx - 1) * items_per_page
@@ -215,10 +219,10 @@ def create_invoice_pages(quality: str = "valid"):
             page_text += ["", "(Fortsetzung auf nächster Seite)"]
         else:
             page_text += [
-                "────────────────────────────────────────────────────────────────────────────────",
+                LINE_SEPARATOR,
                 f"Zwischensumme{' ':>58}{subtotal:12.2f} CHF",
                 f"MwSt 8.1%{' ':>64}{vat:12.2f} CHF",
-                "────────────────────────────────────────────────────────────────────────────────",
+                LINE_SEPARATOR,
                 f"Gesamtbetrag{' ':>60}{total:12.2f} CHF",
                 "",
                 "Zahlungsbedingungen: 30 Tage netto",
@@ -298,7 +302,7 @@ def create_invoice_tiff_bundle(bundle_index):
     quality = secrets.choice(INVOICE_QUALITY_TYPES)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        pages, invoice_nr, sender, client = create_invoice_pages(quality=quality)
+        pages, invoice_nr, sender, _ = create_invoice_pages(quality=quality)
 
         tiff_files = []
         for i, page_text in enumerate(pages, 1):

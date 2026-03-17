@@ -46,17 +46,23 @@ public class PrepareFilesDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        List<TiffPage> pages = (List<TiffPage>) execution.getTransientVariable("pages");
-        SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
-        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
+        var pages = (List<TiffPage>) getTransientVariableSafely(execution, "pages", List.class);
+        var meta =
+                (SourceMetadata)
+                        getTransientVariableSafely(execution, "meta", SourceMetadata.class);
+        var migrationContext =
+                (MigrationContext)
+                        getTransientVariableSafely(
+                                execution, "migrationContext", MigrationContext.class);
 
-        Path workingDirectory = (Path) execution.getTransientVariable("workingDirectory");
+        var workingDirectory =
+                (Path) getTransientVariableSafely(execution, "workingDirectory", Path.class);
         Path zipPath =
                 migrationService.createChainZip(
-                        docId, pages, meta, ctx, workingDirectory.toString());
-        ctx.setZipHash(HashUtils.sha256(zipPath));
+                        docId, pages, meta, migrationContext, workingDirectory.toString());
+        migrationContext.setZipHash(HashUtils.sha256(zipPath));
 
-        execution.setTransientVariable("ctx", ctx);
+        execution.setTransientVariable("migrationContext", migrationContext);
         execution.setTransientVariable("zipPath", zipPath);
     }
 }

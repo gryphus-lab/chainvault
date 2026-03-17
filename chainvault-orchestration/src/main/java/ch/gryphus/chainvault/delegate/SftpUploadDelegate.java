@@ -42,22 +42,29 @@ public class SftpUploadDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
-        String xml = (String) execution.getTransientVariable("xml");
-        Path zipPath = (Path) execution.getTransientVariable("zipPath");
-        Path pdfPath = (Path) execution.getTransientVariable("pdfPath");
-        String processInstanceId = execution.getProcessInstanceId();
-        migrationService.uploadToSftp(ctx, docId, xml, zipPath, pdfPath, processInstanceId);
 
-        execution.setTransientVariable(
-                "outputFileKey",
+        var migrationContext =
+                (MigrationContext)
+                        getTransientVariableSafely(
+                                execution, "migrationContext", MigrationContext.class);
+        var xml = (String) getTransientVariableSafely(execution, "xml", String.class);
+        var zipPath = (Path) getTransientVariableSafely(execution, "zipPath", Path.class);
+        var pdfPath = (Path) getTransientVariableSafely(execution, "pdfPath", Path.class);
+        var workingDirectory =
+                (Path) getTransientVariableSafely(execution, "workingDirectory", Path.class);
+
+        String processInstanceId = execution.getProcessInstanceId();
+        migrationService.uploadToSftp(
+                migrationContext, docId, xml, zipPath, pdfPath, processInstanceId);
+
+        String outputFileKey =
                 "%s/%s-%s"
                         .formatted(
                                 migrationService.getSftpTargetConfig().getRemoteDirectory(),
-                                processInstanceId,
-                                docId));
+                                docId,
+                                processInstanceId);
+        execution.setTransientVariable("outputFileKey", outputFileKey);
 
-        Path workingDirectory = (Path) execution.getTransientVariable("workingDirectory");
         String zipPathRef =
                 zipPath.toString().replaceAll("%s/".formatted(workingDirectory.toString()), "");
         execution.setTransientVariable("chainOfCustodyZip", zipPathRef);

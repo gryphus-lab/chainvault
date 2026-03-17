@@ -97,12 +97,12 @@ public class AuditEventService {
                                                 "No audit for %s".formatted(processInstanceId)));
 
         audit.setStatus(status);
-
         if (status == MigrationAudit.MigrationStatus.FAILED) {
+            // add error details to audit
             audit.setFailureReason(errorMsg);
             audit.setErrorCode(errorCode);
 
-            // Add OCR related error details
+            // add OCR related error details
             if (Objects.equals(eventTaskType, "perform-ocr")) {
                 audit.setOcrAttempted(true);
                 audit.setOcrSuccess(false);
@@ -111,15 +111,16 @@ public class AuditEventService {
             }
         }
 
-        var ctx = (MigrationContext) varMap.get("ctx");
-        if (ctx != null) {
-            if (ctx.getPayloadHash() != null) {
-                audit.setInputPayloadHash(ctx.getPayloadHash());
+        var migrationContext = (MigrationContext) varMap.get("migrationContext");
+        if (migrationContext != null) {
+            if (migrationContext.getPayloadHash() != null) {
+                audit.setInputPayloadHash(migrationContext.getPayloadHash());
             }
-            if (ctx.getPdfHash() != null) {
-                audit.setMergedPdfHash(ctx.getPdfHash());
+            if (migrationContext.getPdfHash() != null) {
+                audit.setMergedPdfHash(migrationContext.getPdfHash());
             }
         }
+
 
         // Update OCR related audit table fields
         if (varMap.get("ocrResults") != null) {
@@ -192,9 +193,9 @@ public class AuditEventService {
                 piKey,
                 MigrationAudit.MigrationStatus.FAILED,
                 errorCode,
-                ExceptionUtils.getStackTrace(exception),
+                ExceptionUtils.getStackTrace(exception), // store stack trace
                 eventTaskType,
-                ExceptionUtils.getMessage(exception),
+                ExceptionUtils.getMessage(exception), // store error message
                 Collections.emptyMap());
 
         // Throw BPMN error to trigger boundary event

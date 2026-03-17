@@ -44,15 +44,20 @@ public class TransformMetadataDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        MigrationContext ctx = (MigrationContext) execution.getTransientVariable("ctx");
-        SourceMetadata meta = (SourceMetadata) execution.getTransientVariable("meta");
+        var migrationContext =
+                (MigrationContext)
+                        getTransientVariableSafely(
+                                execution, "migrationContext", MigrationContext.class);
+        var meta =
+                (SourceMetadata)
+                        getTransientVariableSafely(execution, "meta", SourceMetadata.class);
 
         Map<String, Object> map = new HashMap<>();
         map.put("ocrResults", execution.getTransientVariable(("ocrResults")));
         map.put("ocrTextLength", execution.getTransientVariable(("ocrTextLength")));
         map.put("ocrPageCount", execution.getTransientVariable(("ocrPageCount")));
 
-        String xml = migrationService.transformMetadataToXml(meta, ctx, map);
+        String xml = migrationService.transformMetadataToXml(meta, migrationContext, map);
         execution.setTransientVariable("xml", xml);
     }
 }

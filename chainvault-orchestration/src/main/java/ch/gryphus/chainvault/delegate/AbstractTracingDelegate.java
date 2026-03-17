@@ -124,7 +124,7 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
      * @return the transient variable safely
      */
     @SuppressWarnings("unchecked")
-    public static <T> @Nullable T getTransientVariableSafely(
+    static <T> @Nullable T getTransientVariableSafely(
             DelegateExecution execution, String variableName, Class<T> expectedRawType) {
         Object value = execution.getTransientVariable(variableName);
 
@@ -135,9 +135,12 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
         // Verify the raw class
         if (!expectedRawType.isInstance(value)) {
             throw new IllegalArgumentException(
-                    ("Variable '%s' is type %s, expected %s")
+                    ("Variable '%s' = '%s' is of type %s, expected %s")
                             .formatted(
-                                    value, value.getClass().getName(), expectedRawType.getName()));
+                                    variableName,
+                                    value,
+                                    value.getClass().getName(),
+                                    expectedRawType.getName()));
         }
 
         // The warning is suppressed here, centralizing the risk
@@ -164,26 +167,15 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
         // Verify the raw class
         if (!expectedRawType.isInstance(value)) {
             throw new IllegalArgumentException(
-                    ("Variable '%s' is type %s, expected %s")
+                    ("Variable '%s' = '%s' is of type %s, expected %s")
                             .formatted(
-                                    value, value.getClass().getName(), expectedRawType.getName()));
+                                    variableName,
+                                    value,
+                                    value.getClass().getName(),
+                                    expectedRawType.getName()));
         }
 
         // The warning is suppressed here, centralizing the risk
         return (T) value;
-    }
-
-    /**
-     * Is instance of boolean.
-     *
-     * @param <T>          the type parameter
-     * @param execution    the execution
-     * @param variableName the variable name
-     * @param expectedType the expected type
-     * @return the boolean
-     */
-    static <T> boolean isInstanceOf(
-            DelegateExecution execution, String variableName, Class<T> expectedType) {
-        return expectedType.isInstance(execution.getVariable(variableName));
     }
 }

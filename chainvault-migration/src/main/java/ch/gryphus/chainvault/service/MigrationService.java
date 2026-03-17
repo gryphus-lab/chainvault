@@ -65,7 +65,7 @@ public class MigrationService {
      * Instantiates a new Migration service.
      *
      * @param restClient         the rest client
-     * @param remoteFileTemplate the remoteFileTemplate
+     * @param remoteFileTemplate the remote file template
      * @param sftpTargetConfig   the sftp target config
      * @param xmlMapper          the xml mapper
      * @param objectMapper       the object mapper

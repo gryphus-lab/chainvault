@@ -39,7 +39,7 @@ public class MergePdfDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        List<TiffPage> pages =
+        var pages =
                 Objects.requireNonNull(
                         (List<TiffPage>)
                                 getTransientVariableSafely(execution, "pages", List.class));

@@ -44,19 +44,19 @@ public class ExtractAndHashDelegate extends AbstractTracingDelegate {
     @Override
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
-        Path path =
+        Path workingDirectory =
                 Paths.get(
                         "%s-%s"
                                 .formatted(
                                         migrationService.getTempDir(),
                                         execution.getProcessInstanceId()));
-        if (Files.notExists(path)) {
-            Files.createDirectory(path);
-            log.info("Created directory: {}", path);
+        if (Files.notExists(workingDirectory)) {
+            Files.createDirectory(workingDirectory);
+            log.info("Created working directory: {}", workingDirectory);
         } else {
-            log.warn("Directory already exists: {}", path);
+            log.warn("Working directory already exists: {}", workingDirectory);
         }
-        execution.setTransientVariable("workingDirectory", path);
+        execution.setTransientVariable("workingDirectory", workingDirectory);
 
         Map<String, Object> map = migrationService.extractAndHash(docId);
         execution.setTransientVariable("migrationContext", map.get("migrationContext"));

@@ -60,11 +60,7 @@ public class PrepareFilesDelegate extends AbstractTracingDelegate {
 
         Path zipPath =
                 migrationService.createChainZip(
-                        docId,
-                        pages,
-                        Objects.requireNonNull(meta),
-                        migrationContext,
-                        workingDirectory);
+                        workingDirectory, Objects.requireNonNull(meta), migrationContext, pages);
         migrationContext.setZipHash(HashUtils.sha256(zipPath));
 
         execution.setTransientVariable("migrationContext", migrationContext);

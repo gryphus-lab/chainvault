@@ -551,16 +551,8 @@ public class MigrationService {
             for (TiffPage page : pages) {
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(page.data())) {
                     BufferedImage image = ImageIO.read(bis);
-
-                    // check image size
-                    if (image == null || image.getWidth() <= 0 || image.getHeight() <= 0) {
-                        log.warn("Skipping invalid TIFF page: zero size");
-                        results.add("");
-                        continue;
-                    }
-
-                    // skip for size < 10 x 10
-                    if (image.getWidth() < 10 || image.getHeight() < 10) {
+                    // skip for nulls or image size < 10 x 10
+                    if (image == null || image.getWidth() < 10 || image.getHeight() < 10) {
                         log.warn("Skipping tiny image: {}x{}", image.getWidth(), image.getHeight());
                         results.add("");
                         continue;

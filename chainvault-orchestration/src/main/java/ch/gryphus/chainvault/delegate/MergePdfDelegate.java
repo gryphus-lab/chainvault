@@ -26,14 +26,21 @@ import org.springframework.stereotype.Component;
 @Component("mergePdf")
 public class MergePdfDelegate extends AbstractTracingDelegate {
 
+    private final MigrationService migrationService;
+
     /**
      * Instantiates a new Merge pdf delegate.
      *
-     * @param openTelemetry the open telemetry
-     * @param auditService  the audit service
+     * @param openTelemetry    the open telemetry
+     * @param auditService     the audit service
+     * @param migrationService the migration service
      */
-    public MergePdfDelegate(OpenTelemetry openTelemetry, AuditEventService auditService) {
+    public MergePdfDelegate(
+            OpenTelemetry openTelemetry,
+            AuditEventService auditService,
+            MigrationService migrationService) {
         super(openTelemetry, auditService, "merge-pdfs", "MERGE_FAILED");
+        this.migrationService = migrationService;
     }
 
     @SuppressWarnings("unchecked")
@@ -49,7 +56,7 @@ public class MergePdfDelegate extends AbstractTracingDelegate {
 
             var workingDirectory =
                     getTransientVariableSafely(execution, "workingDirectory", Path.class);
-            Path pdfPath = MigrationService.mergeTiffToPdf(pages, docId, workingDirectory);
+            Path pdfPath = migrationService.createMergedPdf(pages, docId, workingDirectory);
             migrationContext.setPdfHash(HashUtils.sha256(pdfPath));
 
             execution.setTransientVariable("migrationContext", migrationContext);

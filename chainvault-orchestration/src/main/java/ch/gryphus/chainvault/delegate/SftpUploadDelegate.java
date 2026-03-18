@@ -3,7 +3,6 @@
  */
 package ch.gryphus.chainvault.delegate;
 
-import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.service.AuditEventService;
 import ch.gryphus.chainvault.service.MigrationService;
 import io.opentelemetry.api.OpenTelemetry;
@@ -44,10 +43,6 @@ public class SftpUploadDelegate extends AbstractTracingDelegate {
     protected void doExecute(DelegateExecution execution, Span span, String docId)
             throws IOException, NoSuchAlgorithmException {
 
-        var migrationContext =
-                Objects.requireNonNull(
-                        getTransientVariableSafely(
-                                execution, "migrationContext", MigrationContext.class));
         var xml = getTransientVariableSafely(execution, "xml", String.class);
         var zipPath =
                 Objects.requireNonNull(
@@ -58,7 +53,7 @@ public class SftpUploadDelegate extends AbstractTracingDelegate {
                         getTransientVariableSafely(execution, "workingDirectory", Path.class));
 
         String processInstanceId = execution.getProcessInstanceId();
-        migrationService.uploadToSftp(migrationContext, xml, zipPath, pdfPath, processInstanceId);
+        migrationService.prepareSftpSession(docId, xml, zipPath, pdfPath, processInstanceId);
 
         String outputFileKey =
                 "%s/%s-%s"

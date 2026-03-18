@@ -1,1 +1,22 @@
-<ArchivalMetadata><documentId>docId</documentId><title>title</title><creationDate>creationDate</creationDate><clientId>clientId</clientId><documentType>documentType</documentType><pageCount>1</pageCount><payloadHash>payloadHash</payloadHash><zipHash>zipHash</zipHash><pdfHash>pdfHash</pdfHash><provenance><migrationTimestamp>2026-02-28T00:27:10.382431Z</migrationTimestamp><toolVersion>1.0.0</toolVersion><operator>migration-service</operator><pageHashes><value>value</value></pageHashes></provenance><customFields><sourceSystem>legacy-archive-v1</sourceSystem></customFields></ArchivalMetadata>
+<ArchivalMetadata>
+    <documentId>DOC-TEST-001</documentId>
+    <title>Test Invoice 2026</title>
+    <creationDate>2026-03-18T18:30:47.049969Z</creationDate>
+    <clientId>CHE-123.456.789</clientId>
+    <documentType>INVOICE</documentType>
+    <pageCount>1</pageCount>
+    <payloadHash>payload-sha256-abc123</payloadHash>
+    <zipHash>zipHash-sha256-abc123</zipHash>
+    <pdfHash>pdfHash-sha256-abc123</pdfHash>
+    <provenance>
+        <migrationTimestamp>2026-03-18T18:30:47.059571Z</migrationTimestamp>
+        <toolVersion>1.0.0</toolVersion>
+        <operator>migration-service</operator>
+        <pageHashes>
+            <file1.tiff>pageHash-sha256-abc123</file1.tiff>
+        </pageHashes>
+    </provenance>
+    <customFields>
+        <sourceSystem>legacy-archive-v1</sourceSystem>
+    </customFields>
+</ArchivalMetadata>

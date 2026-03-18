@@ -16,7 +16,9 @@ import org.apache.commons.codec.binary.Hex;
  */
 public final class HashUtils {
 
-    private HashUtils() {}
+    private HashUtils() {
+        // empty constructor
+    }
 
     /**
      * Sha 256 string.

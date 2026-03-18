@@ -49,7 +49,6 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
-import org.apache.tika.Tika;
 import org.springframework.http.MediaType;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.stereotype.Service;
@@ -71,9 +70,8 @@ public class MigrationService {
     @Getter private final SftpTargetConfig sftpTargetConfig;
     private final XmlMapper xmlMapper;
     private final ObjectMapper objectMapper;
-    private final Tika tika;
 
-    @Getter private final MigrationContext migrationContext;
+    private final MigrationContext migrationContext;
     private final MigrationProperties props;
 
     private final ThreadLocal<Tesseract> tesseractLocal;
@@ -84,26 +82,21 @@ public class MigrationService {
      * @param restClient         the rest client
      * @param remoteFileTemplate the remote file template
      * @param sftpTargetConfig   the sftp target config
-     * @param xmlMapper          the xml mapper
-     * @param objectMapper       the object mapper
      * @param props              the props
      */
     public MigrationService(
             RestClient restClient,
             SftpRemoteFileTemplate remoteFileTemplate,
             SftpTargetConfig sftpTargetConfig,
-            XmlMapper xmlMapper,
-            ObjectMapper objectMapper,
             MigrationProperties props) {
         this.restClient = restClient;
         this.remoteFileTemplate = remoteFileTemplate;
         this.sftpTargetConfig = sftpTargetConfig;
-        this.xmlMapper = xmlMapper;
-        this.objectMapper = objectMapper;
         this.props = props;
+        xmlMapper = new XmlMapper();
+        objectMapper = new ObjectMapper();
 
         migrationContext = new MigrationContext();
-        tika = new Tika();
 
         tesseractLocal =
                 ThreadLocal.withInitial(
@@ -312,23 +305,22 @@ public class MigrationService {
     /**
      * Create chain zip path.
      *
-     * @param docId            the doc id
-     * @param pages            the pages
+     * @param workingDirectory the working directory
      * @param sourceMetadata   the source metadata
      * @param migrationContext the migration context
-     * @param workingDirectory the working directory
+     * @param pages            the pages
      * @return the path
      * @throws IOException              the io exception
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
     public Path createChainZip(
-            String docId,
-            List<TiffPage> pages,
+            Path workingDirectory,
             @NonNull SourceMetadata sourceMetadata,
             MigrationContext migrationContext,
-            Path workingDirectory)
+            List<TiffPage> pages)
             throws IOException, NoSuchAlgorithmException {
 
+        String docId = sourceMetadata.getDocId();
         Path zipPath = new File("%s/%s_chain.zip".formatted(workingDirectory, docId)).toPath();
 
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
@@ -355,7 +347,7 @@ public class MigrationService {
                     "sourceMetadata",
                     Map.of(
                             Constants.BPMN_PROC_VAR_DOC_ID,
-                            sourceMetadata.getDocId(),
+                            docId,
                             "title",
                             sourceMetadata.getTitle(),
                             "creationDate",
@@ -381,7 +373,6 @@ public class MigrationService {
      * Upload to sftp.
      *
      * @param migrationContext  the migration context
-     * @param docId             the doc id
      * @param xml               the xml
      * @param zipPath           the zip path
      * @param pdfPath           the pdf path
@@ -389,11 +380,11 @@ public class MigrationService {
      */
     public void uploadToSftp(
             @NonNull MigrationContext migrationContext,
-            String docId,
             String xml,
             Path zipPath,
             Path pdfPath,
             String processInstanceId) {
+        String docId = migrationContext.getDocId();
         String folder =
                 "%s/%s-%s"
                         .formatted(sftpTargetConfig.getRemoteDirectory(), docId, processInstanceId);
@@ -403,7 +394,7 @@ public class MigrationService {
                     session.write(
                             Files.newInputStream(zipPath.toFile().toPath()),
                             "%s/%s_chain.zip".formatted(folder, docId));
-                    if (pdfPath != null) { // when pdf was not generated
+                    if (pdfPath != null) { // when PDF was not generated
                         session.write(
                                 Files.newInputStream(pdfPath.toFile().toPath()),
                                 "%s/%s.pdf".formatted(folder, docId));
@@ -429,7 +420,7 @@ public class MigrationService {
      * @return the path
      * @throws IOException the io exception
      */
-    public static Path mergeTiffToPdf(Iterable<TiffPage> pages, String docId, Path workingDirectory)
+    public static Path mergeTiffToPdf(List<TiffPage> pages, String docId, Path workingDirectory)
             throws IOException {
         Path pdf = Path.of("%s/%s.pdf".formatted(workingDirectory, docId));
         try (var doc = new PDDocument()) {
@@ -514,27 +505,6 @@ public class MigrationService {
     }
 
     /**
-     * Gets detected mime type.
-     *
-     * @param in the in
-     * @return the detected mime type
-     * @throws IOException the io exception
-     */
-    String getDetectedMimeType(InputStream in) throws IOException {
-        return tika.detect(in);
-    }
-
-    /**
-     * Gets detected mime type.
-     *
-     * @param bytes the bytes
-     * @return the detected mime type
-     */
-    String getDetectedMimeType(byte[] bytes) {
-        return tika.detect(bytes);
-    }
-
-    /**
      * Perform ocr on tiff pages list.
      *
      * @param pages the pages
@@ -551,7 +521,7 @@ public class MigrationService {
             for (TiffPage page : pages) {
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(page.data())) {
                     BufferedImage image = ImageIO.read(bis);
-                    if (!isSizeValid(image)) {
+                    if (!isImageValid(image)) {
                         results.add("");
                         continue;
                     }
@@ -567,7 +537,7 @@ public class MigrationService {
         return results;
     }
 
-    private static boolean isSizeValid(BufferedImage image) {
+    private static boolean isImageValid(BufferedImage image) {
         if (image == null
                 || image.getWidth() <= 0
                 || image.getHeight() <= 0) { // check nulls and zero size

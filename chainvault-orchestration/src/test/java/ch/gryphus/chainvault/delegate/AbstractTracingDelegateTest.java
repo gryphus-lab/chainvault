@@ -83,6 +83,9 @@ class AbstractTracingDelegateTest {
                 .isThrownBy(() -> abstractTracingDelegateUnderTest.execute(mockExecution));
     }
 
+    /**
+     * Test execute does not throw exception for null execution variables.
+     */
     @Test
     void testExecuteDoesNotThrowExceptionForNullExecutionVariables() {
         // Setup
@@ -93,6 +96,9 @@ class AbstractTracingDelegateTest {
                 .isThrownBy(() -> abstractTracingDelegateUnderTest.execute(mockExecution));
     }
 
+    /**
+     * Test execute throws exception.
+     */
     @Test
     void testExecuteThrowsException() {
         // Setup

@@ -13,8 +13,8 @@ import ch.gryphus.chainvault.domain.ArchivalMetadata;
 import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.domain.TiffPage;
-import ch.gryphus.chainvault.utils.FileUtils;
 import ch.gryphus.chainvault.utils.HashUtils;
+import ch.gryphus.chainvault.utils.MigrationUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -303,7 +303,7 @@ class MigrationServiceTest {
      * @throws IOException the io exception
      */
     @Test
-    void testUploadToSftp_whenValidMetadataAndPayloadExist() throws IOException {
+    void testPrepareSftp_Session_whenValidMetadataAndPayloadExist() throws IOException {
         // Setup
         String docId = "DOC-TEST-001";
         migrationContext.setDocId(docId);
@@ -327,8 +327,8 @@ class MigrationServiceTest {
                         });
 
         // Run the test
-        migrationServiceUnderTest.uploadToSftp(
-                migrationContext,
+        migrationServiceUnderTest.prepareSftpSession(
+                docId,
                 Files.readString(Path.of("%s/sftp/sample_meta.xml".formatted(resourceDirectory))),
                 Path.of("%s/sftp/sample.zip".formatted(resourceDirectory)),
                 Path.of("%s/sftp/sample.pdf".formatted(resourceDirectory)),
@@ -344,7 +344,7 @@ class MigrationServiceTest {
      * @throws IOException the io exception
      */
     @Test
-    void testUploadToSftp_whenOnlyValidMetadataExists() throws IOException {
+    void testPrepareSftp_Session_whenOnlyValidMetadataExists() throws IOException {
         // Setup
         String docId = "DOC-TEST-001";
         migrationContext.setDocId(docId);
@@ -366,8 +366,8 @@ class MigrationServiceTest {
                         });
 
         // Run the test
-        migrationServiceUnderTest.uploadToSftp(
-                migrationContext,
+        migrationServiceUnderTest.prepareSftpSession(
+                docId,
                 Files.readString(Path.of("%s/sftp/sample_meta.xml".formatted(resourceDirectory))),
                 Path.of("%s/sftp/sample.zip".formatted(resourceDirectory)),
                 null,
@@ -402,13 +402,13 @@ class MigrationServiceTest {
 
         // Run the test
         Path result =
-                MigrationService.mergeTiffToPdf(
+                MigrationUtils.mergeTiffToPdf(
                         pages, Constants.BPMN_PROC_VAR_DOC_ID, workingDirectory);
 
         // Verify the results
         assertThat(result.toFile()).exists();
         byte[] resultBytes = Files.readAllBytes(result);
-        assertThat(FileUtils.getDetectedMimeType(resultBytes))
+        assertThat(MigrationUtils.getDetectedMimeType(resultBytes))
                 .isEqualTo(MediaType.APPLICATION_PDF_VALUE);
     }
 
@@ -624,7 +624,7 @@ class MigrationServiceTest {
 
         // Act
         Path zip =
-                migrationServiceUnderTest.createChainZip(
+                migrationServiceUnderTest.prepareFiles(
                         workingDirectory, meta, migrationContext, pages);
 
         assertThat(Files.exists(zip)).isTrue();
@@ -672,7 +672,7 @@ class MigrationServiceTest {
 
         // Act
         Path zip =
-                migrationServiceUnderTest.createChainZip(
+                migrationServiceUnderTest.prepareFiles(
                         workingDirectory, meta, migrationContext, pages);
 
         assertThat(Files.exists(zip)).isTrue();
@@ -681,7 +681,7 @@ class MigrationServiceTest {
         validateContents(zip);
 
         zip =
-                migrationServiceUnderTest.createChainZip(
+                migrationServiceUnderTest.prepareFiles(
                         workingDirectory, meta, migrationContext, null);
 
         assertThat(Files.exists(zip)).isTrue();
@@ -728,7 +728,7 @@ class MigrationServiceTest {
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("ocrResults", "test");
         inputMap.put("ocrFullTextLength", 123);
-        ArchivalMetadata xml = MigrationService.buildXml(meta, migrationContext, inputMap);
+        ArchivalMetadata xml = MigrationUtils.buildXml(meta, migrationContext, inputMap);
 
         assertThat(xml.getDocumentId()).isEqualTo("DOC-TEST-001");
         assertThat(xml.getTitle()).isEqualTo("Test Invoice 2026");
@@ -749,7 +749,7 @@ class MigrationServiceTest {
     void testBuildXml_shouldHandleMissingMetadataGracefully() {
         SourceMetadata nullMeta = new SourceMetadata(); // all fields null
 
-        ArchivalMetadata xml = MigrationService.buildXml(nullMeta, migrationContext, null);
+        ArchivalMetadata xml = MigrationUtils.buildXml(nullMeta, migrationContext, null);
 
         assertThat(xml.getTitle()).isEqualTo("Untitled Document");
         assertThat(xml.getPageCount()).isZero();
@@ -781,7 +781,7 @@ class MigrationServiceTest {
                                         Path.of(
                                                 "%s/tiffs/sample2.tiff"
                                                         .formatted(resourceDirectory)))));
-        Path pdfPath = MigrationService.mergeTiffToPdf(pages, "DOC-TEST-PDF", workingDirectory);
+        Path pdfPath = MigrationUtils.mergeTiffToPdf(pages, "DOC-TEST-PDF", workingDirectory);
 
         assertThat(Files.exists(pdfPath)).isTrue();
 
@@ -800,7 +800,7 @@ class MigrationServiceTest {
      */
     @Test
     void testMergeTiffToPdf_shouldHandleEmptyList() throws Exception {
-        Path pdf = MigrationService.mergeTiffToPdf(List.of(), "DOC-EMPTY", workingDirectory);
+        Path pdf = MigrationUtils.mergeTiffToPdf(List.of(), "DOC-EMPTY", workingDirectory);
 
         try (PDDocument doc = Loader.loadPDF(pdf.toFile())) {
             assertThat(doc.getNumberOfPages()).isZero();

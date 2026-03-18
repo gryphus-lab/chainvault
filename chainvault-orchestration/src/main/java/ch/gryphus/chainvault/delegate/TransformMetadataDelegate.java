@@ -54,9 +54,9 @@ public class TransformMetadataDelegate extends AbstractTracingDelegate {
                         getTransientVariableSafely(execution, "meta", SourceMetadata.class));
 
         Map<String, Object> map = new HashMap<>();
-        map.put("ocrResults", execution.getTransientVariable(("ocrResults")));
-        map.put("ocrTextLength", execution.getTransientVariable(("ocrTextLength")));
-        map.put("ocrPageCount", execution.getTransientVariable(("ocrPageCount")));
+        map.put("ocrResults", execution.getTransientVariable("ocrResults"));
+        map.put("ocrTextLength", execution.getTransientVariable("ocrTextLength"));
+        map.put("ocrPageCount", execution.getTransientVariable("ocrPageCount"));
 
         String xml = migrationService.transformMetadataToXml(meta, migrationContext, map);
         execution.setTransientVariable("xml", xml);

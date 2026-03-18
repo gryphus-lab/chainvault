@@ -3,16 +3,16 @@
  */
 package ch.gryphus.chainvault.service;
 
-import ch.gryphus.chainvault.config.Constants;
 import ch.gryphus.chainvault.config.MigrationProperties;
 import ch.gryphus.chainvault.config.SftpTargetConfig;
-import ch.gryphus.chainvault.domain.ArchivalMetadata;
 import ch.gryphus.chainvault.domain.MigrationContext;
-import ch.gryphus.chainvault.domain.MigrationProvenance;
 import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.utils.HashUtils;
-import java.awt.image.BufferedImage;
+import ch.gryphus.chainvault.utils.MigrationUtils;
+import ch.gryphus.chainvault.utils.OcrUtils;
+import ch.gryphus.chainvault.utils.SftpUtils;
+import ch.gryphus.chainvault.utils.SourceApiUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -21,35 +21,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-import javax.imageio.ImageIO;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.commons.io.FileUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
-import org.springframework.http.MediaType;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -160,54 +148,17 @@ public class MigrationService {
         migrationContext.setDocId(docId);
         map.put("migrationContext", migrationContext);
 
-        var meta = getSourceMetadata(docId);
+        var meta = SourceApiUtils.getSourceMetadata(restClient, docId);
         migrationContext.setMetadataHash(HashUtils.sha256(objectMapper.writeValueAsBytes(meta)));
         map.put("meta", meta);
 
         if (meta.getPayloadUrl() != null) {
-            payload = getPayloadBytes(docId, meta);
+            payload = SourceApiUtils.getPayloadBytes(restClient, docId, meta);
             migrationContext.setPayloadHash(HashUtils.sha256(payload));
             map.put("payload", payload);
         }
 
         return map;
-    }
-
-    private SourceMetadata getSourceMetadata(String docId) {
-        return restClient
-                .get()
-                .uri("/documents/{id}", docId)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange(
-                        (_, response) -> {
-                            if (response.getStatusCode().is4xxClientError()) {
-                                throw new MigrationServiceException(
-                                        "Unable to find document with id: %s".formatted(docId),
-                                        response.getStatusCode(),
-                                        response.getHeaders());
-                            } else {
-                                return response.bodyTo(SourceMetadata.class);
-                            }
-                        });
-    }
-
-    private byte[] getPayloadBytes(String docId, SourceMetadata meta) {
-        return restClient
-                .get()
-                .uri(meta.getPayloadUrl())
-                .accept(MediaType.APPLICATION_OCTET_STREAM)
-                .exchange(
-                        (_, response) -> {
-                            if (response.getStatusCode().is4xxClientError()) {
-                                throw new MigrationServiceException(
-                                        "Unable to find payload for document with id: %s"
-                                                .formatted(docId),
-                                        response.getStatusCode(),
-                                        response.getHeaders());
-                            } else {
-                                return response.bodyTo(byte[].class);
-                            }
-                        });
     }
 
     /**
@@ -313,55 +264,17 @@ public class MigrationService {
      * @throws IOException              the io exception
      * @throws NoSuchAlgorithmException the no such algorithm exception
      */
-    public Path createChainZip(
+    public Path prepareFiles(
             Path workingDirectory,
             @NonNull SourceMetadata sourceMetadata,
-            MigrationContext migrationContext,
+            @NonNull MigrationContext migrationContext,
             List<TiffPage> pages)
             throws IOException, NoSuchAlgorithmException {
 
         String docId = sourceMetadata.getDocId();
         Path zipPath = new File("%s/%s_chain.zip".formatted(workingDirectory, docId)).toPath();
 
-        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath))) {
-            Map<String, Object> manifest = new LinkedHashMap<>();
-            manifest.put(Constants.BPMN_PROC_VAR_DOC_ID, docId);
-
-            if (pages != null && !pages.isEmpty()) {
-                for (TiffPage page : pages) {
-                    String entryName = "%s".formatted(page.name());
-
-                    zos.putNextEntry(new ZipEntry(entryName));
-                    zos.write(page.data());
-                    zos.closeEntry();
-                }
-
-                manifest.put("pageCount", pages.size());
-                manifest.put("pageHashes", migrationContext.getPageHashes());
-                manifest.put("payloadHash", migrationContext.getPayloadHash());
-            }
-
-            manifest.put("timestamp", Instant.now().toString());
-
-            manifest.put(
-                    "sourceMetadata",
-                    Map.of(
-                            Constants.BPMN_PROC_VAR_DOC_ID,
-                            docId,
-                            "title",
-                            sourceMetadata.getTitle(),
-                            "creationDate",
-                            sourceMetadata.getCreationDate(),
-                            "clientId",
-                            sourceMetadata.getClientId()));
-
-            String manifestJson =
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(manifest);
-
-            zos.putNextEntry(new ZipEntry("manifest.json"));
-            zos.write(manifestJson.getBytes(StandardCharsets.UTF_8));
-            zos.closeEntry();
-        }
+        MigrationUtils.createChainZipFile(sourceMetadata, migrationContext, pages, zipPath);
 
         String zipHash = HashUtils.sha256(zipPath);
         log.info("Chain ZIP created: {} | hash = {}", zipPath.getFileName(), zipHash);
@@ -372,38 +285,23 @@ public class MigrationService {
     /**
      * Upload to sftp.
      *
-     * @param migrationContext  the migration context
+     * @param docId             the doc id
      * @param xml               the xml
      * @param zipPath           the zip path
      * @param pdfPath           the pdf path
      * @param processInstanceId the process instance id
      */
-    public void uploadToSftp(
-            @NonNull MigrationContext migrationContext,
-            String xml,
-            Path zipPath,
-            Path pdfPath,
-            String processInstanceId) {
-        String docId = migrationContext.getDocId();
-        String folder =
-                "%s/%s-%s"
-                        .formatted(sftpTargetConfig.getRemoteDirectory(), docId, processInstanceId);
-        remoteFileTemplate.execute(
-                session -> {
-                    session.mkdir(folder);
-                    session.write(
-                            Files.newInputStream(zipPath.toFile().toPath()),
-                            "%s/%s_chain.zip".formatted(folder, docId));
-                    if (pdfPath != null) { // when PDF was not generated
-                        session.write(
-                                Files.newInputStream(pdfPath.toFile().toPath()),
-                                "%s/%s.pdf".formatted(folder, docId));
-                    }
-                    session.write(
-                            new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
-                            "%s/%s_meta.xml".formatted(folder, docId));
-                    return null;
-                });
+    public void prepareSftpSession(
+            String docId, String xml, Path zipPath, Path pdfPath, String processInstanceId) {
+
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("docId", docId);
+        inputMap.put("xml", xml);
+        inputMap.put("zipPath", zipPath);
+        inputMap.put("pdfPath", pdfPath);
+        inputMap.put("processInstanceId", processInstanceId);
+
+        SftpUtils.upload(sftpTargetConfig.getRemoteDirectory(), remoteFileTemplate, inputMap);
         log.info(
                 "Done {} | zipHash={} | pdfHash={}",
                 docId,
@@ -412,7 +310,7 @@ public class MigrationService {
     }
 
     /**
-     * Merge tiff to pdf path.
+     * Create merged pdf path.
      *
      * @param pages            the pages
      * @param docId            the doc id
@@ -420,69 +318,9 @@ public class MigrationService {
      * @return the path
      * @throws IOException the io exception
      */
-    public static Path mergeTiffToPdf(List<TiffPage> pages, String docId, Path workingDirectory)
+    public Path createMergedPdf(List<TiffPage> pages, String docId, Path workingDirectory)
             throws IOException {
-        Path pdf = Path.of("%s/%s.pdf".formatted(workingDirectory, docId));
-        try (var doc = new PDDocument()) {
-            for (var page : pages) {
-                BufferedImage img = ImageIO.read(new ByteArrayInputStream(page.data()));
-                var pdImage = LosslessFactory.createFromImage(doc, img);
-                var pdPage = new PDPage(new PDRectangle(img.getWidth(), img.getHeight()));
-                doc.addPage(pdPage);
-
-                try (var cs = new PDPageContentStream(doc, pdPage)) {
-                    cs.drawImage(pdImage, 0, 0);
-                }
-            }
-            doc.save(pdf.toFile());
-        }
-        return pdf;
-    }
-
-    /**
-     * Build xml archival metadata.
-     *
-     * @param sourceMetadata   the source metadata
-     * @param migrationContext the migration context
-     * @param inputMap         the input map
-     * @return the archival metadata
-     */
-    static ArchivalMetadata buildXml(
-            SourceMetadata sourceMetadata,
-            MigrationContext migrationContext,
-            Map<String, Object> inputMap) {
-        ArchivalMetadata metadata = new ArchivalMetadata();
-
-        metadata.setDocumentId(migrationContext.getDocId());
-        metadata.setTitle(
-                sourceMetadata.getTitle() != null
-                        ? sourceMetadata.getTitle()
-                        : "Untitled Document");
-        metadata.setCreationDate(sourceMetadata.getCreationDate());
-        metadata.setClientId(sourceMetadata.getClientId());
-        metadata.setDocumentType(sourceMetadata.getDocumentType());
-        metadata.setPageCount(migrationContext.getPageHashes().size());
-
-        metadata.setPayloadHash(migrationContext.getPayloadHash());
-        metadata.setZipHash(migrationContext.getZipHash());
-        metadata.setPdfHash(migrationContext.getPdfHash());
-
-        MigrationProvenance provenance = new MigrationProvenance();
-        provenance.setMigrationTimestamp(Instant.now().toString());
-        provenance.setToolVersion("1.0.0");
-        provenance.setOperator("migration-service");
-        provenance.setPageHashes(migrationContext.getPageHashes());
-
-        metadata.setProvenance(provenance);
-
-        Map<String, Object> customFields = new HashMap<>();
-        if (inputMap != null) {
-            customFields.putAll(inputMap);
-        }
-        customFields.put("sourceSystem", "legacy-archive-v1");
-        metadata.setCustomFields(customFields);
-
-        return metadata;
+        return MigrationUtils.mergeTiffToPdf(pages, docId, workingDirectory);
     }
 
     /**
@@ -501,7 +339,7 @@ public class MigrationService {
                 .rebuild()
                 .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .build()
-                .writeValueAsString(buildXml(sourceMetadata, migrationContext, map));
+                .writeValueAsString(MigrationUtils.buildXml(sourceMetadata, migrationContext, map));
     }
 
     /**
@@ -515,51 +353,8 @@ public class MigrationService {
     public List<String> performOcrOnTiffPages(List<TiffPage> pages)
             throws IOException, TesseractException {
         Tesseract tesseract = tesseractLocal.get(); // per-thread singleton
-        List<String> results = new ArrayList<>();
-
-        if (pages != null && !pages.isEmpty()) {
-            for (TiffPage page : pages) {
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(page.data())) {
-                    BufferedImage image = ImageIO.read(bis);
-                    if (!isImageValid(image)) {
-                        results.add("");
-                        continue;
-                    }
-                    // Pre-process (grayscale + contrast)
-                    BufferedImage processed = preprocessImage(image);
-
-                    String text = tesseract.doOCR(processed);
-                    results.add(text.trim());
-                }
-            }
-        }
+        List<String> results = OcrUtils.getOcrResults(pages, tesseract);
         tesseractLocal.remove();
         return results;
-    }
-
-    private static boolean isImageValid(BufferedImage image) {
-        if (image == null
-                || image.getWidth() <= 0
-                || image.getHeight() <= 0) { // check nulls and zero size
-            log.warn("Skipping invalid TIFF page: zero size");
-            return false;
-        }
-        if (image.getWidth() < 10 || image.getHeight() < 10) { // check width and height < 10
-            log.warn("Skipping tiny image: {}x{}", image.getWidth(), image.getHeight());
-            return false;
-        }
-        return true;
-    }
-
-    private BufferedImage preprocessImage(BufferedImage original) {
-        // Grayscale
-        BufferedImage gray =
-                new BufferedImage(
-                        original.getWidth(), original.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-        gray.getGraphics().drawImage(original, 0, 0, null);
-
-        // Optional: binarization / threshold (use OpenCV or JavaCV if needed)
-        // or simple contrast stretch
-        return gray;
     }
 }

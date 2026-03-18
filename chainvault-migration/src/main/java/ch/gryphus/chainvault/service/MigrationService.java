@@ -551,13 +551,10 @@ public class MigrationService {
             for (TiffPage page : pages) {
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(page.data())) {
                     BufferedImage image = ImageIO.read(bis);
-                    // skip for nulls or image size < 10 x 10
-                    if (image == null || image.getWidth() < 10 || image.getHeight() < 10) {
-                        log.warn("Skipping tiny image: {}x{}", image.getWidth(), image.getHeight());
+                    if (!isSizeValid(image)) {
                         results.add("");
                         continue;
                     }
-
                     // Pre-process (grayscale + contrast)
                     BufferedImage processed = preprocessImage(image);
 
@@ -568,6 +565,20 @@ public class MigrationService {
         }
         tesseractLocal.remove();
         return results;
+    }
+
+    private static boolean isSizeValid(BufferedImage image) {
+        if (image == null
+                || image.getWidth() <= 0
+                || image.getHeight() <= 0) { // check nulls and zero size
+            log.warn("Skipping invalid TIFF page: zero size");
+            return false;
+        }
+        if (image.getWidth() < 10 || image.getHeight() < 10) { // check width and height < 10
+            log.warn("Skipping tiny image: {}x{}", image.getWidth(), image.getHeight());
+            return false;
+        }
+        return true;
     }
 
     private BufferedImage preprocessImage(BufferedImage original) {

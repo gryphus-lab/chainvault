@@ -14,6 +14,8 @@ import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.utils.HashUtils;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,11 +23,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -34,6 +38,7 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.json.JSONException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,9 +50,11 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.integration.file.remote.SessionCallback;
 import org.springframework.integration.file.remote.session.Session;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.client.RestClient;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -58,7 +65,7 @@ import tools.jackson.dataformat.xml.XmlMapper;
 /**
  * The type Migration service test.
  */
-@SuppressWarnings("ALL")
+@SuppressWarnings({"unchecked", "rawtypes", "NestedAssignment"})
 @MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 class MigrationServiceTest {
@@ -80,21 +87,23 @@ class MigrationServiceTest {
     @Mock private SftpTargetConfig mockSftpTargetConfig;
     @Mock private Session mockSession;
 
+    @Mock private BufferedInputStream mockBufferedInputStream;
+    @Mock private BufferedImage mockBufferedImage;
     private MigrationService migrationServiceUnderTest;
 
     private MigrationContext migrationContext;
     private SourceMetadata meta;
 
-    /**
-     * The Working directory.
-     */
     private Path workingDirectory;
+    private Path resourceDirectory = Paths.get("src", "test", "resources");
 
     /**
      * Sets up.
+     *
+     * @throws Exception the exception
      */
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         migrationServiceUnderTest =
                 new MigrationService(
                         mockRestClient,
@@ -102,9 +111,17 @@ class MigrationServiceTest {
                         mockSftpTargetConfig,
                         new XmlMapper(),
                         new ObjectMapper(),
-                        new MigrationProperties("/tmp", 5000000, 10.0, 10000, "eng+deu", 300));
+                        new MigrationProperties(
+                                "/tmp/migration-%s".formatted(UUID.randomUUID()),
+                                5000000,
+                                10.0,
+                                10000,
+                                "eng+deu",
+                                300));
 
         workingDirectory = Path.of(migrationServiceUnderTest.getTempDir());
+        Files.createDirectory(workingDirectory);
+
         migrationContext = migrationServiceUnderTest.getMigrationContext();
 
         String docId = "DOC-TEST-001";
@@ -123,6 +140,16 @@ class MigrationServiceTest {
         when(mockRequestHeadersUriSpec.uri(anyString(), any(Object[].class)))
                 .thenReturn(mockRequestHeadersSpec);
         when(mockRequestHeadersSpec.accept(any())).thenReturn(mockRequestHeadersSpec);
+    }
+
+    /**
+     * Tear down.
+     *
+     * @throws Exception the exception
+     */
+    @AfterEach
+    void tearDown() throws Exception {
+        FileSystemUtils.deleteRecursively(workingDirectory);
     }
 
     /**
@@ -265,7 +292,9 @@ class MigrationServiceTest {
     @Test
     void testSignTiffPage_withValidPayloadZip() throws Exception {
         // Setup
-        byte[] payload = Files.readAllBytes(Path.of("src/test/resources/zips/valid_archive.zip"));
+        byte[] payload =
+                Files.readAllBytes(
+                        Path.of("%s/zips/valid_archive.zip".formatted(resourceDirectory)));
 
         // Run the test
         List<TiffPage> result =
@@ -312,9 +341,9 @@ class MigrationServiceTest {
         migrationServiceUnderTest.uploadToSftp(
                 migrationContext,
                 docId,
-                Files.readString(Path.of("src/test/resources/sftp/sample_meta.xml")),
-                Path.of("src/test/resources/sftp/sample.zip"),
-                Path.of("src/test/resources/sftp/sample.pdf"),
+                Files.readString(Path.of("%s/sftp/sample_meta.xml".formatted(resourceDirectory))),
+                Path.of("%s/sftp/sample.zip".formatted(resourceDirectory)),
+                Path.of("%s/sftp/sample.pdf".formatted(resourceDirectory)),
                 "abcde");
 
         // Verify the results
@@ -352,8 +381,8 @@ class MigrationServiceTest {
         migrationServiceUnderTest.uploadToSftp(
                 migrationContext,
                 docId,
-                Files.readString(Path.of("src/test/resources/sftp/sample_meta.xml")),
-                Path.of("src/test/resources/sftp/sample.zip"),
+                Files.readString(Path.of("%s/sftp/sample_meta.xml".formatted(resourceDirectory))),
+                Path.of("%s/sftp/sample.zip".formatted(resourceDirectory)),
                 null,
                 "abcde");
 
@@ -374,11 +403,15 @@ class MigrationServiceTest {
                         new TiffPage(
                                 "sample1.tiff",
                                 Files.readAllBytes(
-                                        Path.of("src/test/resources/tiffs/sample1.tiff"))),
+                                        Path.of(
+                                                "%s/tiffs/sample1.tiff"
+                                                        .formatted(resourceDirectory)))),
                         new TiffPage(
                                 "sample2.tiff",
                                 Files.readAllBytes(
-                                        Path.of("src/test/resources/tiffs/sample2.tiff"))));
+                                        Path.of(
+                                                "%s/tiffs/sample2.tiff"
+                                                        .formatted(resourceDirectory)))));
 
         // Run the test
         Path result =
@@ -389,7 +422,7 @@ class MigrationServiceTest {
         assertThat(result.toFile()).exists();
         byte[] resultBytes = Files.readAllBytes(result);
         assertThat(migrationServiceUnderTest.getDetectedMimeType(resultBytes))
-                .isEqualTo("application/pdf");
+                .isEqualTo(MediaType.APPLICATION_PDF_VALUE);
     }
 
     /**
@@ -416,7 +449,7 @@ class MigrationServiceTest {
                 migrationServiceUnderTest.transformMetadataToXml(meta, migrationContext, null);
 
         // Verify the results
-        String xmlFilename = "src/test/resources/xmls/ArchivalMetadata.xml";
+        String xmlFilename = "%s/xmls/ArchivalMetadata.xml".formatted(resourceDirectory);
         Diff diff =
                 DiffBuilder.compare(Input.fromFile(xmlFilename))
                         .withTest(result)
@@ -482,7 +515,9 @@ class MigrationServiceTest {
      */
     @Test
     void signTiffPages_shouldExtractAndPreserveOrder() throws Exception {
-        byte[] zip = Files.readAllBytes(Path.of("src/test/resources/zips/valid_archive.zip"));
+        byte[] zip =
+                Files.readAllBytes(
+                        Path.of("%s/zips/valid_archive.zip".formatted(resourceDirectory)));
         String docId = "DOC-ARCH-2025-001";
 
         List<TiffPage> pages =
@@ -542,7 +577,8 @@ class MigrationServiceTest {
      */
     @Test
     void signTiffPages_shouldThrowException_whenTotalSizeExceeded() throws IOException {
-        byte[] overLimitData = Files.readAllBytes(Path.of("src/test/resources/zips/over_10mb.zip"));
+        byte[] overLimitData =
+                Files.readAllBytes(Path.of("%s/zips/over_10mb.zip".formatted(resourceDirectory)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             ZipEntry entry = new ZipEntry("too_large.tiff");
@@ -638,11 +674,15 @@ class MigrationServiceTest {
                         new TiffPage(
                                 "sample1.tiff",
                                 Files.readAllBytes(
-                                        Path.of("src/test/resources/tiffs/sample1.tiff"))),
+                                        Path.of(
+                                                "%s/tiffs/sample1.tiff"
+                                                        .formatted(resourceDirectory)))),
                         new TiffPage(
                                 "sample2.tiff",
                                 Files.readAllBytes(
-                                        Path.of("src/test/resources/tiffs/sample2.tiff"))));
+                                        Path.of(
+                                                "%s/tiffs/sample2.tiff"
+                                                        .formatted(resourceDirectory)))));
         migrationContext.addPageHash("sample1.tiff", "hash-page1");
         migrationContext.addPageHash("sample2.tiff", "hash-page2");
 
@@ -796,11 +836,15 @@ class MigrationServiceTest {
                         new TiffPage(
                                 "sample1.tif",
                                 Files.readAllBytes(
-                                        Path.of("src/test/resources/tiffs/sample1.tiff"))),
+                                        Path.of(
+                                                "%s/tiffs/sample1.tiff"
+                                                        .formatted(resourceDirectory)))),
                         new TiffPage(
                                 "sample2.tif",
                                 Files.readAllBytes(
-                                        Path.of("src/test/resources/tiffs/sample2.tiff"))));
+                                        Path.of(
+                                                "%s/tiffs/sample2.tiff"
+                                                        .formatted(resourceDirectory)))));
         Path pdfPath = MigrationService.mergeTiffToPdf(pages, "DOC-TEST-PDF", workingDirectory);
 
         assertThat(Files.exists(pdfPath)).isTrue();
@@ -835,12 +879,9 @@ class MigrationServiceTest {
     @Test
     void testPerformOcrOnTiffPagesWellFormedReturnsExpectedContent() throws Exception {
         // Setup
-        List<TiffPage> pages =
-                List.of(
-                        new TiffPage(
-                                "test_ocr.tiff",
-                                Files.readAllBytes(
-                                        Path.of("src/test/resources/tiffs/test_ocr.tiff"))));
+        byte[] data =
+                Files.readAllBytes(Path.of("%s/tiffs/test_ocr.tiff".formatted(resourceDirectory)));
+        List<TiffPage> pages = List.of(new TiffPage("test_ocr.tiff", data));
 
         // Run the test
         List<String> result = migrationServiceUnderTest.performOcrOnTiffPages(pages);
@@ -848,17 +889,19 @@ class MigrationServiceTest {
         // Verify the results
         String expectedContent =
                 Files.readString(
-                                Path.of("src/test/resources/tiffs/test_ocr_result.txt"),
+                                Path.of(
+                                        "%s/tiffs/test_ocr_result.txt"
+                                                .formatted(resourceDirectory)),
                                 StandardCharsets.UTF_8)
                         .trim();
         assertThat(result).isEqualTo(List.of(expectedContent));
     }
 
     /**
-     * Test perform ocr on tiff pages throws exception.
+     * Test perform ocr on tiff pages does not throw exception for invalid content.
      */
     @Test
-    void testPerformOcrOnTiffPagesThrowsException() {
+    void testPerformOcrOnTiffPagesDoesNotThrowExceptionForInvalidContent() {
         // Setup
         List<TiffPage> pages =
                 List.of(
@@ -866,7 +909,7 @@ class MigrationServiceTest {
                                 "bad_sample.tiff", "contents".getBytes(StandardCharsets.UTF_8)));
 
         // Verify the results
-        assertThatException()
+        assertThatNoException()
                 .isThrownBy(() -> migrationServiceUnderTest.performOcrOnTiffPages(pages));
     }
 
@@ -881,6 +924,25 @@ class MigrationServiceTest {
 
         // check for empty list
         List<TiffPage> pages = Collections.emptyList();
+        assertThatNoException()
+                .isThrownBy(() -> migrationServiceUnderTest.performOcrOnTiffPages(pages));
+    }
+
+    /**
+     * Test perform ocr on tiff pages does not throw exception when size is too small.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    void testPerformOcrOnTiffPagesDoesNotThrowExceptionWhenSizeIsTooSmall() throws Exception {
+        List<TiffPage> pages =
+                List.of(
+                        new TiffPage(
+                                "too_small_sizr.tiff",
+                                Files.readAllBytes(
+                                        Path.of(
+                                                "%s/tiffs/too_small_size.tiff"
+                                                        .formatted(resourceDirectory)))));
         assertThatNoException()
                 .isThrownBy(() -> migrationServiceUnderTest.performOcrOnTiffPages(pages));
     }

@@ -38,7 +38,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +75,8 @@ public class MigrationService {
 
     @Getter private final MigrationContext migrationContext;
     private final MigrationProperties props;
-    private final Tesseract tesseract;
+
+    private final ThreadLocal<Tesseract> tesseractLocal;
 
     /**
      * Instantiates a new Migration service.
@@ -105,12 +105,16 @@ public class MigrationService {
         migrationContext = new MigrationContext();
         tika = new Tika();
 
-        // Initialize Tesseract from properties
-        tesseract = new Tesseract();
-        tesseract.setLanguage(props.tesseractLanguage());
-        tesseract.setVariable("user_defined_dpi", String.valueOf(props.tesseractDpi()));
-        tesseract.setPageSegMode(3);
-        tesseract.setOcrEngineMode(3);
+        tesseractLocal =
+                ThreadLocal.withInitial(
+                        () -> {
+                            Tesseract t = new Tesseract();
+                            t.setLanguage(props.tesseractLanguage());
+                            t.setVariable("user_defined_dpi", String.valueOf(props.tesseractDpi()));
+                            t.setPageSegMode(3);
+                            t.setOcrEngineMode(3);
+                            return t;
+                        });
     }
 
     /**
@@ -540,18 +544,49 @@ public class MigrationService {
      */
     public List<String> performOcrOnTiffPages(List<TiffPage> pages)
             throws IOException, TesseractException {
+        Tesseract tesseract = tesseractLocal.get(); // per-thread singleton
         List<String> results = new ArrayList<>();
 
         if (pages != null && !pages.isEmpty()) {
             for (TiffPage page : pages) {
-                ByteArrayInputStream input = new ByteArrayInputStream(page.data());
-                ImageInputStream iis = ImageIO.createImageInputStream(input);
-                BufferedImage image = ImageIO.read(iis);
-                String text = tesseract.doOCR(image);
-                results.add(text.trim());
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(page.data())) {
+                    BufferedImage image = ImageIO.read(bis);
+
+                    // check image size
+                    if (image == null || image.getWidth() <= 0 || image.getHeight() <= 0) {
+                        log.warn("Skipping invalid TIFF page: zero size");
+                        results.add("");
+                        continue;
+                    }
+
+                    // skip for size < 10 x 10
+                    if (image.getWidth() < 10 || image.getHeight() < 10) {
+                        log.warn("Skipping tiny image: {}x{}", image.getWidth(), image.getHeight());
+                        results.add("");
+                        continue;
+                    }
+
+                    // Pre-process (grayscale + contrast)
+                    BufferedImage processed = preprocessImage(image);
+
+                    String text = tesseract.doOCR(processed);
+                    results.add(text.trim());
+                }
             }
         }
-
+        tesseractLocal.remove();
         return results;
+    }
+
+    private BufferedImage preprocessImage(BufferedImage original) {
+        // Grayscale
+        BufferedImage gray =
+                new BufferedImage(
+                        original.getWidth(), original.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        gray.getGraphics().drawImage(original, 0, 0, null);
+
+        // Optional: binarization / threshold (use OpenCV or JavaCV if needed)
+        // or simple contrast stretch
+        return gray;
     }
 }

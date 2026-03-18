@@ -14,6 +14,9 @@ import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.domain.SourceMetadata;
 import ch.gryphus.chainvault.domain.TiffPage;
 import ch.gryphus.chainvault.utils.HashUtils;
+
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -85,6 +88,8 @@ class MigrationServiceTest {
     @Mock private SftpTargetConfig mockSftpTargetConfig;
     @Mock private Session mockSession;
 
+    @Mock private BufferedInputStream mockBufferedInputStream;
+    @Mock private BufferedImage mockBufferedImage;
     private MigrationService migrationServiceUnderTest;
 
     private MigrationContext migrationContext;
@@ -95,6 +100,8 @@ class MigrationServiceTest {
 
     /**
      * Sets up.
+     *
+     * @throws Exception the exception
      */
     @BeforeEach
     void setUp() throws Exception {
@@ -136,6 +143,11 @@ class MigrationServiceTest {
         when(mockRequestHeadersSpec.accept(any())).thenReturn(mockRequestHeadersSpec);
     }
 
+    /**
+     * Tear down.
+     *
+     * @throws Exception the exception
+     */
     @AfterEach
     void tearDown() throws Exception {
         FileSystemUtils.deleteRecursively(workingDirectory);
@@ -647,7 +659,7 @@ class MigrationServiceTest {
      *
      * @throws Exception the exception
      */
-    // ────────────────────────────────────────────────
+// ────────────────────────────────────────────────
     // createChainZip
     // ────────────────────────────────────────────────
     @Test
@@ -767,7 +779,7 @@ class MigrationServiceTest {
     /**
      * Build xml should fill all relevant fields.
      */
-    // ────────────────────────────────────────────────
+// ────────────────────────────────────────────────
     // buildXml
     // ────────────────────────────────────────────────
     @Test
@@ -815,7 +827,7 @@ class MigrationServiceTest {
      *
      * @throws Exception the exception
      */
-    // ────────────────────────────────────────────────
+// ────────────────────────────────────────────────
     // mergeTiffToPdf
     // ────────────────────────────────────────────────
     @Test
@@ -913,6 +925,23 @@ class MigrationServiceTest {
 
         // check for empty list
         List<TiffPage> pages = Collections.emptyList();
+        assertThatNoException()
+                .isThrownBy(() -> migrationServiceUnderTest.performOcrOnTiffPages(pages));
+    }
+
+    /**
+     * Test perform ocr on tiff pages does not throw exception when size is too small.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    void testPerformOcrOnTiffPagesDoesNotThrowExceptionWhenSizeIsTooSmall() throws Exception {
+        List<TiffPage> pages =
+                List.of(
+                        new TiffPage(
+                                "too_small_sizr.tiff", Files.readAllBytes(
+                                        Path.of("%s/tiffs/too_small_size.tiff".formatted(resourceDirectory)))
+                        ));
         assertThatNoException()
                 .isThrownBy(() -> migrationServiceUnderTest.performOcrOnTiffPages(pages));
     }

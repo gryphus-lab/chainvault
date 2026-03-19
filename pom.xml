@@ -15,14 +15,14 @@
     <name>${project.groupId}::${project.artifactId}</name>
     
     <url>https://github.com/gryphus-lab/chainvault</url>
-    <scm>
-        <url>https://github.com/gryphus-lab/chainvault</url>
-    </scm>
     <modules>
         <module>chainvault-migration</module>
         <module>chainvault-orchestration</module>
         <module>chainvault-report-aggregate</module>
     </modules>
+    <scm>
+        <url>https://github.com/gryphus-lab/chainvault</url>
+    </scm>
     
     <distributionManagement>
         <site>

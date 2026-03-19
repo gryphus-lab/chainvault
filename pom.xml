@@ -15,6 +15,9 @@
     <name>${project.groupId}::${project.artifactId}</name>
     
     <url>https://github.com/gryphus-lab/chainvault</url>
+    <scm>
+        <url>https://github.com/gryphus-lab/chainvault</url>
+    </scm>
     <modules>
         <module>chainvault-migration</module>
         <module>chainvault-orchestration</module>
@@ -83,6 +86,7 @@
         <opentelemetry-exporter-prometheus.version>1.60.1-alpha</opentelemetry-exporter-prometheus.version>
         <opentelemetry-logback-appender-1.0.version>2.26.0-alpha</opentelemetry-logback-appender-1.0.version>
         <opentelemetry-logback-mdc-1.0.version>2.26.0-alpha</opentelemetry-logback-mdc-1.0.version>
+        <maven-scm-publish-plugin.version>3.3.0</maven-scm-publish-plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -493,6 +497,16 @@
                         </configuration>
                     </reportSet>
                 </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <version>${maven-scm-publish-plugin.version}</version>
+                <configuration>
+                    <scmBranch>gh-pages</scmBranch>
+                    <pubScmUrl>scm:git:${project.url}t</pubScmUrl>
+                    <content>${project.build.directory}/staging</content>
+                </configuration>
             </plugin>
         </plugins>
     </reporting>

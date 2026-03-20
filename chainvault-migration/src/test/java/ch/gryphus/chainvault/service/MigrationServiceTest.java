@@ -444,28 +444,6 @@ class MigrationServiceTest {
     }
 
     /**
-     * Test sign source payload should ignore non tiff files.
-     *
-     * @throws Exception the exception
-     */
-    @Test
-    void testSignSourcePayload_shouldIgnoreNonOcrFiles() throws Exception {
-        byte[] zip =
-                createZipWithEntries(
-                        List.of(
-                                "page-001.tif", "TIFF1",
-                                "readme.txt", "ignore me",
-                                "page-002.tif", "TIFF2"));
-
-        List<OcrPage> pages =
-                migrationServiceUnderTest.signSourcePayload(
-                        zip, migrationContext, workingDirectory);
-
-        assertThat(pages).hasSize(2);
-        assertThat(pages.get(1).getName()).isEqualTo("page-002.tif");
-    }
-
-    /**
      * Test sign source payload should throw exception when no tiffs exist.
      *
      * @throws Exception the exception

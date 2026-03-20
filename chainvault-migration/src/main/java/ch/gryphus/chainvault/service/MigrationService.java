@@ -13,9 +13,11 @@ import ch.gryphus.chainvault.utils.MigrationUtils;
 import ch.gryphus.chainvault.utils.OcrUtils;
 import ch.gryphus.chainvault.utils.SftpUtils;
 import ch.gryphus.chainvault.utils.SourceApiUtils;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,17 +29,22 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+import javax.imageio.ImageIO;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.commons.io.FileUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.jspecify.annotations.Nullable;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -238,21 +245,26 @@ public class MigrationService {
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(payload))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                String entryName = entry.getName().toLowerCase(Locale.ROOT);
-                if (entryName.endsWith(".tif")
-                        || entryName.endsWith(".tiff")
-                        || entryName.endsWith(".png")
-                        || entryName.endsWith(".jpg")
-                        || entryName.endsWith(".jpeg")
-                        || entryName.endsWith(".bmp")) {
+                String entryName = entry.getName();
 
-                    byte[] data = zis.readAllBytes();
+                byte[] data = zis.readAllBytes();
+                String mimeType = MigrationUtils.getDetectedMimeType(data);
 
-                    String pageHash = HashUtils.sha256(data);
-                    migrationContext.addPageHash(entry.getName(), pageHash);
+                switch (mimeType) {
+                    case "application/pdf" -> {
+                        // Extract PDF pages as individual PNG images
+                        List<OcrPage> pdfPages = extractPdfPages(data, entryName);
+                        pages.addAll(pdfPages);
+                    }
+                    case "image/tiff", "image/png", "image/jpeg", "image/bmp" -> {
+                        String pageHash = HashUtils.sha256(data);
+                        migrationContext.addPageHash(entryName, pageHash);
 
-                    String mimeType = MigrationUtils.getDetectedMimeType(data);
-                    pages.add(new OcrPage(entry.getName(), data, mimeType, null));
+                        pages.add(new OcrPage(entryName, data, mimeType, null));
+                    }
+                    case null, default -> {
+                        //
+                    }
                 }
             }
         }
@@ -262,6 +274,48 @@ public class MigrationService {
         }
 
         return pages;
+    }
+
+    private List<OcrPage> extractPdfPages(byte[] pdfBytes, String originalName) {
+        List<OcrPage> pdfPages = new ArrayList<>();
+
+        try (PDDocument doc = Loader.loadPDF(pdfBytes)) {
+            PDFRenderer renderer = new PDFRenderer(doc);
+
+            for (int pageNum = 0; pageNum < doc.getNumberOfPages(); pageNum++) {
+                BufferedImage image = getBufferedImage(renderer, pageNum, doc);
+                if (image == null) continue;
+
+                // Convert rendered page to PNG bytes (Tesseract-friendly)
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(image, "png", baos);
+                byte[] pngData = baos.toByteArray();
+
+                String pageName = "%s_page%03d.png".formatted(originalName, pageNum + 1);
+                pdfPages.add(new OcrPage(pageName, pngData, "image/png", null));
+            }
+        } catch (IOException e) {
+            log.error("Failed to load PDF {}: {}", originalName, e.getMessage(), e);
+        }
+
+        return pdfPages;
+    }
+
+    private static @Nullable BufferedImage getBufferedImage(
+            PDFRenderer renderer, int pageNum, PDDocument doc) {
+        BufferedImage image;
+        try {
+            image = renderer.renderImageWithDPI(pageNum, 300, ImageType.RGB);
+        } catch (IOException e) {
+            log.error(
+                    "Failed to render PDF page {} of {}: {}",
+                    pageNum + 1,
+                    doc.getNumberOfPages(),
+                    e.getMessage(),
+                    e);
+            return null;
+        }
+        return image;
     }
 
     /**

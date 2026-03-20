@@ -5,8 +5,10 @@ package ch.gryphus.chainvault.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,5 +83,38 @@ class OcrPageTest {
     @Test
     void testNameReturnsExpectedString() {
         assertThat(ocrPageUnderTest.getName()).isEqualTo("sample1.tiff");
+    }
+
+    @Test
+    void testIsSupportedImage_ReturnsTrueForSupportedFormats() throws IOException {
+        // Run the test
+        boolean result = ocrPageUnderTest.isSupportedImage();
+        OcrPage anotherOcrPage =
+                new OcrPage(
+                        "sample.pdf",
+                        Files.readAllBytes(Path.of("src/test/resources/pdfs/sample.pdf")),
+                        "application/pdf",
+                        null);
+        // Verify the results
+        assertThat(result).isTrue();
+
+        result = anotherOcrPage.isSupportedImage();
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void testIsSupportedImage_ReturnsFalseForUnsupportedFormats() {
+        OcrPage anotherOcrPage =
+                new OcrPage(
+                        "another_file.xyz",
+                        "content".getBytes(StandardCharsets.UTF_8),
+                        "application/text",
+                        null);
+
+        // Run the test
+        boolean result = anotherOcrPage.isSupportedImage();
+
+        // Verify the results
+        assertThat(result).isFalse();
     }
 }

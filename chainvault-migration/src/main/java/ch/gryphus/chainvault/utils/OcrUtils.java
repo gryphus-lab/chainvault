@@ -43,10 +43,17 @@ public final class OcrUtils {
                         results.add("");
                         continue;
                     }
-                    // Pre-process (grayscale + contrast)
-                    BufferedImage processed = preprocessImage(image);
 
-                    String text = tesseract.doOCR(processed);
+                    String text;
+                    String detectedMimeType = MigrationUtils.getDetectedMimeType(bis);
+                    if ("image/tiff".equals(detectedMimeType)) {
+                        // Pre-process for tiff files (grayscale + contrast)
+                        BufferedImage processed = preprocessImage(image);
+                        text = tesseract.doOCR(processed);
+                    } else {
+                        text = tesseract.doOCR(image);
+                    }
+
                     results.add(text.trim());
                 }
             }
@@ -58,7 +65,7 @@ public final class OcrUtils {
         if (image == null
                 || image.getWidth() <= 0
                 || image.getHeight() <= 0) { // check nulls and zero size
-            log.warn("Skipping invalid TIFF page: zero size");
+            log.warn("Skipping invalid page: zero size");
             return false;
         }
         if (image.getWidth() < 10 || image.getHeight() < 10) { // check width and height < 10

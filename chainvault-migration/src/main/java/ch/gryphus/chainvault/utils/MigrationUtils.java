@@ -74,9 +74,9 @@ public final class MigrationUtils {
      * @return the path
      * @throws IOException the io exception
      */
-    public static Path mergeTiffToPdf(List<TiffPage> pages, String docId, Path workingDirectory)
+    public static Path mergePagesToPdf(List<TiffPage> pages, String docId, Path workingDirectory)
             throws IOException {
-        Path pdf = Path.of("%s/%s.pdf".formatted(workingDirectory, docId));
+        Path pdf = Path.of("%s/%s-merged.pdf".formatted(workingDirectory, docId));
         try (var doc = new PDDocument()) {
             for (var page : pages) {
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(page.data()));

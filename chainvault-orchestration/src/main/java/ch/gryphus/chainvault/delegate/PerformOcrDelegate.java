@@ -46,7 +46,7 @@ public class PerformOcrDelegate extends AbstractTracingDelegate {
             throws IOException, NoSuchAlgorithmException, TesseractException {
         List<TiffPage> pages = getTransientVariableSafely(execution, "pages", List.class);
         if (pages != null && !pages.isEmpty()) {
-            List<String> ocrResults = migrationService.performOcrOnTiffPages(pages);
+            List<String> ocrResults = migrationService.performOcr(pages);
 
             execution.setTransientVariable("ocrResults", ocrResults);
             execution.setTransientVariable(

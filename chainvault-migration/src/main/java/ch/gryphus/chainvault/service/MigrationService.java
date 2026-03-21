@@ -286,7 +286,7 @@ public class MigrationService {
             Path workingDirectory,
             @NonNull SourceMetadata sourceMetadata,
             @NonNull MigrationContext migrationContext,
-            List<OcrPage> pages)
+            List<? extends OcrPage> pages)
             throws IOException, NoSuchAlgorithmException {
 
         String docId = sourceMetadata.getDocId();
@@ -325,7 +325,7 @@ public class MigrationService {
      * @return the path
      * @throws IOException the io exception
      */
-    public Path createMergedPdf(List<OcrPage> pages, String docId, Path workingDirectory)
+    public Path createMergedPdf(List<? extends OcrPage> pages, String docId, Path workingDirectory)
             throws IOException {
         return MigrationUtils.mergePagesToPdf(pages, docId, workingDirectory);
     }

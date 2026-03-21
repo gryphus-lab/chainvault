@@ -285,7 +285,7 @@ class MigrationServiceTest {
         // Setup
         byte[] payload =
                 Files.readAllBytes(
-                        Path.of("%s/zips/valid_archive.zip".formatted(resourceDirectory)));
+                        Path.of("%s/zips/valid_tiff_archive.zip".formatted(resourceDirectory)));
 
         // Run the test
         List<OcrPage> result =
@@ -426,7 +426,7 @@ class MigrationServiceTest {
     void testSignSourcePayload_shouldExtractAndPreserveOrder() throws Exception {
         byte[] zip =
                 Files.readAllBytes(
-                        Path.of("%s/zips/valid_archive.zip".formatted(resourceDirectory)));
+                        Path.of("%s/zips/valid_tiff_archive.zip".formatted(resourceDirectory)));
         String docId = "DOC-ARCH-2025-001";
 
         List<OcrPage> pages =
@@ -440,6 +440,36 @@ class MigrationServiceTest {
                             int i = pages.indexOf(page) + 1;
                             assertThat(page.getName())
                                     .isEqualTo("%s_%03d.tiff".formatted(docId, i));
+                        });
+    }
+
+    /**
+     * Test sign source payload should extract pdf as png files.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    void testSignSourcePayload_shouldExtractPdfAsPngFiles() throws Exception {
+        // Setup
+        byte[] zip =
+                Files.readAllBytes(
+                        Path.of("%s/zips/valid_pdf_archive.zip".formatted(resourceDirectory)));
+        String pdfFilename = "sample.pdf";
+
+        // Run
+        List<OcrPage> pages =
+                migrationServiceUnderTest.signSourcePayload(
+                        zip, migrationContext, workingDirectory);
+
+        // Verify
+        assertThat(pages)
+                .isNotEmpty()
+                .allSatisfy(
+                        page -> {
+                            assertThat(page.getMimeType()).isEqualTo("image/png");
+                            int i = pages.indexOf(page) + 1;
+                            assertThat(page.getName())
+                                    .isEqualTo("%s_page%03d.png".formatted(pdfFilename, i));
                         });
     }
 

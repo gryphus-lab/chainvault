@@ -197,9 +197,9 @@ public class MigrationService {
             long totalEntryArchive = 0L;
 
             while (entries.hasMoreElements()) {
-                ZipEntry entry1 = entries.nextElement();
+                ZipEntry entry = entries.nextElement();
 
-                try (InputStream is = new BufferedInputStream(zipFile.getInputStream(entry1));
+                try (InputStream is = new BufferedInputStream(zipFile.getInputStream(entry));
                         OutputStream os =
                                 new BufferedOutputStream(
                                         new FileOutputStream(
@@ -218,7 +218,7 @@ public class MigrationService {
                         totalSizeArchive = totalSizeArchive + nBytes;
 
                         double compressionRatio =
-                                (double) totalSizeEntry / entry1.getCompressedSize();
+                                (double) totalSizeEntry / entry.getCompressedSize();
                         if (compressionRatio > getZipThresholdRatio()) {
                             throw new MigrationServiceException(
                                     "Ratio between compressed and uncompressed data is greater than %s"

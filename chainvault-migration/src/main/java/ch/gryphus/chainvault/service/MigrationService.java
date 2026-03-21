@@ -94,7 +94,6 @@ public class MigrationService {
                             t.setOcrEngineMode(3);
                             return t;
                         });
-
     }
 
     /**

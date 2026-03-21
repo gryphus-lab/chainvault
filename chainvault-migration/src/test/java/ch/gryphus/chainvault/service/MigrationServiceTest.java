@@ -35,13 +35,17 @@ import java.util.zip.ZipOutputStream;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -83,6 +87,10 @@ class MigrationServiceTest {
     @Mock private SftpRemoteFileTemplate mockSftpRemoteFileTemplate;
     @Mock private SftpTargetConfig mockSftpTargetConfig;
     @Mock private Session mockSession;
+
+    @Mock private Loader mockLoader;
+    @Mock private PDDocument mockPDDocument;
+    @Mock private PDFRenderer mockRenderer;
 
     private MigrationService migrationServiceUnderTest;
 
@@ -471,6 +479,54 @@ class MigrationServiceTest {
                             assertThat(page.getName())
                                     .isEqualTo("%s_page%03d.png".formatted(pdfFilename, i));
                         });
+    }
+
+    /**
+     * Test sign source payload should extract pdf as png files.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    void testSignSourcePayload_shouldThrowExceptionWithCauseWhenPdfIsInvalid() throws Exception {
+        // Setup
+        byte[] zip =
+                Files.readAllBytes(
+                        Path.of("%s/zips/invalid_pdf_archive.zip".formatted(resourceDirectory)));
+
+        // Run
+        assertThatThrownBy(
+                        () ->
+                                migrationServiceUnderTest.signSourcePayload(
+                                        zip, migrationContext, workingDirectory))
+                .isInstanceOf(MigrationServiceException.class)
+                .hasMessageContaining("Error extracting pages from PDF file") // error message
+                .hasMessageContaining("caused by: " + IOException.class.getName()); // error cause
+    }
+
+    @Disabled("TODO: fix this test")
+    @Test
+    void testSignSourcePayload_shouldThrowExceptionWithCauseWhenPdfPageCannotBeRendered()
+            throws Exception {
+        // Setup
+        byte[] zip =
+                Files.readAllBytes(
+                        Path.of("%s/zips/valid_pdf_archive.zip".formatted(resourceDirectory)));
+        try (MockedStatic<PDFRenderer> mocked = mockStatic(PDFRenderer.class)) {
+            mocked.when(
+                            () ->
+                                    mockRenderer.renderImageWithDPI(
+                                            anyInt(), anyFloat(), any(ImageType.class)))
+                    .thenThrow(IOException.class);
+            // Run
+            assertThatThrownBy(
+                            () ->
+                                    migrationServiceUnderTest.signSourcePayload(
+                                            zip, migrationContext, workingDirectory))
+                    .isInstanceOf(MigrationServiceException.class)
+                    .hasMessageContaining("Failed to render PDF page") // error message
+                    .hasMessageContaining(
+                            "caused by: " + IOException.class.getName()); // error cause
+        }
     }
 
     /**

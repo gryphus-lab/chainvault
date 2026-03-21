@@ -44,7 +44,6 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import org.jspecify.annotations.Nullable;
 import org.springframework.integration.sftp.session.SftpRemoteFileTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -283,25 +282,27 @@ public class MigrationService {
             PDFRenderer renderer = new PDFRenderer(doc);
 
             for (int pageNum = 0; pageNum < doc.getNumberOfPages(); pageNum++) {
-                BufferedImage image = getBufferedImage(renderer, pageNum, doc);
-                if (image == null) continue;
+                BufferedImage image = getRenderedImage(renderer, pageNum, doc);
+                if (image != null) {
+                    // Convert rendered page to PNG bytes (Tesseract-friendly)
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ImageIO.write(image, "png", baos);
+                    byte[] pngData = baos.toByteArray();
 
-                // Convert rendered page to PNG bytes (Tesseract-friendly)
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(image, "png", baos);
-                byte[] pngData = baos.toByteArray();
-
-                String pageName = "%s_page%03d.png".formatted(originalName, pageNum + 1);
-                pdfPages.add(new OcrPage(pageName, pngData, "image/png", null));
+                    String pageName = "%s_page%03d.png".formatted(originalName, pageNum + 1);
+                    pdfPages.add(new OcrPage(pageName, pngData, "image/png", null));
+                }
             }
         } catch (IOException e) {
-            log.error("Failed to load PDF {}: {}", originalName, e.getMessage(), e);
+            throw new MigrationServiceException(
+                    "Error extracting pages from PDF file: %s, caused by: %s"
+                            .formatted(originalName, e));
         }
 
         return pdfPages;
     }
 
-    private static @Nullable BufferedImage getBufferedImage(
+    private static BufferedImage getRenderedImage(
             PDFRenderer renderer, int pageNum, PDDocument doc) {
         BufferedImage image;
         try {
@@ -313,7 +314,9 @@ public class MigrationService {
                     doc.getNumberOfPages(),
                     e.getMessage(),
                     e);
-            return null;
+            throw new MigrationServiceException(
+                    "Failed to render PDF page %d of %d, caused by: %s"
+                            .formatted(pageNum + 1, doc.getNumberOfPages(), e));
         }
         return image;
     }

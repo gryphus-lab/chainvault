@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -190,9 +189,9 @@ public class MigrationService {
             long totalEntryArchive = 0L;
 
             while (entries.hasMoreElements()) {
-                ZipEntry entry1 = entries.nextElement();
+                ZipEntry entry = entries.nextElement();
 
-                try (InputStream is = new BufferedInputStream(zipFile.getInputStream(entry1));
+                try (InputStream is = new BufferedInputStream(zipFile.getInputStream(entry));
                         OutputStream os =
                                 new BufferedOutputStream(
                                         new FileOutputStream(
@@ -211,7 +210,7 @@ public class MigrationService {
                         totalSizeArchive = totalSizeArchive + nBytes;
 
                         double compressionRatio =
-                                (double) totalSizeEntry / entry1.getCompressedSize();
+                                (double) totalSizeEntry / entry.getCompressedSize();
                         if (compressionRatio > getZipThresholdRatio()) {
                             throw new MigrationServiceException(
                                     "Ratio between compressed and uncompressed data is greater than %s"
@@ -238,21 +237,29 @@ public class MigrationService {
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(payload))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                String entryName = entry.getName().toLowerCase(Locale.ROOT);
-                if (entryName.endsWith(".tif")
-                        || entryName.endsWith(".tiff")
-                        || entryName.endsWith(".png")
-                        || entryName.endsWith(".jpg")
-                        || entryName.endsWith(".jpeg")
-                        || entryName.endsWith(".bmp")) {
+                String entryName = entry.getName();
 
-                    byte[] data = zis.readAllBytes();
+                byte[] data = zis.readAllBytes();
+                String mimeType = MigrationUtils.getDetectedMimeType(data);
 
-                    String pageHash = HashUtils.sha256(data);
-                    migrationContext.addPageHash(entry.getName(), pageHash);
+                switch (mimeType) {
+                    case "application/pdf" -> {
+                        // Extract PDF pages as individual PNG images
+                        List<OcrPage> pdfPages = MigrationUtils.extractPdfPages(data, entryName);
+                        pages.addAll(pdfPages);
 
-                    String mimeType = MigrationUtils.getDetectedMimeType(data);
-                    pages.add(new OcrPage(entry.getName(), data, mimeType, null));
+                        String pdfHash = HashUtils.sha256(data);
+                        migrationContext.addPageHash(entryName, pdfHash);
+                    }
+                    case "image/tiff", "image/png", "image/jpeg", "image/bmp" -> {
+                        pages.add(MigrationUtils.createOcrPage(entryName, data, mimeType));
+
+                        String pageHash = HashUtils.sha256(data);
+                        migrationContext.addPageHash(entryName, pageHash);
+                    }
+                    case null, default -> {
+                        // do nothing
+                    }
                 }
             }
         }

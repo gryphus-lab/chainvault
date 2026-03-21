@@ -6,6 +6,8 @@ package ch.gryphus.chainvault.utils;
 import ch.gryphus.chainvault.domain.OcrPage;
 import ch.gryphus.chainvault.domain.OcrSettings;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.RescaleOp;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,7 +95,13 @@ public final class OcrUtils {
         BufferedImage gray =
                 new BufferedImage(
                         original.getWidth(), original.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-        gray.getGraphics().drawImage(original, 0, 0, null);
+        ColorConvertOp op = new ColorConvertOp(null);
+        op.filter(original, gray);
+
+        // Contrast enhancement
+        RescaleOp rescale = new RescaleOp(1.8f, -40f, null);
+        rescale.filter(gray, gray);
+
         return gray;
     }
 }

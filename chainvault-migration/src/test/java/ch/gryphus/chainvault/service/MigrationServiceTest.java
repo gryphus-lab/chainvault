@@ -35,6 +35,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -83,6 +84,10 @@ class MigrationServiceTest {
     @Mock private SftpRemoteFileTemplate mockSftpRemoteFileTemplate;
     @Mock private SftpTargetConfig mockSftpTargetConfig;
     @Mock private Session mockSession;
+
+    @Mock private Loader mockLoader;
+    @Mock private PDDocument mockPDDocument;
+    @Mock private PDFRenderer mockRenderer;
 
     private MigrationService migrationServiceUnderTest;
 
@@ -285,7 +290,7 @@ class MigrationServiceTest {
         // Setup
         byte[] payload =
                 Files.readAllBytes(
-                        Path.of("%s/zips/valid_archive.zip".formatted(resourceDirectory)));
+                        Path.of("%s/zips/valid_tiff_archive.zip".formatted(resourceDirectory)));
 
         // Run the test
         List<OcrPage> result =
@@ -426,7 +431,7 @@ class MigrationServiceTest {
     void testSignSourcePayload_shouldExtractAndPreserveOrder() throws Exception {
         byte[] zip =
                 Files.readAllBytes(
-                        Path.of("%s/zips/valid_archive.zip".formatted(resourceDirectory)));
+                        Path.of("%s/zips/valid_tiff_archive.zip".formatted(resourceDirectory)));
         String docId = "DOC-ARCH-2025-001";
 
         List<OcrPage> pages =
@@ -444,25 +449,55 @@ class MigrationServiceTest {
     }
 
     /**
-     * Test sign source payload should ignore non tiff files.
+     * Test sign source payload should extract pdf as png files.
      *
      * @throws Exception the exception
      */
     @Test
-    void testSignSourcePayload_shouldIgnoreNonOcrFiles() throws Exception {
+    void testSignSourcePayload_shouldExtractPdfAsPngFiles() throws Exception {
+        // Setup
         byte[] zip =
-                createZipWithEntries(
-                        List.of(
-                                "page-001.tif", "TIFF1",
-                                "readme.txt", "ignore me",
-                                "page-002.tif", "TIFF2"));
+                Files.readAllBytes(
+                        Path.of("%s/zips/valid_pdf_archive.zip".formatted(resourceDirectory)));
+        String pdfFilename = "sample.pdf";
 
+        // Run
         List<OcrPage> pages =
                 migrationServiceUnderTest.signSourcePayload(
                         zip, migrationContext, workingDirectory);
 
-        assertThat(pages).hasSize(2);
-        assertThat(pages.get(1).getName()).isEqualTo("page-002.tif");
+        // Verify
+        assertThat(pages)
+                .isNotEmpty()
+                .allSatisfy(
+                        page -> {
+                            assertThat(page.getMimeType()).isEqualTo("image/png");
+                            int i = pages.indexOf(page) + 1;
+                            assertThat(page.getName())
+                                    .isEqualTo("%s_page%03d.png".formatted(pdfFilename, i));
+                        });
+    }
+
+    /**
+     * Test sign source payload should extract pdf as png files.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    void testSignSourcePayload_shouldThrowExceptionWithCauseWhenPdfIsInvalid() throws Exception {
+        // Setup
+        byte[] zip =
+                Files.readAllBytes(
+                        Path.of("%s/zips/invalid_pdf_archive.zip".formatted(resourceDirectory)));
+
+        // Run
+        assertThatThrownBy(
+                        () ->
+                                migrationServiceUnderTest.signSourcePayload(
+                                        zip, migrationContext, workingDirectory))
+                .isInstanceOf(MigrationServiceException.class)
+                .hasMessageContaining("Error extracting pages from PDF file") // error message
+                .hasMessageContaining("caused by: " + IOException.class.getName()); // error cause
     }
 
     /**

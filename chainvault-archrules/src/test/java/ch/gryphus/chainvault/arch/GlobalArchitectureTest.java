@@ -12,7 +12,9 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
-@AnalyzeClasses(packages = "ch.gryphus.chainvault", importOptions = ImportOption.DoNotIncludeTests.class) // Scan your base package
+@AnalyzeClasses(
+        packages = "ch.gryphus.chainvault",
+        importOptions = ImportOption.DoNotIncludeTests.class) // Scan your base package
 class GlobalArchitectureTest {
 
     @ArchTest

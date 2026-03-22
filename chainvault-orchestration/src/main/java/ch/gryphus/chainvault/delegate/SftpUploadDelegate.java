@@ -53,7 +53,9 @@ public class SftpUploadDelegate extends AbstractTracingDelegate {
                 Objects.requireNonNull(
                         getTransientVariableSafely(execution, "workingDirectory", Path.class));
         var migrationContext =
-                Objects.requireNonNull(getTransientVariableSafely(execution, "migrationContext", MigrationContext.class));
+                Objects.requireNonNull(
+                        getTransientVariableSafely(
+                                execution, "migrationContext", MigrationContext.class));
 
         String processInstanceId = execution.getProcessInstanceId();
         String outputFileKey =

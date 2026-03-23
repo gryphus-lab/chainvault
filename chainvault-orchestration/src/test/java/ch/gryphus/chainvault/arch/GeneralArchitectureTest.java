@@ -5,18 +5,19 @@ package ch.gryphus.chainvault.arch;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
-import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition;
+import org.springframework.transaction.annotation.Transactional;
 
 @AnalyzeClasses(
         packages = "ch.gryphus.chainvault",
         importOptions = ImportOption.DoNotIncludeTests.class)
-class ArchitectureTest {
+class GeneralArchitectureTest {
 
     @ArchTest
     static void debug_imported_classes(JavaClasses classes) {
@@ -49,7 +50,7 @@ class ArchitectureTest {
                     .beAnnotatedWith("org.springframework.beans.factory.annotation.Autowired");
 
     @ArchTest
-    static final ArchRule naming_conventions =
+    static final ArchRule services_must_be_named_and_annotated_correctly =
             classes()
                     .that()
                     .resideInAPackage("..service..")
@@ -67,13 +68,6 @@ class ArchitectureTest {
                     .haveSimpleNameEndingWith("Repository");
 
     @ArchTest
-    static final ArchRule no_cycles =
-            SlicesRuleDefinition.slices()
-                    .matching("ch.gryphus.chainvault.(*)..") // Scans top-level modules/packages
-                    .should()
-                    .beFreeOfCycles();
-
-    @ArchTest
     static final ArchRule flowable_services_only_in_workflow_layer =
             classes()
                     .that()
@@ -85,7 +79,7 @@ class ArchitectureTest {
                     .resideOutsideOfPackage("org.flowable.engine..");
 
     @ArchTest
-    static final ArchRule delegates_naming_and_location =
+    static final ArchRule flowable_delegates_must_be_named_and_located_correctly =
             classes()
                     .that()
                     .implement(org.flowable.engine.delegate.JavaDelegate.class)
@@ -114,6 +108,28 @@ class ArchitectureTest {
                     .and()
                     .haveSimpleNameEndingWith("Service")
                     .should()
-                    .beAnnotatedWith(
-                            org.springframework.transaction.annotation.Transactional.class);
+                    .beAnnotatedWith(Transactional.class);
+
+    @ArchTest
+    static final ArchRule controllers_should_not_access_repositories_or_flowable_directly =
+            noClasses()
+                    .that()
+                    .resideInAnyPackage("..controller..")
+                    .should()
+                    .dependOnClassesThat()
+                    .resideInAnyPackage(
+                            "..repository..", "org.flowable.engine..", "org.flowable.task.api..");
+
+    @ArchTest
+    static final ArchRule domain_should_not_depend_on_spring_or_flowable =
+            noClasses()
+                    .that()
+                    .resideInAnyPackage("..domain..")
+                    .should()
+                    .dependOnClassesThat()
+                    .resideInAnyPackage("org.springframework..", "org.flowable..");
+
+    @ArchTest
+    static final ArchRule no_cycles_between_top_level_packages =
+            slices().matching("ch.gryphus.chainvault.(*)..").should().beFreeOfCycles();
 }

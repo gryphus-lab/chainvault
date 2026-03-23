@@ -3,11 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import {
   ArrowLeft,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertCircle,
-  FileText,
 } from "lucide-react";
 import { getMigrationById } from "../lib/api";
 import type { Migration } from "../types";

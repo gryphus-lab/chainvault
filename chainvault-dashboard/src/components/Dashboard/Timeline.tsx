@@ -46,37 +46,6 @@ const mockSteps = [
   },
 ];
 
-function getColors(
-  step:
-    | { id: number; name: string; status: string; timestamp: string }
-    | {
-        id: number;
-        name: string;
-        status: string;
-        timestamp: string;
-      }
-    | { id: number; name: string; status: string; timestamp: string }
-    | {
-        id: number;
-        name: string;
-        status: string;
-        timestamp: string;
-      }
-    | { id: number; name: string; status: string; timestamp: string }
-    | {
-        id: number;
-        name: string;
-        status: string;
-        timestamp: string;
-      },
-) {
-  return step.status === "SUCCESS"
-    ? "bg-green-500"
-    : step.status === "FAILED"
-      ? "bg-red-500"
-      : "bg-gray-400";
-}
-
 export default function Timeline({ migration }: TimelineProps) {
   // In real app: fetch steps from API or use migration events
   const steps = mockSteps; // replace with real data
@@ -95,9 +64,13 @@ export default function Timeline({ migration }: TimelineProps) {
               ) : null}
               <div className="relative flex space-x-3">
                 <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-white ${getColors(
-                    step,
-                  )}`}
+                  className={`flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-white ${
+                    step.status === "SUCCESS"
+                      ? "bg-green-500"
+                      : step.status === "FAILED"
+                        ? "bg-red-500"
+                        : "bg-gray-400"
+                  }`}
                 >
                   {step.status === "SUCCESS" ? (
                     <CheckCircle className="h-5 w-5 text-white" />

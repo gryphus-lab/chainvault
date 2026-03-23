@@ -87,6 +87,7 @@ jobs:
         uses: ctrf-io/github-test-reporter@v1
         with:
           report-path: '**/target/surefire-reports/*.xml'
+          pull-request-report: true
           integrations-config: |
             {
               "junit-to-ctrf": {

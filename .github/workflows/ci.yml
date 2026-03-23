@@ -108,7 +108,7 @@ jobs:
             }
         if: always()
 
-      - name: Run Sonar scan
+      - name: Run Sonar Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |

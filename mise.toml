@@ -6,7 +6,7 @@ python = "3.12"
 "aqua:astral-sh/uv" = "latest" # uv is blazing fast for venv + pip installs
 docker-slim = "latest"
 node = "20"
-yarn = "stable"
+yarn = "4.13.0"
 
 # ────────────────────────────────────────
 # Environment (activated repo-wide)

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/chainvault")
-public class OrchestrationRestController {
+public class OrchestrationController {
     private final OrchestrationService orchestrationService;
 
     /**
@@ -26,7 +26,7 @@ public class OrchestrationRestController {
      *
      * @param orchestrationService the orchestration service
      */
-    public OrchestrationRestController(OrchestrationService orchestrationService) {
+    public OrchestrationController(OrchestrationService orchestrationService) {
         this.orchestrationService = orchestrationService;
     }
 

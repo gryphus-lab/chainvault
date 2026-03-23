@@ -30,8 +30,8 @@ import tools.jackson.databind.ObjectMapper;
 /**
  * The type Orchestration rest controller test.
  */
-@WebMvcTest(OrchestrationRestController.class)
-class OrchestrationRestControllerTest {
+@WebMvcTest(OrchestrationController.class)
+class OrchestrationControllerTest {
 
     @Autowired private MockMvcTester mockMvcTester;
 

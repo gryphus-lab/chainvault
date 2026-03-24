@@ -23,7 +23,7 @@ export const getMigrationById = async (id: string): Promise<Migration> => {
   return res.data;
 };
 
-export const getStats = async (): Promise<MigrationStats> => {
+export const getMigrationStats = async (): Promise<MigrationStats> => {
   const res = await api.get("/migrations/stats");
   return res.data;
 };

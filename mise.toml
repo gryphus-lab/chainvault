@@ -69,9 +69,7 @@ ci = { run = [
   "java -jar chainvault-orchestration/target/*.jar --spring.profiles.active=local",
 ], description = "Full CI-style checks" }
 
-github-build = { run = [
-  "yarn install --immutable && yarn workspace chainvault-dashboard build",
-  "mvn clean install -Pcoverage"], description = "GitHub CI Build (used by .github/workflows/ci.yml)" }
+github-build = { run = "mvn clean install -Pcoverage", description = "GitHub CI Build (used by .github/workflows/ci.yml)" }
 
 docker-build = { run = "docker build --no-cache -t gryphus-lab/chainvault:latest -f Dockerfile .", description = "Docker build" }
 

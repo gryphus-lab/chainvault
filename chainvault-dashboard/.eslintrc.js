@@ -96,7 +96,6 @@ module.exports = exports = {
     "no-useless-call": ERROR,
     "no-useless-concat": ERROR,
     "no-void": WARN,
-    // Produce warnings when something is commented as TODO or FIXME
     "no-warning-comments": [
       WARN,
       {

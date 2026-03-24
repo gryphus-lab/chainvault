@@ -42,6 +42,17 @@
                             <goal>install-node-and-yarn</goal>
                         </goals>
                     </execution>
+
+                    <!-- Install dependencies -->
+                    <execution>
+                        <id>yarn-install</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
                     
                     <!-- Build React app -->
                     <execution>
@@ -51,17 +62,6 @@
                         </goals>
                         <configuration>
                             <arguments>build</arguments>
-                        </configuration>
-                    </execution>
-                    
-                    <!-- Install dependencies -->
-                    <execution>
-                        <id>yarn-install</id>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>install --frozen-lockfile</arguments>
                         </configuration>
                     </execution>
                 </executions>

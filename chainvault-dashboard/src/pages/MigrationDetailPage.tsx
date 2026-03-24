@@ -1,9 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import {
-  ArrowLeft,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { getMigrationById } from "../lib/api";
 import type { Migration } from "../types";
 import Timeline from "../components/Dashboard/Timeline";
@@ -14,6 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/Card";
+
+const { data: migration, isLoading } = useMigrationDetail(id!);
 
 export default function MigrationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -70,7 +70,6 @@ export default function MigrationDetailPage() {
         </div>
         <Badge className={statusColor}>{migration.status}</Badge>
       </div>
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
@@ -125,18 +124,23 @@ export default function MigrationDetailPage() {
           </CardContent>
         </Card>
       </div>
-
       {/* Timeline */}
       <Card>
         <CardHeader>
-          <CardTitle>Migration Timeline</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Migration Timeline
+            {migration?.events && (
+              <span className="text-sm font-normal text-gray-500">
+                ({migration.events.length} events)
+              </span>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <Timeline migration={migration} />
+          <Timeline events={migration?.events || []} isLoading={isLoading} />
         </CardContent>
       </Card>
-
-      {/* OCR Preview / Logs (placeholder) */}
+      ;{/* OCR Preview / Logs (placeholder) */}
       <Card>
         <CardHeader>
           <CardTitle>OCR & Processing Details</CardTitle>

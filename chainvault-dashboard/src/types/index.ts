@@ -24,3 +24,24 @@ export interface MigrationStats {
   compensated: number;
   last24h: number;
 }
+
+export interface MigrationEvent {
+  id: string;
+  migrationId: string;
+  eventType: "TASK_STARTED" | "TASK_COMPLETED" | "TASK_FAILED";
+  stepName?: string;
+  message: string;
+  timestamp: string;
+  traceId?: string;
+  status: "SUCCESS" | "FAILED" | "RUNNING" | "PENDING";
+  durationMs?: number;
+  errorCode?: string;
+  errorMessage?: string;
+}
+
+export interface MigrationDetail extends Migration {
+  events: MigrationEvent[];
+  ocrTextPreview?: string;
+  chainZipUrl?: string;
+  pdfUrl?: string;
+}

@@ -1,102 +1,115 @@
-import { format, parseISO } from "date-fns";
-import { CheckCircle, Clock, XCircle } from "lucide-react";
-import type { Migration } from "../../types";
+import { format, parseISO, differenceInMilliseconds } from "date-fns";
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  AlertTriangle,
+  ArrowRight,
+} from "lucide-react";
+import type { MigrationEvent } from "../../types";
 
 interface TimelineProps {
-  migration: Migration;
+  events: MigrationEvent[];
+  isLoading?: boolean;
 }
 
-// Mock timeline steps (replace with real data from backend later)
-const mockSteps = [
-  {
-    id: 1,
-    name: "Extract & Hash",
-    status: "SUCCESS",
-    timestamp: "2026-03-23T18:45:00Z",
-  },
-  {
-    id: 2,
-    name: "Sign TIFF Pages",
-    status: "SUCCESS",
-    timestamp: "2026-03-23T18:46:30Z",
-  },
-  {
-    id: 3,
-    name: "Perform OCR",
-    status: "SUCCESS",
-    timestamp: "2026-03-23T18:48:10Z",
-  },
-  {
-    id: 4,
-    name: "Merge to PDF",
-    status: "SUCCESS",
-    timestamp: "2026-03-23T18:50:00Z",
-  },
-  {
-    id: 5,
-    name: "Create Chain ZIP",
-    status: "SUCCESS",
-    timestamp: "2026-03-23T18:51:20Z",
-  },
-  {
-    id: 6,
-    name: "Upload to SFTP",
-    status: "SUCCESS",
-    timestamp: "2026-03-23T18:52:45Z",
-  },
-];
+export default function Timeline({ events, isLoading = false }: TimelineProps) {
+  if (isLoading) {
+    return (
+      <div className="py-8 text-center text-gray-500">Loading timeline...</div>
+    );
+  }
 
-export default function Timeline({ migration }: TimelineProps) {
-  // In real app: fetch steps from API or use migration events
-  const steps = mockSteps; // replace with real data
+  if (events.length === 0) {
+    return (
+      <div className="py-8 text-center text-gray-500">
+        No events recorded yet.
+      </div>
+    );
+  }
+
+  // Sort events by timestamp (just in case backend doesn't)
+  const sortedEvents = [...events].sort(
+    (a, b) => parseISO(a.timestamp).getTime() - parseISO(b.timestamp).getTime(),
+  );
 
   return (
     <div className="flow-root">
       <ul role="list" className="-mb-8">
-        {steps.map((step, stepIdx) => (
-          <li key={step.id}>
-            <div className="relative pb-8">
-              {stepIdx !== steps.length - 1 ? (
-                <span
-                  className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
-                  aria-hidden="true"
-                />
-              ) : null}
-              <div className="relative flex space-x-3">
-                <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-white ${
-                    step.status === "SUCCESS"
-                      ? "bg-green-500"
-                      : step.status === "FAILED"
-                        ? "bg-red-500"
-                        : "bg-gray-400"
-                  }`}
-                >
-                  {step.status === "SUCCESS" ? (
-                    <CheckCircle className="h-5 w-5 text-white" />
-                  ) : step.status === "FAILED" ? (
-                    <XCircle className="h-5 w-5 text-white" />
-                  ) : (
-                    <Clock className="h-5 w-5 text-white" />
-                  )}
-                </span>
-                <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {step.name}
-                    </p>
-                    {step.status === "FAILED" && (
-                      <p className="mt-1 text-sm text-red-600">Failed</p>
+        {sortedEvents.map((event, idx) => {
+          const isLast = idx === sortedEvents.length - 1;
+          const prevTime =
+            idx > 0 ? parseISO(sortedEvents[idx - 1].timestamp) : null;
+          const currentTime = parseISO(event.timestamp);
+          const duration = prevTime
+            ? differenceInMilliseconds(currentTime, prevTime)
+            : 0;
+
+          return (
+            <li key={event.id}>
+              <div className="relative pb-8">
+                {!isLast && (
+                  <span
+                    className="absolute left-5 top-8 -ml-px h-full w-0.5 bg-gray-200"
+                    aria-hidden="true"
+                  />
+                )}
+
+                <div className="relative flex items-start space-x-4">
+                  {/* Status Icon */}
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full ring-8 ring-white bg-white">
+                    {event.status === "SUCCESS" && (
+                      <CheckCircle2 className="h-6 w-6 text-green-600" />
+                    )}
+                    {event.status === "FAILED" && (
+                      <XCircle className="h-6 w-6 text-red-600" />
+                    )}
+                    {event.status === "RUNNING" && (
+                      <Clock className="h-6 w-6 text-blue-600 animate-pulse" />
+                    )}
+                    {event.status === "PENDING" && (
+                      <AlertTriangle className="h-6 w-6 text-amber-600" />
                     )}
                   </div>
-                  <div className="whitespace-nowrap text-right text-sm text-gray-500">
-                    {format(parseISO(step.timestamp), "PPp")}
+
+                  <div className="min-w-0 flex-1 pt-1">
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {event.stepName || event.eventType}
+                        </p>
+                        <p className="mt-0.5 text-sm text-gray-600">
+                          {event.message}
+                        </p>
+                      </div>
+
+                      <div className="text-right text-sm text-gray-500 whitespace-nowrap">
+                        {format(currentTime, "HH:mm:ss")}
+                        {duration > 0 && (
+                          <span className="ml-2 text-xs text-gray-400">
+                            (+{duration}ms)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {event.errorMessage && (
+                      <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded border border-red-100">
+                        {event.errorMessage}
+                      </div>
+                    )}
+
+                    {event.traceId && (
+                      <div className="mt-1 text-xs text-gray-500 font-mono">
+                        Trace: {event.traceId}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

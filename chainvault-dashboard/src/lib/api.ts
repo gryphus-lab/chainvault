@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Migration, MigrationStats } from "../types";
+import type { Migration, MigrationStats, MigrationDetail } from "../types";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
@@ -22,5 +22,12 @@ export const getMigrationById = async (id: string): Promise<Migration> => {
 
 export const getStats = async (): Promise<MigrationStats> => {
   const res = await api.get("/migrations/stats");
+  return res.data;
+};
+
+export const getMigrationDetail = async (
+  id: string,
+): Promise<MigrationDetail> => {
+  const res = await api.get(`/migrations/${id}/detail`);
   return res.data;
 };

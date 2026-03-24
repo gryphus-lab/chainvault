@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getMigrations, getStats } from "../lib/api";
-import type { Migration, MigrationStats } from "../types";
+import type { Migration, MigrationStats, MigrationDetail } from "../types";
 
 export function useMigrationStats() {
   return useQuery<MigrationStats>({
@@ -15,5 +15,14 @@ export function useMigrations() {
     queryKey: ["migrations"],
     queryFn: () => getMigrations({ limit: 50 }),
     staleTime: 60 * 1000,
+  });
+}
+
+export function useMigrationDetail(id: string) {
+  return useQuery<MigrationDetail>({
+    queryKey: ["migration-detail", id],
+    queryFn: () => getMigrationDetail(id),
+    enabled: !!id,
+    staleTime: 30 * 1000,
   });
 }

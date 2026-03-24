@@ -288,6 +288,34 @@
                                 <file>${maven.multiModuleProjectDirectory}/license-header</file>
                             </licenseHeader>
                         </java>
+                        <typescript>
+                            <includes> <!-- You have to set the target manually -->
+                                <include>chainvault-dashboard/src/**/*.ts</include>
+                            </includes>
+
+                            <tsfmt>
+                                <typescriptFormatterVersion>7.2.2</typescriptFormatterVersion>
+                                <typescriptVersion>5.9.3</typescriptVersion>
+
+                                <config>
+                                    <indentSize>1</indentSize>
+                                    <convertTabsToSpaces>true</convertTabsToSpaces>
+                                </config>
+                                <tsconfigFile>chainvault-dashboard/tsconfig.json</tsconfigFile>
+                                <tsfmtFile>chainvault-dashboard/tsfmt.json</tsfmtFile>
+                            </tsfmt>
+                            <eslint>
+                                <!-- Specify at most one of the following 3 configs: either 'eslintVersion', 'devDependencies' or 'devDependencyProperties'  -->
+                                <eslintVersion>9.39.4</eslintVersion>
+                                <configFile>chainvault-dashboard/.eslintrc.js</configFile>
+                                <tsconfigFile>chainvault-dashboard/tsconfig.json</tsconfigFile>
+                            </eslint>
+
+                            <licenseHeader>
+                                <file>${maven.multiModuleProjectDirectory}/license-header</file>
+                                <delimiter>(import|const|declare|export|var) </delimiter>
+                            </licenseHeader>
+                        </typescript>
                         <pom>
                             <includes>
                                 <include>**/pom.xml</include>

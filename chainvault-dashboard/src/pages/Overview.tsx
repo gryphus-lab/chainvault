@@ -7,8 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
 import { Search, X } from "lucide-react";
 
-import { getMigrations, getMigrationStats } from "../lib/api";
-import type { Migration, MigrationStats } from "../types";
+import { getMigrations, getMigrationStats } from "@/lib/api";
+import type { Migration, MigrationStats } from "@/types";
 
 import { Badge } from "../components/ui/Badge";
 import {

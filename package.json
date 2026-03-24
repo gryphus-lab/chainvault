@@ -1,0 +1,14 @@
+{
+  "name": "chainvault",
+  "private": true,
+  "workspaces": [
+    "chainvault-migration",
+    "chainvault-orchestration",
+    "chainvault-dashboard"
+  ],
+  "scripts": {
+    "dev:dashboard": "yarn workspace chainvault-dashboard dev",
+    "build:dashboard": "yarn workspace chainvault-dashboard build",
+    "preview:dashboard": "yarn workspace chainvault-dashboard preview"
+  }
+}

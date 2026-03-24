@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Overview from './pages/Overview';
-import MigrationDetailPage from './pages/MigrationDetailPage';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Overview from "./pages/Overview";
+import MigrationDetailPage from "./pages/MigrationDetailPage";
 
 function App() {
   return (
@@ -12,7 +12,9 @@ function App() {
         {/* Header */}
         <header className="bg-white shadow">
           <div className="max-w-7xl mx-auto px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">ChainVault Migration Dashboard</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              ChainVault Migration Dashboard
+            </h1>
           </div>
         </header>
 

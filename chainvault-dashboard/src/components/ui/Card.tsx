@@ -27,7 +27,7 @@ export function CardHeader({ className, ...props }: Readonly<CardProps>) {
 export function CardTitle({ className, ...props }: Readonly<CardProps>) {
   return (
     <div
-  className={cn("text-lg font-medium text-gray-900", className)}
+      className={cn("text-lg font-medium text-gray-900", className)}
       {...props}
     />
   );

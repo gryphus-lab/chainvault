@@ -10,7 +10,10 @@ interface TimelineProps {
   isLoading?: boolean;
 }
 
-export default function Timeline({ events, isLoading = false }: Readonly<TimelineProps>) {
+export default function Timeline({
+  events,
+  isLoading = false,
+}: Readonly<TimelineProps>) {
   if (isLoading) {
     return (
       <div className="py-8 text-center text-gray-500">Loading timeline...</div>

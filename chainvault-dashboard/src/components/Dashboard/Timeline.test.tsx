@@ -80,10 +80,10 @@ describe("Timeline Component", () => {
     const eventWithoutStep: MigrationEvent = {
       ...mockEvents[0],
       stepName: undefined,
-      eventType: "SYSTEM_CHECK",
+      eventType: "TASK_STARTED",
     };
 
     render(<Timeline events={[eventWithoutStep]} />);
-    expect(screen.getByText("SYSTEM_CHECK")).toBeInTheDocument();
+    expect(screen.getByText("TASK_STARTED")).toBeInTheDocument();
   });
 });

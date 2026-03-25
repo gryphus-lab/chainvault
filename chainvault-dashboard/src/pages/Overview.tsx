@@ -107,7 +107,9 @@ export default function Overview() {
           <CardContent>
             <div className="space-y-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"
+                <div
+                  key={i}
+                  className="h-16 bg-gray-100 rounded-lg animate-pulse"
                 />
               ))}
             </div>

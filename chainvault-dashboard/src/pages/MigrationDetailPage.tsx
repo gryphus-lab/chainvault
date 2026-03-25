@@ -210,8 +210,7 @@ export default function MigrationDetailPage() {
           <CardContent>
             <p className="text-3xl font-bold">{migration.pageCount}</p>
             <p className="text-sm text-gray-500 mt-1">
-              OCR:{" "}
-              {getOcrAttemptedStatus(migration)}
+              OCR: {getOcrAttemptedStatus(migration)}
             </p>
           </CardContent>
         </Card>
@@ -259,9 +258,7 @@ export default function MigrationDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Success</span>
-                  <span>
-                    {getOcrStatus(migration)}
-                  </span>
+                  <span>{getOcrStatus(migration)}</span>
                 </div>
                 {migration.ocrPageCount && (
                   <div className="flex justify-between">

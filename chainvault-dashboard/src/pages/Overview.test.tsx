@@ -161,7 +161,7 @@ describe("Overview (with live events)", () => {
 
     await screen.findByText("First Migration");
 
-    const dateFilter = ["24h", "7d", "30d"]
+    const dateFilter = ["24h", "7d", "30d"];
     const AllTimeFilter = screen.getByDisplayValue("All Time");
     for (const filter of dateFilter) {
       fireEvent.change(AllTimeFilter, {
@@ -170,9 +170,8 @@ describe("Overview (with live events)", () => {
     }
 
     expect(screen.getByText("First Migration")).toBeInTheDocument();
-    expect(screen.getByText("Second Migration")).toBeInTheDocument()
+    expect(screen.getByText("Second Migration")).toBeInTheDocument();
     expect(screen.getByText("Really Old Migration")).toBeInTheDocument();
-
   });
 
   it("shows empty state when no results", async () => {

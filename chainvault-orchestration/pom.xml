@@ -222,20 +222,6 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-final-jar</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>install</phase>
-                        <inherited>false</inherited>
-                        <configuration>
-                            <target>
-                                <mkdir dir="${maven.multiModuleProjectDirectory}/target"/>
-                                <copy failonerror="true" file="${project.basedir}/target/chainvault-${project.version}.jar" todir="${maven.multiModuleProjectDirectory}/target"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>copy-react-build</id>
                         <goals>
                             <goal>run</goal>
@@ -247,6 +233,20 @@
                                 <copy failonerror="true" todir="${project.build.directory}/classes/static">
                                     <fileset dir="${maven.multiModuleProjectDirectory}/chainvault-dashboard/target/classes/static"/>
                                 </copy>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-final-jar</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${maven.multiModuleProjectDirectory}/target"/>
+                                <copy failonerror="true" file="${project.basedir}/target/chainvault-${project.version}.jar" todir="${maven.multiModuleProjectDirectory}/target"/>
                             </target>
                         </configuration>
                     </execution>

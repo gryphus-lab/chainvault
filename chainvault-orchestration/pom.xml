@@ -240,7 +240,7 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        <phase>install</phase>
+                        <phase>prepare-package</phase>
                         <inherited>false</inherited>
                         <configuration>
                             <target>

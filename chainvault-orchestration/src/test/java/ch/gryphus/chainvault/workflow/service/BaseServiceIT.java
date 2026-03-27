@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-package ch.gryphus.chainvault.service;
+package ch.gryphus.chainvault.workflow.service;
 
 import ch.gryphus.chainvault.config.Constants;
 import org.springframework.boot.test.context.SpringBootTest;

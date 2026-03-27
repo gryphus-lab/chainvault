@@ -96,11 +96,11 @@ deps = { run = "mvn dependency:tree", description = "Generate maven dependency t
 check = { run = [
   "yarn lint:dashboard",
   "yarn prettier-check:dashboard",
-  "mvn -q spotless:check",
+  "mvn spotless:check",
 ], description = "Check using yarn lint/prettier and spotless-maven-plugin" }
 fmt = { run = [
   "yarn lint-fix:dashboard",
   "yarn prettier:dashboard",
-  "mvn -q spotless:apply",
+  "mvn spotless:apply",
 ], description = "Format using yarn lint/prettier spotless-maven-plugin" }
 

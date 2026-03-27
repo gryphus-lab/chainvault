@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-package ch.gryphus.chainvault.service;
+package ch.gryphus.chainvault.workflow.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,7 +13,6 @@ import ch.gryphus.chainvault.model.entity.MigrationAudit;
 import ch.gryphus.chainvault.model.entity.MigrationEvent;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
 import ch.gryphus.chainvault.repository.MigrationEventRepository;
-import ch.gryphus.chainvault.workflow.service.AuditEventService;
 import io.opentelemetry.api.trace.Span;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

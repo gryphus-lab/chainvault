@@ -23,7 +23,7 @@ public class SseEmitterService {
 
         emitter.onCompletion(() -> emitters.remove(clientId));
         emitter.onTimeout(() -> emitters.remove(clientId));
-        emitter.onError(ex -> emitters.remove(clientId));
+        emitter.onError(_ -> emitters.remove(clientId));
 
         return emitter;
     }
@@ -36,7 +36,7 @@ public class SseEmitterService {
                                 emitter.send(
                                         SseEmitter.event().name("migration-event").data(event));
                             } catch (IOException _) {
-                                emitters.remove(emitter); // clean up dead emitters
+                                emitters.remove(emitter.toString()); // clean up dead emitters
                             }
                         });
     }

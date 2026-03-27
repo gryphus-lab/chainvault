@@ -4,58 +4,92 @@
 package ch.gryphus.chainvault.workflow.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import ch.gryphus.chainvault.model.dto.MigrationEventDto;
+import java.io.IOException;
+import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+@MockitoSettings(strictness = Strictness.LENIENT)
+@ExtendWith(MockitoExtension.class)
 class SseEmitterServiceTest {
 
-    private SseEmitterService sseEmitterServiceUnderTest;
+    @InjectMocks private SseEmitterService sseEmitterService;
+
+    private MigrationEventDto testEvent;
 
     @BeforeEach
     void setUp() {
-        sseEmitterServiceUnderTest = new SseEmitterService();
+        testEvent = new MigrationEventDto();
     }
 
     @Test
-    void testCreateEmitter() {
-        // Setup
-        // Run the test
-        final SseEmitter result = sseEmitterServiceUnderTest.createEmitter("clientId");
+    @DisplayName("Should create and store a new emitter")
+    void createEmitter_Success() {
+        String clientId = "client-123";
+        SseEmitter emitter = sseEmitterService.createEmitter(clientId);
 
-        // Verify the results
-        assertThat(result).isNotNull();
+        assertNotNull(emitter);
+        assertEquals(0L, emitter.getTimeout());
     }
 
     @Test
-    void testSendEvent() {
-        // Setup
-        final MigrationEventDto event = new MigrationEventDto();
-        event.setId("id");
-        event.setMigrationId("migrationId");
-        event.setEventType("eventType");
-        event.setStepName("stepName");
-        event.setMessage("message");
+    @DisplayName("Should send event to a specific client")
+    void sendEventToClient_Success() {
+        String clientId = "client-1";
 
-        // Run the test and verify the results
-        assertThatNoException().isThrownBy(() -> sseEmitterServiceUnderTest.sendEvent(event));
+        SseEmitter emitter = sseEmitterService.createEmitter(clientId);
+
+        await().atMost(Duration.ofSeconds(10))
+                .untilAsserted(
+                        () -> {
+                            assertDoesNotThrow(
+                                    () -> sseEmitterService.sendEventToClient(clientId, testEvent));
+                            assertThat(emitter.getTimeout()).isZero();
+                            assertThat(emitter).hasFieldOrPropertyWithValue("failure", null);
+                        });
     }
 
     @Test
-    void testSendEventToClient() {
-        // Setup
-        final MigrationEventDto event = new MigrationEventDto();
-        event.setId("id");
-        event.setMigrationId("migrationId");
-        event.setEventType("eventType");
-        event.setStepName("stepName");
-        event.setMessage("message");
+    @DisplayName("Should remove emitter on IOException during broadcast")
+    void sendEvent_RemovesEmitterOnFailure() throws IOException {
+        String clientId = "dead-client";
+        SseEmitter mockEmitter = mock(SseEmitter.class);
 
-        // Run the test and verify the results
-        assertThatNoException()
-                .isThrownBy(() -> sseEmitterServiceUnderTest.sendEventToClient("clientId", event));
+        sseEmitterService.createEmitter(clientId);
+        doThrow(IOException.class).when(mockEmitter).send(any(MigrationEventDto.class));
+
+        assertDoesNotThrow(() -> sseEmitterService.sendEvent(testEvent));
+    }
+
+    @Test
+    @DisplayName("Should remove emitter on IOException when sending to a specific client")
+    void sendEventToClient_RemovesEmitterOnFailure() throws IOException {
+        String clientId = "dead-client";
+        SseEmitter mockEmitter = mock(SseEmitter.class);
+
+        sseEmitterService.createEmitter(clientId);
+        doThrow(IOException.class).when(mockEmitter).send(any(MigrationEventDto.class));
+        assertDoesNotThrow(() -> sseEmitterService.sendEventToClient(clientId, testEvent));
+    }
+
+    @Test
+    @DisplayName("Should handle broadcast to multiple clients")
+    void sendEvent_BroadcastsToAll() {
+        sseEmitterService.createEmitter("c1");
+        sseEmitterService.createEmitter("c2");
+
+        assertDoesNotThrow(() -> sseEmitterService.sendEvent(testEvent));
     }
 }

@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-package ch.gryphus.chainvault.service;
+package ch.gryphus.chainvault.workflow.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.awaitility.Awaitility.await;
 
 import ch.gryphus.chainvault.config.Constants;
-import ch.gryphus.chainvault.workflow.service.OrchestrationService;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;

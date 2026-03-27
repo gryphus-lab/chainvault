@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-package ch.gryphus.chainvault.service;
+package ch.gryphus.chainvault.workflow.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import ch.gryphus.chainvault.config.Constants;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
-import ch.gryphus.chainvault.workflow.service.OrchestrationService;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanContext;

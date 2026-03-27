@@ -156,6 +156,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
@@ -180,6 +184,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -213,6 +221,21 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>copy-react-build</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <target>
+                                <copy failonerror="true" todir="${project.build.directory}/classes/static">
+                                    <fileset dir="${maven.multiModuleProjectDirectory}/chainvault-dashboard/target/classes/static"/>
+                                </copy>
+                            </target>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>copy-final-jar</id>
                         <goals>

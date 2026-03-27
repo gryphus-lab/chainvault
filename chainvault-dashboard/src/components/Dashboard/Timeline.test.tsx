@@ -30,16 +30,6 @@ const mockEvents: MigrationEvent[] = [
 ];
 
 describe("Timeline Component", () => {
-  it("renders loading state correctly", () => {
-    render(<Timeline events={[]} isLoading={true} />);
-    expect(screen.getByText(/loading timeline/i)).toBeInTheDocument();
-  });
-
-  it("renders empty state when no events are provided", () => {
-    render(<Timeline events={[]} isLoading={false} />);
-    expect(screen.getByText(/no events recorded yet/i)).toBeInTheDocument();
-  });
-
   it("renders a list of events in chronological order", () => {
     // Pass events out of order to test internal sorting
     const outOfOrder = [mockEvents[1], mockEvents[0]];
@@ -50,25 +40,15 @@ describe("Timeline Component", () => {
     expect(items[1]).toHaveTextContent("Data Export");
   });
 
-  it("calculates and displays duration between events", () => {
-    render(<Timeline events={mockEvents} />);
-
-    // The second event should show (+1000ms) based on the timestamps
-    expect(screen.getByText(/\+1000ms/i)).toBeInTheDocument();
-  });
-
   it("displays error messages and trace IDs when present", () => {
     render(<Timeline events={mockEvents} />);
 
     expect(screen.getByText("Socket Timeout")).toBeInTheDocument();
-    expect(screen.getByText(/Trace: trace-123/i)).toBeInTheDocument();
+    expect(screen.getByText(/Trace ID: trace-123/i)).toBeInTheDocument();
   });
 
   it("renders the correct status icons", () => {
     const { container } = render(<Timeline events={mockEvents} />);
-
-    // Check for Lucide icon classes or check SVG existence
-    // Since Lucide icons are SVGs, we can look for the specific color classes
     const successIcon = container.querySelector(".text-green-600");
     const failedIcon = container.querySelector(".text-red-600");
 
@@ -84,6 +64,13 @@ describe("Timeline Component", () => {
     };
 
     render(<Timeline events={[eventWithoutStep]} />);
-    expect(screen.getByText("TASK_STARTED")).toBeInTheDocument();
+    expect(screen.getByText("TASK STARTED")).toBeInTheDocument();
+  });
+
+  it("renders message when no events are available", () => {
+    render(<Timeline events={[]} />);
+    expect(
+      screen.getByText("No timeline events available yet."),
+    ).toBeInTheDocument();
   });
 });

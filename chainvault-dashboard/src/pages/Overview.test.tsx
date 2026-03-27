@@ -53,8 +53,8 @@ const baseMigrations = [
     docId: "doc-1",
     title: "First Migration",
     status: "PENDING",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(Date.now() - 60000).toISOString(),
+    updatedAt: new Date(Date.now() - 60000).toISOString(),
   },
   {
     id: "2",
@@ -69,8 +69,8 @@ const baseMigrations = [
     docId: "doc-really-old",
     title: "Really Old Migration",
     status: "SUCCESS",
-    createdAt: new Date(Date.now() - 300000).toISOString(),
-    updatedAt: new Date(Date.now() - 300000).toISOString(),
+    createdAt: new Date(Date.now() - 3000000000).toISOString(),
+    updatedAt: new Date(Date.now() - 3000000000).toISOString(),
   },
 ];
 
@@ -163,15 +163,19 @@ describe("Overview (with live events)", () => {
 
     const dateFilter = ["24h", "7d", "30d"];
     const AllTimeFilter = screen.getByDisplayValue("All Time");
+
     for (const filter of dateFilter) {
       fireEvent.change(AllTimeFilter, {
         target: { value: filter },
       });
-    }
 
-    expect(screen.getByText("First Migration")).toBeInTheDocument();
-    expect(screen.getByText("Second Migration")).toBeInTheDocument();
-    expect(screen.getByText("Really Old Migration")).toBeInTheDocument();
+      expect(screen.getByText("First Migration")).toBeInTheDocument();
+      expect(screen.getByText("Second Migration")).toBeInTheDocument();
+
+      expect(
+        screen.queryByText("Really Old Migration"),
+      ).not.toBeInTheDocument(); // older than 30d should never be displayed
+    }
   });
 
   it("shows empty state when no results", async () => {
@@ -219,10 +223,12 @@ describe("Overview (with live events)", () => {
     (getMigrations as any).mockResolvedValue([
       {
         ...baseMigrations[0],
+        createdAt: older,
         updatedAt: older,
       },
       {
         ...baseMigrations[1],
+        createdAt: older,
         updatedAt: older,
       },
     ]);

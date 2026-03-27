@@ -108,6 +108,31 @@ describe("MigrationDetailPage", () => {
     expect(screen.getByTestId("timeline")).toHaveTextContent("2 events");
   });
 
+  it("shows OCR information correctly", async () => {
+    (getMigrationDetail as any).mockResolvedValue(mockMigration);
+
+    renderWithRouter();
+
+    await screen.findByText("OCR & Processing");
+
+    expect(screen.getByText("Yes")).toBeInTheDocument(); // attempted
+    expect(screen.getByText("✅ Yes")).toBeInTheDocument(); // success
+    expect(screen.getByText("8")).toBeInTheDocument(); // pages processed
+    expect(screen.getByText(/5,000 chars/)).toBeInTheDocument();
+  });
+
+  it("shows if OCR was attempted correctly", async () => {
+    (getMigrationDetail as any).mockResolvedValue({
+      ...mockMigration,
+      ocrAttempted: false,
+    });
+
+    renderWithRouter();
+
+    await screen.findByText("OCR & Processing");
+    expect(screen.getByText("No")).toBeInTheDocument(); // attempted
+  });
+
   it("shows failure reason when present", async () => {
     (getMigrationDetail as any).mockResolvedValue({
       ...mockMigration,

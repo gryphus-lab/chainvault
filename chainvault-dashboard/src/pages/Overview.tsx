@@ -8,7 +8,7 @@ import { format, parseISO, subDays } from "date-fns";
 import { Search } from "lucide-react";
 
 import { getMigrations, getMigrationStats } from "@/lib/api";
-import { useMigrationEvents } from "@/hooks/useMigrationEvents.ts";
+import { useMigrationEvents } from "@/hooks/useMigrationEvents";
 
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -26,6 +26,20 @@ function getVariant(migration: Migration) {
       return "default";
   }
 }
+
+// Safe date formatting helper
+const safeFormat = (
+  dateStr: string | undefined | null,
+  fallback: string = "—",
+) => {
+  if (!dateStr) return fallback;
+  try {
+    return format(parseISO(dateStr), "PPp");
+  } catch (error) {
+    console.warn("Invalid date format:", dateStr, " with error: ", error);
+    return fallback;
+  }
+};
 
 export default function Overview() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,13 +71,15 @@ export default function Overview() {
     const merged = [...allMigrations];
 
     liveEvents.forEach((liveEvent) => {
+      if (!liveEvent?.migrationId) return;
+
       const index = merged.findIndex((m) => m.id === liveEvent.migrationId);
       if (index !== -1) {
         merged[index] = {
           ...merged[index],
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           status: liveEvent.status as any,
-          updatedAt: liveEvent.timestamp,
+          updatedAt: liveEvent.timestamp || merged[index].updatedAt,
         };
       }
     });
@@ -124,7 +140,7 @@ export default function Overview() {
         <div className="flex items-center gap-3">
           <div
             className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium
-    ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+              ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
           >
             <div
               className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}
@@ -295,10 +311,10 @@ export default function Overview() {
                         </Badge>
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-500">
-                        {format(parseISO(migration.createdAt), "PPp")}
+                        {safeFormat(migration.createdAt)}
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-500">
-                        {format(parseISO(migration.updatedAt), "PPp")}
+                        {safeFormat(migration.updatedAt)}
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-right">
                         <Link

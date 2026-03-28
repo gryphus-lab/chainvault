@@ -49,7 +49,10 @@ describe("useMigrationEvents", () => {
     const instance = MockEventSource.instances[0];
 
     const mockEvent = {
+      id: "1",
       migrationId: "1",
+      eventType: "extract-hash",
+      message: "extract-hash completed successfully",
       status: "SUCCESS",
       timestamp: new Date().toISOString(),
     };
@@ -73,7 +76,10 @@ describe("useMigrationEvents", () => {
       for (let i = 0; i < 60; i++) {
         instance.onmessage?.({
           data: JSON.stringify({
+            id: `${i}`,
             migrationId: `${i}`,
+            eventType: "extract-hash",
+            message: "extract-hash completed successfully",
             status: "SUCCESS",
             timestamp: new Date().toISOString(),
           }),
@@ -129,7 +135,10 @@ describe("useMigrationEvents", () => {
     act(() => {
       instance.onmessage?.({
         data: JSON.stringify({
+          id: "1",
           migrationId: "1",
+          eventType: "extract-hash",
+          message: "extract-hash completed successfully",
           status: "SUCCESS",
           timestamp: new Date().toISOString(),
         }),

@@ -14,7 +14,6 @@ export function useMigrationEvents() {
       eventSourceRef.current.close();
     }
 
-    // Relative URL - important when served from Spring Boot / Thymeleaf
     const url = "/api/migrations/events";
     console.log(`[SSE] Connecting to: ${url}`);
 
@@ -22,17 +21,37 @@ export function useMigrationEvents() {
     eventSourceRef.current = eventSource;
 
     eventSource.onopen = () => {
-      console.log("✅ SSE connected successfully (same origin)");
+      console.log("✅ SSE connected successfully");
       setIsConnected(true);
     };
 
     eventSource.onmessage = (event) => {
       try {
-        const newEvent: MigrationEvent = JSON.parse(event.data);
-        console.log("📥 Received live migration event:", newEvent);
+        const rawData = event.data.trim();
+        console.log("📥 Raw SSE data received:", rawData);
+
+        if (!rawData) return;
+
+        const newEvent: MigrationEvent = JSON.parse(rawData);
+
+        if (!newEvent?.id || !newEvent?.timestamp) {
+          console.warn("⚠️ Received incomplete event:", newEvent);
+          return;
+        }
+
+        console.log(
+          "✅ Successfully parsed event:",
+          newEvent.eventType,
+          newEvent.message,
+        );
+
         setEvents((prev) => [newEvent, ...prev].slice(0, 100));
       } catch (err) {
-        console.error("❌ Failed to parse SSE event:", event.data, err);
+        console.error(
+          "❌ Failed to parse SSE event. Raw data:",
+          event.data,
+          err,
+        );
       }
     };
 
@@ -41,9 +60,9 @@ export function useMigrationEvents() {
       setIsConnected(false);
       eventSource.close();
 
-      // Auto-reconnect after 3 seconds
+      // Auto-reconnect
       setTimeout(() => {
-        console.log("🔄 Reconnecting SSE...");
+        console.log("🔄 Attempting SSE reconnect...");
         // eslint-disable-next-line react-hooks/immutability
         connect();
       }, 3000);
@@ -62,10 +81,5 @@ export function useMigrationEvents() {
   const clearEvents = () => setEvents([]);
   const reconnect = connect;
 
-  return {
-    events,
-    isConnected,
-    clearEvents,
-    reconnect,
-  };
+  return { events, isConnected, clearEvents, reconnect };
 }

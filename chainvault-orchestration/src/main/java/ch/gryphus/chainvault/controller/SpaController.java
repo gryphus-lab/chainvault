@@ -26,7 +26,7 @@ public class SpaController {
     // Catch-all for other SPA routes, but EXCLUDE /api/*
     @GetMapping(value = "/**/{path:[^.]*}")
     public String forwardSpaRoutes(@PathVariable String path) {
-        log.info("catch all for other SPA route: {}", path);
+        log.debug("catch all for other SPA route: {}", path);
         return "forward:/index.html";
     }
 }

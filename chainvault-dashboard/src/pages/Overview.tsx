@@ -5,7 +5,7 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
-import { Search } from "lucide-react";
+import { Search, Clock } from "lucide-react";
 
 import { getMigrations, getMigrationStats } from "@/lib/api";
 import { useMigrationEvents } from "@/hooks/useMigrationEvents";
@@ -15,6 +15,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Migration } from "@/types";
 
 type StatusFilter = "ALL" | "SUCCESS" | "FAILED" | "RUNNING" | "PENDING";
+
+const safeFormat = (
+  dateStr: string | undefined | null,
+  fallback: string = "—",
+) => {
+  if (!dateStr) return fallback;
+  try {
+    return format(parseISO(dateStr), "PPp");
+  } catch {
+    return fallback;
+  }
+};
 
 function getVariant(migration: Migration) {
   switch (migration.status) {
@@ -26,20 +38,6 @@ function getVariant(migration: Migration) {
       return "default";
   }
 }
-
-// Safe date formatting helper
-const safeFormat = (
-  dateStr: string | undefined | null,
-  fallback: string = "—",
-) => {
-  if (!dateStr) return fallback;
-  try {
-    return format(parseISO(dateStr), "PPp");
-  } catch (error) {
-    console.warn("Invalid date format:", dateStr, " with error: ", error);
-    return fallback;
-  }
-};
 
 export default function Overview() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,13 +64,11 @@ export default function Overview() {
     reconnect,
   } = useMigrationEvents();
 
-  // Merge live events into migrations (for real-time status updates)
+  // Merge live status updates
   const migrationsWithLive = useMemo(() => {
     const merged = [...allMigrations];
-
     liveEvents.forEach((liveEvent) => {
       if (!liveEvent?.migrationId) return;
-
       const index = merged.findIndex((m) => m.id === liveEvent.migrationId);
       if (index !== -1) {
         merged[index] = {
@@ -83,7 +79,6 @@ export default function Overview() {
         };
       }
     });
-
     return merged;
   }, [allMigrations, liveEvents]);
 
@@ -121,7 +116,6 @@ export default function Overview() {
       );
     }
 
-    // Sort by most recent first
     return result.sort(
       (a, b) =>
         new Date(b.updatedAt || b.createdAt).getTime() -
@@ -131,7 +125,7 @@ export default function Overview() {
 
   return (
     <div className="space-y-8">
-      {/* Header with Connection Status */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">
           Migration Dashboard
@@ -140,7 +134,7 @@ export default function Overview() {
         <div className="flex items-center gap-3">
           <div
             className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium
-              ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+            ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
           >
             <div
               className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}
@@ -154,7 +148,6 @@ export default function Overview() {
           >
             Reconnect
           </button>
-
           <button
             onClick={clearEvents}
             className="flex items-center gap-2 px-4 py-1.5 text-sm border border-gray-300 rounded-xl hover:bg-gray-50"
@@ -163,6 +156,50 @@ export default function Overview() {
           </button>
         </div>
       </div>
+
+      {/* Live Events Panel - NEW */}
+      {liveEvents.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Live Events ({liveEvents.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-h-80 overflow-y-auto space-y-3">
+              {liveEvents.slice(0, 10).map((event, idx) => (
+                <div
+                  key={idx}
+                  className="flex gap-4 p-3 bg-gray-50 rounded-xl text-sm"
+                >
+                  <div className="font-mono text-xs text-gray-500 whitespace-nowrap pt-0.5">
+                    {event.timestamp
+                      ? format(parseISO(event.timestamp), "HH:mm:ss")
+                      : "—"}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium">
+                      {event.stepName || event.eventType}
+                    </div>
+                    <div className="text-gray-600">{event.message}</div>
+                    {event.migrationId && (
+                      <div className="text-xs text-blue-600 mt-1">
+                        Migration: {event.migrationId}
+                      </div>
+                    )}
+                  </div>
+                  <Badge
+                    variant={event.status === "SUCCESS" ? "success" : "default"}
+                  >
+                    {event.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">

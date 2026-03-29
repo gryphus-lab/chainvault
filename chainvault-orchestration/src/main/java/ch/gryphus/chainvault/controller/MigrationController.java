@@ -8,11 +8,14 @@ import ch.gryphus.chainvault.model.entity.MigrationDetail;
 import ch.gryphus.chainvault.model.entity.MigrationStats;
 import ch.gryphus.chainvault.workflow.service.AuditEventService;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/migrations") // ← This must be present
+@RequestMapping("/api/migrations")
 public class MigrationController {
 
     private final AuditEventService auditEventService;

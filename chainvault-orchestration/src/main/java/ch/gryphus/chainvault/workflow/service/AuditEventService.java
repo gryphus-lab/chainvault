@@ -221,13 +221,12 @@ public class AuditEventService {
     public MigrationDetail getDetail(String id) {
         MigrationDetail detail = new MigrationDetail();
 
-        Optional<MigrationAudit> auditRecord = auditRepo.findByProcessInstanceKey(id);
-        if (auditRecord.isPresent()) {
-            detail.setPdfUrl(auditRecord.get().getOutputFileKey());
-            detail.setChainZipUrl(auditRecord.get().getChainOfCustodyZip());
-            detail.setEvents(
-                    eventRepo.findByMigrationAuditIdOrderByCreatedAtAsc(auditRecord.get().getId()));
-        }
+        Optional<MigrationAudit> auditRecord =
+                Optional.of(auditRepo.getReferenceById(Long.valueOf(id)));
+        detail.setPdfUrl(auditRecord.get().getOutputFileKey());
+        detail.setChainZipUrl(auditRecord.get().getChainOfCustodyZip());
+        detail.setEvents(
+                eventRepo.findByMigrationAuditIdOrderByCreatedAtAsc(auditRecord.get().getId()));
 
         return detail;
     }

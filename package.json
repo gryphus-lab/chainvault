@@ -4,7 +4,8 @@
   "workspaces": [
     "chainvault-migration",
     "chainvault-orchestration",
-    "chainvault-dashboard"
+    "chainvault-dashboard",
+    "chainvault-admin-ui"
   ],
   "scripts": {
     "dev:dashboard": "yarn workspace chainvault-dashboard dev",

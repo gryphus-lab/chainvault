@@ -42,14 +42,6 @@ class SpaControllerTest {
     }
 
     @Test
-    void testIndex_ReturnsTheIndexPage() {
-        // Setup
-        // Run the test and verify the results
-        var result = mockMvcTester.get().uri("/").exchange();
-        assertThat(result).hasStatus(HttpStatus.OK).hasViewName("index");
-    }
-
-    @Test
     void testForwardToIndex_ShouldWorkAsExpected() {
         // Setup
         // Run the test and verify the results

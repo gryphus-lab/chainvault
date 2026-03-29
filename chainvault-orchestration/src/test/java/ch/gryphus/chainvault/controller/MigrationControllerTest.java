@@ -89,7 +89,7 @@ class MigrationControllerTest {
                 mockMvcTester.perform(get("/api/migrations").accept(MediaType.APPLICATION_JSON));
 
         assertThat(result).hasStatus(HttpStatus.OK).hasContentType(MediaType.APPLICATION_JSON);
-        assertThat(result.getResponse().getContentLength()).isEqualTo(0);
+        assertThat(result.getResponse().getContentLength()).isZero();
     }
 
     @Test
@@ -131,7 +131,10 @@ class MigrationControllerTest {
                         get("/api/migrations/{id}/detail", "id")
                                 .accept(MediaType.APPLICATION_JSON));
 
-        assertThat(result).hasStatus(HttpStatus.OK).hasContentType(MediaType.APPLICATION_JSON);
-        assertThat(result).bodyJson().hasPath("events");
+        assertThat(result)
+                .hasStatus(HttpStatus.OK)
+                .hasContentType(MediaType.APPLICATION_JSON)
+                .bodyJson()
+                .hasPath("events");
     }
 }

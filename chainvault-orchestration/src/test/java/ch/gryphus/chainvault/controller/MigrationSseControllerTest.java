@@ -10,7 +10,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import ch.gryphus.chainvault.config.TraceIdFilter;
-import ch.gryphus.chainvault.workflow.service.SseEmitterService;
+import ch.gryphus.chainvault.service.SseEmitterService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

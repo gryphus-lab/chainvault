@@ -10,10 +10,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import ch.gryphus.chainvault.config.TraceIdFilter;
-import ch.gryphus.chainvault.model.entity.Migration;
-import ch.gryphus.chainvault.model.entity.MigrationDetail;
+import ch.gryphus.chainvault.model.dto.Migration;
+import ch.gryphus.chainvault.model.dto.MigrationDetail;
+import ch.gryphus.chainvault.model.dto.MigrationStats;
 import ch.gryphus.chainvault.model.entity.MigrationEvent;
-import ch.gryphus.chainvault.model.entity.MigrationStats;
 import ch.gryphus.chainvault.workflow.service.AuditEventService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

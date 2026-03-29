@@ -4,8 +4,8 @@
 package ch.gryphus.chainvault.workflow.delegate;
 
 import ch.gryphus.chainvault.service.MigrationService;
+import ch.gryphus.chainvault.service.SseEmitterService;
 import ch.gryphus.chainvault.workflow.service.AuditEventService;
-import ch.gryphus.chainvault.workflow.service.SseEmitterService;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import java.io.IOException;

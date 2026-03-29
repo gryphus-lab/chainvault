@@ -12,9 +12,6 @@
     <artifactId>chainvault-orchestration</artifactId>
     <name>${project.groupId}::${project.artifactId}</name>
     <description>Flowable BPMN orchestration layer: process definition, delegates and REST API.</description>
-    <properties>
-        <start-class>ch.gryphus.chainvault.MigrationApplication</start-class>
-    </properties>
     
     <dependencies>
         <dependency>

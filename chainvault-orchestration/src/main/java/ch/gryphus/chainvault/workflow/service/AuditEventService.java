@@ -5,7 +5,9 @@ package ch.gryphus.chainvault.workflow.service;
 
 import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.model.entity.MigrationAudit;
+import ch.gryphus.chainvault.model.entity.MigrationDetail;
 import ch.gryphus.chainvault.model.entity.MigrationEvent;
+import ch.gryphus.chainvault.model.entity.MigrationStats;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
 import ch.gryphus.chainvault.repository.MigrationEventRepository;
 import io.opentelemetry.api.common.AttributeKey;
@@ -13,12 +15,11 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.engine.delegate.BpmnError;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -201,5 +202,33 @@ public class AuditEventService {
 
         // Throw BPMN error to trigger boundary event
         throw new BpmnError(errorCode, exception.getMessage());
+    }
+
+    public List<MigrationAudit> getMigrations(int limit) {
+        return auditRepo.getTopByCompletedAtIsNotNull(Limit.of(limit));
+    }
+
+    public MigrationStats getStats() {
+        MigrationStats stats = new MigrationStats();
+        stats.setTotal(auditRepo.count());
+        stats.setSuccess(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.SUCCESS));
+        stats.setFailed(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.FAILED));
+        stats.setPending(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.PENDING));
+        stats.setRunning(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.RUNNING));
+        return stats;
+    }
+
+    public MigrationDetail getDetail(String id) {
+        MigrationDetail detail = new MigrationDetail();
+
+        Optional<MigrationAudit> auditRecord = auditRepo.findByProcessInstanceKey(id);
+        if (auditRecord.isPresent()) {
+            detail.setPdfUrl(auditRecord.get().getOutputFileKey());
+            detail.setChainZipUrl(auditRecord.get().getChainOfCustodyZip());
+            detail.setEvents(
+                    eventRepo.findByMigrationAuditIdOrderByCreatedAtAsc(auditRecord.get().getId()));
+        }
+
+        return detail;
     }
 }

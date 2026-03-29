@@ -188,9 +188,7 @@ describe("Overview (with live events)", () => {
       { target: { value: "zzz" } },
     );
 
-    expect(
-      screen.getByText("No migrations found matching your filters."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("No migrations found yet.")).toBeInTheDocument();
   });
 
   it("applies live event updates to migrations", async () => {

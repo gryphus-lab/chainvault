@@ -3,18 +3,19 @@
  */
 package ch.gryphus.chainvault.workflow.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatException;
-import static org.assertj.core.api.Assertions.assertThatRuntimeException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import ch.gryphus.chainvault.domain.MigrationContext;
+import ch.gryphus.chainvault.model.dto.Migration;
+import ch.gryphus.chainvault.model.dto.MigrationDetail;
+import ch.gryphus.chainvault.model.dto.MigrationStats;
 import ch.gryphus.chainvault.model.entity.*;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
 import ch.gryphus.chainvault.repository.MigrationEventRepository;
 import io.opentelemetry.api.trace.Span;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -454,7 +455,7 @@ class AuditEventServiceTest {
                         .ocrErrorMessage("errorMsg")
                         .ocrCompletedAt(Instant.now())
                         .build();
-        when(mockAuditRepo.getReferenceById(any())).thenReturn(migrationAudit);
+        when(mockAuditRepo.findById(any())).thenReturn(Optional.ofNullable(migrationAudit));
 
         // Configure MigrationEventRepository.getAllByMigrationAuditId(...).
         final List<MigrationEvent> migrationEvents =
@@ -480,24 +481,13 @@ class AuditEventServiceTest {
     }
 
     @Test
-    void testGetDetail_MigrationEventRepositoryReturnsNoItems() {
+    void testGetDetail_ShouldThrowExceptionWhenIdDoesNotExist() {
         // Setup
-        MigrationAudit mockAudit = mock(MigrationAudit.class);
-        when(mockAuditRepo.getReferenceById(any())).thenReturn(mockAudit);
-        when(mockEventRepo.getAllByMigrationAuditId(any())).thenReturn(Collections.emptyList());
+        String nonExistentId = "999";
 
         // Run the test
-        final MigrationDetail result = auditEventServiceUnderTest.getDetail("123");
-
-        // Verify the results
-        assertThat(result)
-                .hasAllNullFieldsOrPropertiesExcept(
-                        "events",
-                        "pageCount",
-                        "ocrAttempted",
-                        "ocrSuccess",
-                        "ocrPageCount",
-                        "ocrTotalTextLength");
-        assertThat(result.getEvents()).isEmpty();
+        assertThatExceptionOfType(EntityNotFoundException.class)
+                .isThrownBy(() -> auditEventServiceUnderTest.getDetail(nonExistentId))
+                .withMessageContaining("Migration not found: %s".formatted(nonExistentId));
     }
 }

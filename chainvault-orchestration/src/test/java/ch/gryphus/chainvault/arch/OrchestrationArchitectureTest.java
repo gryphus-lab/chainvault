@@ -21,6 +21,8 @@ class OrchestrationArchitectureTest {
                     .consideringAllDependencies()
                     .layer("Controller")
                     .definedBy("..controller..")
+                    .layer("Service")
+                    .definedBy("..service..")
                     .layer("Workflow")
                     .definedBy("..workflow..")
                     .layer("Repository")
@@ -38,7 +40,7 @@ class OrchestrationArchitectureTest {
                     .whereLayer("Repository")
                     .mayOnlyBeAccessedByLayers("Workflow")
 
-                    // Entities can be used by repo + workflow
+                    // Entities can be used by repo + service + workflow
                     .whereLayer("Model")
-                    .mayOnlyBeAccessedByLayers("Workflow", "Repository");
+                    .mayOnlyBeAccessedByLayers("Service", "Workflow", "Repository");
 }

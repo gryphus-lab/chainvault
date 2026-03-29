@@ -151,7 +151,7 @@ management:
     export:
       otlp:
         enabled: true
-        endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318)/v1/metricsmanagement
+        endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/metricsmanagement
   endpoints:
     web:
       exposure:

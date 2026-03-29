@@ -4,6 +4,9 @@
 package ch.gryphus.chainvault.workflow.service;
 
 import ch.gryphus.chainvault.domain.MigrationContext;
+import ch.gryphus.chainvault.model.dto.Migration;
+import ch.gryphus.chainvault.model.dto.MigrationDetail;
+import ch.gryphus.chainvault.model.dto.MigrationStats;
 import ch.gryphus.chainvault.model.entity.*;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
 import ch.gryphus.chainvault.repository.MigrationEventRepository;
@@ -11,6 +14,7 @@ import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.Instant;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -232,21 +236,22 @@ public class AuditEventService {
     }
 
     public MigrationDetail getDetail(String id) {
-
-        Optional<MigrationAudit> auditRecord =
-                Optional.of(auditRepo.getReferenceById(Long.valueOf(id)));
-
         MigrationDetail detail = new MigrationDetail();
-        detail.setDocId(auditRecord.get().getDocumentId());
-        detail.setCreatedAt(auditRecord.get().getCreatedAt());
-        detail.setOcrPageCount(auditRecord.get().getOcrPageCount());
-        detail.setOcrAttempted(auditRecord.get().getOcrAttempted());
-        detail.setOcrSuccess(auditRecord.get().getOcrSuccess());
-        detail.setOcrTotalTextLength(auditRecord.get().getOcrTotalTextLength());
-        detail.setTraceId(auditRecord.get().getTraceId());
-        detail.setEvents(eventRepo.getAllByMigrationAuditId((auditRecord.get().getId())));
-        detail.setChainZipUrl(auditRecord.get().getChainOfCustodyZip());
-        detail.setPdfUrl(auditRecord.get().getOutputFileKey());
+        MigrationAudit audit =
+                auditRepo
+                        .findById(Long.valueOf(id))
+                        .orElseThrow(
+                                () -> new EntityNotFoundException("Migration not found: " + id));
+        detail.setDocId(audit.getDocumentId());
+        detail.setCreatedAt(audit.getCreatedAt());
+        detail.setOcrPageCount(audit.getOcrPageCount());
+        detail.setOcrAttempted(audit.getOcrAttempted());
+        detail.setOcrSuccess(audit.getOcrSuccess());
+        detail.setOcrTotalTextLength(audit.getOcrTotalTextLength());
+        detail.setTraceId(audit.getTraceId());
+        detail.setEvents(eventRepo.getAllByMigrationAuditId((audit.getId())));
+        detail.setChainZipUrl(audit.getChainOfCustodyZip());
+        detail.setPdfUrl(audit.getOutputFileKey());
         return detail;
     }
 }

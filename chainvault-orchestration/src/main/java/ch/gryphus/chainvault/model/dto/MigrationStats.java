@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-package ch.gryphus.chainvault.model.entity;
+package ch.gryphus.chainvault.model.dto;
 
 import lombok.Data;
 

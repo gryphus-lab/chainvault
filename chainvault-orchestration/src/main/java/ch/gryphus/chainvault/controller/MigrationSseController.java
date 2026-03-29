@@ -3,9 +3,8 @@
  */
 package ch.gryphus.chainvault.controller;
 
-import ch.gryphus.chainvault.workflow.service.SseEmitterService;
+import ch.gryphus.chainvault.service.SseEmitterService;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +14,13 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequestMapping("/api/migrations")
-@RequiredArgsConstructor
 public class MigrationSseController {
 
     private final SseEmitterService sseEmitterService;
+
+    public MigrationSseController(SseEmitterService sseEmitterService) {
+        this.sseEmitterService = sseEmitterService;
+    }
 
     @GetMapping(value = "/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamMigrationEvents(@RequestParam(required = false) String clientId) {

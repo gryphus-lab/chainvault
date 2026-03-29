@@ -1,18 +1,16 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-package ch.gryphus.chainvault.workflow.service;
+package ch.gryphus.chainvault.service;
 
 import ch.gryphus.chainvault.model.dto.MigrationEventDto;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import tools.jackson.databind.ObjectMapper;
 
-@Transactional
 @Service
 public class SseEmitterService {
 

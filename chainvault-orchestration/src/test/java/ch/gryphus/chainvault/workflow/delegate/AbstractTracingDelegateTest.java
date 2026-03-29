@@ -8,8 +8,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
+import ch.gryphus.chainvault.service.SseEmitterService;
 import ch.gryphus.chainvault.workflow.service.AuditEventService;
-import ch.gryphus.chainvault.workflow.service.SseEmitterService;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;

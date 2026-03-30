@@ -2698,6 +2698,7 @@ __metadata:
     "@nivo/line": "npm:^0.99.0"
     "@nivo/pie": "npm:^0.99.0"
     "@nivo/stream": "npm:^0.99.0"
+    "@testing-library/jest-dom": "npm:^6.9.1"
     "@types/node": "npm:^25.5.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
@@ -2719,6 +2720,7 @@ __metadata:
     typescript: "npm:~5.9.3"
     typescript-eslint: "npm:^8.57.2"
     vite: "npm:^8.0.3"
+    vitest: "npm:^4.1.2"
     yup: "npm:^1.7.1"
   languageName: unknown
   linkType: soft

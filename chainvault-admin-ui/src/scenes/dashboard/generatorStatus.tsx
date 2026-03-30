@@ -1,5 +1,5 @@
 import { Box, useTheme, Typography } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { allGeneratorsData } from "../../data/allGeneratorsData";
 import { tokens } from "../../theme";
 
@@ -105,7 +105,7 @@ const GeneratorStatus = () => {
             color: `${colors.gray[100]} !important`,
           },
           "& .css-1uh4g4p .MuiDataGrid-columnHeaderTitle": {
-             color: `${colors.primary[100]} !important`,
+            color: `${colors.primary[100]} !important`,
           },
         }}
       >

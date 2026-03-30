@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 

@@ -1,29 +1,21 @@
-import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
-import Plot from "react-plotly.js";
+import { useState } from "react";
+import { Box } from "@mui/material";
 import Chart from "react-apexcharts";
-import { fleetData } from "../../data/fleetData";
 import AvgEngineLoadsChart from "./avgEngineLoadsChart";
 import FleetFuelLevelChart from "./fleetFuelLevelChart";
 import FeetOverviewDataBox from "./feetOverviewDataBox";
-import Geography from "../geography";
-import { GeographyChart } from "../../components";
 import { availableMetrics } from "../../data/availableMetrics";
 import MetricTrendModal from "./metricTrendModal";
 
 const AvgEngineLoadsFleetFuelLevel = ({
-  theme,
   colors,
   isXlDevices,
   selectedData,
 }) => {
-  // const [selectedRegion] = useState(Object.keys(fleetData)[0]);
   const [modalMetricTitle, setModalMetricTitle] = useState();
   const [modalChartType, setModalChartType] = useState("line");
   const [modalMetricData, setModalMetricData] = useState([]);
   const [isMetricTrendModalOpen, setIsMetricTrendModalOpen] = useState(false);
-  // const selectedData = fleetData[selectedRegion];
-
   const openMetricTrendModal = (metricType, metricValue, chartType) => {
     setModalMetricTitle(`Historical Trend (${metricType})`);
     setModalChartType(chartType);
@@ -39,12 +31,12 @@ const AvgEngineLoadsFleetFuelLevel = ({
       dataPoints.push(
         Math.max(
           0,
-          Math.min(metricConfig?.max || 100, metricValue + fluctuation)
-        )
+          Math.min(metricConfig?.max || 100, metricValue + fluctuation),
+        ),
       );
     }
     setModalMetricData(
-      dataPoints.map((value, index) => ({ name: labels[index], value: value }))
+      dataPoints.map((value, index) => ({ name: labels[index], value: value })),
     );
     setIsMetricTrendModalOpen(true);
   };
@@ -100,37 +92,6 @@ const AvgEngineLoadsFleetFuelLevel = ({
     );
   };
 
-  const PlotlyGaugeChart = ({ title, value }) => (
-    <Plot
-      data={[
-        {
-          type: "indicator",
-          mode: "gauge+number",
-          value: value,
-          gauge: {
-            axis: {
-              range: [0, 100],
-              tickmode: "array",
-              tickvals: [0, 20, 40, 60, 80, 100],
-            },
-            bar: { color: "#2f3e46" },
-            steps: [
-              { range: [0, 80], color: "#4ade80" }, // green
-              { range: [80, 90], color: "#facc15" }, // yellow
-              { range: [90, 100], color: "#f87171" }, // red
-            ],
-          },
-          number: { suffix: "%" },
-        },
-      ]}
-      layout={{
-        width: 350,
-        height: 400,
-        margin: { t: 0, b: 0, l: 10, r: 10 },
-        title: { text: title, font: { size: 16 } },
-      }}
-    />
-  );
 
   return (
     <>
@@ -144,7 +105,7 @@ const AvgEngineLoadsFleetFuelLevel = ({
           openMetricTrendModal(
             "Average Engine Load",
             selectedData?.avgEngineLoad,
-            "line"
+            "line",
           )
         }
       >
@@ -157,7 +118,6 @@ const AvgEngineLoadsFleetFuelLevel = ({
         >
           <AvgEngineLoadsChart
             ApexGaugeChart={ApexGaugeChart}
-            PlotlyGaugeChart={PlotlyGaugeChart}
             selectedData={selectedData}
           />
         </Box>
@@ -173,7 +133,7 @@ const AvgEngineLoadsFleetFuelLevel = ({
           openMetricTrendModal(
             "Fleet Fuel Level",
             selectedData?.fleetFuelLevel,
-            "line"
+            "line",
           )
         }
       >
@@ -186,31 +146,10 @@ const AvgEngineLoadsFleetFuelLevel = ({
         >
           <FleetFuelLevelChart
             ApexGaugeChart={ApexGaugeChart}
-            PlotlyGaugeChart={PlotlyGaugeChart}
             selectedData={selectedData}
           />
         </Box>
       </Box>
-
-      <Box
-        gridColumn={isXlDevices ? "span 4" : "span 4"}
-        gridRow="span 2"
-        backgroundColor={colors.primary[400]}
-        padding="30px"
-      >
-        <Typography variant="h5" fontWeight="600" mb="15px">
-          Geography Based Traffic
-        </Typography>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          height="200px"
-        >
-          <GeographyChart isDashboard={true} />
-        </Box>
-      </Box>
-
       <FeetOverviewDataBox
         colors={colors}
         selectedData={selectedData}

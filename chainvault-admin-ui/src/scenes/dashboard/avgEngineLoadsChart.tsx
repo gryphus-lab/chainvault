@@ -1,7 +1,6 @@
 import React from "react";
 
-const AvgEngineLoadsChart = ({ ApexGaugeChart, PlotlyGaugeChart, selectedData }) => {
-
+const AvgEngineLoadsChart = ({ ApexGaugeChart, selectedData }) => {
   return (
     <>
       <ApexGaugeChart

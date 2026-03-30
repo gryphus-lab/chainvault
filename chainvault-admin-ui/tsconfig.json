@@ -13,6 +13,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
+    "allowJs": true,
+    "checkJs": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,

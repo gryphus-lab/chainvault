@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Box } from "@mui/material";
 import { StatBox } from "../../components";
 import PowerIcon from "@mui/icons-material/Power";
@@ -24,7 +23,7 @@ const FeetOverviewDataBox = ({
           openMetricTrendModal(
             "Total Real Power",
             parseFloat(selectedData?.totalRealPower),
-            "line"
+            "line",
           )
         }
       >
@@ -51,7 +50,7 @@ const FeetOverviewDataBox = ({
           openMetricTrendModal(
             "Total Fuel Consumption",
             parseFloat(selectedData?.totalFuelConsumption),
-            "line"
+            "line",
           )
         }
       >
@@ -78,7 +77,7 @@ const FeetOverviewDataBox = ({
           openMetricTrendModal(
             "Active Generators",
             parseInt(selectedData?.activeGenerators.split("/")[0]),
-            "bar"
+            "bar",
           )
         }
       >
@@ -105,7 +104,7 @@ const FeetOverviewDataBox = ({
           openMetricTrendModal(
             "System Alerts",
             parseInt(selectedData?.systemAlerts),
-            "bar"
+            "bar",
           )
         }
       >

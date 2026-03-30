@@ -1,4 +1,11 @@
-import { Box, useMediaQuery, useTheme, Typography, Select, MenuItem } from "@mui/material";
+import {
+  Box,
+  useMediaQuery,
+  useTheme,
+  Typography,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { Header } from "../../components";
 import AvgEngineLoadsFleetFuelLevel from "./avgEngineLoadsFleetFuelLevel";
 import GeneratorStatus from "./generatorStatus";
@@ -12,7 +19,9 @@ function Dashboard() {
   const isXlDevices = useMediaQuery("(min-width: 1260px)");
   const isMdDevices = useMediaQuery("(min-width: 724px)");
   const isXsDevices = useMediaQuery("(max-width: 436px)");
-  const [selectedRegion, setSelectedRegion] = useState(Object.keys(fleetData)[0]);
+  const [selectedRegion, setSelectedRegion] = useState(
+    Object.keys(fleetData)[0],
+  );
   const selectedData = fleetData[selectedRegion];
 
   return (
@@ -51,8 +60,8 @@ function Dashboard() {
           isXlDevices
             ? "repeat(12, 1fr)"
             : isMdDevices
-            ? "repeat(6, 1fr)"
-            : "repeat(3, 1fr)"
+              ? "repeat(6, 1fr)"
+              : "repeat(3, 1fr)"
         }
         gridAutoRows="140px"
         gap="20px"

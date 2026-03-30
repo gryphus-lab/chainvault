@@ -44,7 +44,7 @@ function App() {
               maxWidth="xl"
               sx={{
                 flex: 1,
-                py: 2, 
+                py: 2,
                 display: "flex",
                 flexDirection: "column",
               }}

@@ -1,7 +1,4 @@
-import React from "react";
-
-const FleetFuelLevelChart = ({ ApexGaugeChart, PlotlyGaugeChart, selectedData }) => {
-
+const FleetFuelLevelChart = ({ ApexGaugeChart, selectedData }) => {
   return (
     <>
       <ApexGaugeChart

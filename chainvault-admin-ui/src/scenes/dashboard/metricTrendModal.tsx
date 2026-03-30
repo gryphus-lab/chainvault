@@ -1,4 +1,3 @@
-import React from "react";
 import { Modal, Box, Typography, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Chart from "react-apexcharts";
@@ -26,7 +25,9 @@ const MetricTrendModal = ({
   };
   const labels = modalMetricData?.map((d) => d?.name);
   const seriesData = modalMetricData?.map((d) =>
-    d?.value !== null && d?.value !== undefined ? Number(d.value.toFixed(2)) : 0
+    d?.value !== null && d?.value !== undefined
+      ? Number(d.value.toFixed(2))
+      : 0,
   );
 
   const chartOptions = {
@@ -65,7 +66,7 @@ const MetricTrendModal = ({
       },
     },
     title: {
-    //   text: modalMetricTitle,
+      //   text: modalMetricTitle,
       align: "center",
       style: {
         fontSize: "18px",

@@ -6,12 +6,17 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { ArrowLeft, FileText, Download } from "lucide-react";
 
-import { getMigrationDetail } from "@/lib/api";
+import { getMigrationDetail } from "../lib/api";
 import type { MigrationDetail } from "@/types";
 
-import Timeline from "@/components/Dashboard/Timeline";
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import Timeline from "../components/Dashboard/Timeline";
+import { Badge } from "../components/ui/Badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/Card";
 
 export default function MigrationDetailPage() {
   const { id } = useParams<{ id: string }>();

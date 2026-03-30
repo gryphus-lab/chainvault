@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import {
   Box,
   IconButton,
@@ -5,7 +8,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { tokens, ColorModeContext } from "../../../theme";
+import { tokens, ColorModeContext } from "@/theme";
 import { useContext } from "react";
 import {
   DarkModeOutlined,
@@ -13,7 +16,7 @@ import {
   MenuOutlined,
   SearchOutlined,
 } from "@mui/icons-material";
-import { ToggledContext } from "../../../App";
+import { ToggledContext } from "@/context/ToggledContext";
 const Navbar = () => {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);

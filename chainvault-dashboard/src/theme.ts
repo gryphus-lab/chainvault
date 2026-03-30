@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import { createTheme } from "@mui/material";
 import { useMemo, useState, createContext } from "react";
 
 // Color Design Tokens
-export const tokens = (mode) => ({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const tokens = (mode: any) => ({
   ...(mode === "dark"
     ? {
         gray: {
@@ -121,7 +125,8 @@ export const tokens = (mode) => ({
 });
 
 // Mui Theme Settings
-export const themeSettings = (mode) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const themeSettings = (mode: any) => {
   const colors = tokens(mode);
 
   return {
@@ -200,12 +205,16 @@ export const ColorModeContext = createContext({
 export const useMode = () => {
   const [mode, setMode] = useState("dark");
 
-  const colorMode = useMemo(() => ({
-    toggleColorMode: () =>
-      setMode((prev) => (prev === "light" ? "dark" : "light")),
-  }));
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () =>
+        setMode((prev) => (prev === "light" ? "dark" : "light")),
+    }),
+    [],
+  ); // Added empty array here to keep the function stable
 
-  const theme = useMemo(() => createTheme(themeSettings(mode), [mode]));
+  // Move the [mode] array outside the createTheme parentheses
+  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
 
   return [theme, colorMode];
 };

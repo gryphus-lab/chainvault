@@ -2676,9 +2676,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chainvault-admin-ui@workspace:chainvault-admin-ui":
+"chainvault-dashboard@workspace:chainvault-dashboard":
   version: 0.0.0-use.local
-  resolution: "chainvault-admin-ui@workspace:chainvault-admin-ui"
+  resolution: "chainvault-dashboard@workspace:chainvault-dashboard"
   dependencies:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"
@@ -2698,38 +2698,6 @@ __metadata:
     "@nivo/line": "npm:^0.99.0"
     "@nivo/pie": "npm:^0.99.0"
     "@nivo/stream": "npm:^0.99.0"
-    "@testing-library/jest-dom": "npm:^6.9.1"
-    "@types/node": "npm:^25.5.0"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    "@vitejs/plugin-react": "npm:^6.0.1"
-    apexcharts: "npm:^5.10.4"
-    eslint: "npm:^10.1.0"
-    eslint-plugin-react-hooks: "npm:^7.0.1"
-    eslint-plugin-react-refresh: "npm:^0.5.2"
-    formik: "npm:^2.4.9"
-    globals: "npm:^17.4.0"
-    jiti: "npm:^2.6.1"
-    plotly.js: "npm:^3.4.0"
-    react: "npm:^19.2.4"
-    react-apexcharts: "npm:^2.1.0"
-    react-dom: "npm:^19.2.4"
-    react-plotly.js: "npm:^2.6.0"
-    react-pro-sidebar: "npm:^1.1.0"
-    react-router-dom: "npm:^7.13.2"
-    typescript: "npm:~5.9.3"
-    typescript-eslint: "npm:^8.57.2"
-    vite: "npm:^8.0.3"
-    vitest: "npm:^4.1.2"
-    yup: "npm:^1.7.1"
-  languageName: unknown
-  linkType: soft
-
-"chainvault-dashboard@workspace:chainvault-dashboard":
-  version: 0.0.0-use.local
-  resolution: "chainvault-dashboard@workspace:chainvault-dashboard"
-  dependencies:
-    "@eslint/js": "npm:^10.0.1"
     "@tanstack/react-query": "npm:^5.95.2"
     "@tanstack/react-table": "npm:^8.21.3"
     "@testing-library/dom": "npm:^10.4.1"
@@ -2741,6 +2709,7 @@ __metadata:
     "@types/react-dom": "npm:^19.2.3"
     "@vitejs/plugin-react": "npm:^6.0.1"
     "@vitest/coverage-v8": "npm:^4.1.2"
+    apexcharts: "npm:^5.10.4"
     autoprefixer: "npm:^10.4.27"
     axios: "npm:^1.14.0"
     clsx: "npm:^2.1.1"
@@ -2748,13 +2717,19 @@ __metadata:
     eslint: "npm:^10.1.0"
     eslint-plugin-react-hooks: "npm:^7.0.1"
     eslint-plugin-react-refresh: "npm:^0.5.2"
+    formik: "npm:^2.4.9"
     globals: "npm:^17.4.0"
+    jiti: "npm:^2.6.1"
     jsdom: "npm:^29.0.1"
     lucide-react: "npm:^1.7.0"
+    plotly.js: "npm:^3.4.0"
     postcss: "npm:^8.5.8"
     prettier: "npm:^3.8.1"
     react: "npm:^19.2.4"
+    react-apexcharts: "npm:^2.1.0"
     react-dom: "npm:^19.2.4"
+    react-plotly.js: "npm:^2.6.0"
+    react-pro-sidebar: "npm:^1.1.0"
     react-router-dom: "npm:^7.13.2"
     tailwind-merge: "npm:^3.5.0"
     tailwindcss: "npm:^4.2.2"
@@ -2762,6 +2737,7 @@ __metadata:
     typescript-eslint: "npm:^8.57.2"
     vite: "npm:^8.0.3"
     vitest: "npm:^4.1.2"
+    yup: "npm:^1.7.1"
   languageName: unknown
   linkType: soft
 

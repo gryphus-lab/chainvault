@@ -7,11 +7,16 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
 import { Search, Clock } from "lucide-react";
 
-import { getMigrations, getMigrationStats } from "@/lib/api";
-import { useMigrationEvents } from "@/hooks/useMigrationEvents";
+import { getMigrations, getMigrationStats } from "../lib/api";
+import { useMigrationEvents } from "../hooks/useMigrationEvents";
 
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Badge } from "../components/ui/Badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/Card";
 import { Migration } from "@/types";
 
 type StatusFilter = "ALL" | "SUCCESS" | "FAILED" | "RUNNING" | "PENDING";

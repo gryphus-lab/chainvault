@@ -2,6 +2,7 @@ const OFF = 0,
   WARN = 1,
   ERROR = 2;
 
+// eslint-disable-next-line no-undef
 module.exports = exports = {
   env: {
     es6: true,

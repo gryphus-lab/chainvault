@@ -13,7 +13,7 @@ interface RowData {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const MigrationDataGrid = (input: { data: any; })  => {
+const MigrationDataGrid = (input: { data: any }) => {
   const gridData = Array.isArray(input.data) ? input.data : [];
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -50,9 +50,11 @@ const MigrationDataGrid = (input: { data: any; })  => {
           <Link
             to={`/migration/${params.row.id}`}
             className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-          >View Details →</Link>
+          >
+            View Details →
+          </Link>
         ),
-      cellClassName: "name-column--cell"
+      cellClassName: "name-column--cell",
     },
   ];
 
@@ -111,6 +113,6 @@ const MigrationDataGrid = (input: { data: any; })  => {
       />
     </Box>
   );
-}
+};
 
 export default MigrationDataGrid;

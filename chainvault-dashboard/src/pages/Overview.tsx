@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
 import { Clock, Search } from "lucide-react";
@@ -30,19 +30,10 @@ export default function Overview() {
     queryKey: ["migrations"],
     queryFn: async () => {
       const data = await getMigrations({ limit: 100 });
-      console.log("🔍 Raw data from getMigrations:", data); // ← Add this
       return Array.isArray(data) ? data : [];
     },
     retry: 2,
   });
-
-  // Debug log
-  useEffect(() => {
-    console.log("📊 allMigrations count:", allMigrations.length);
-    if (allMigrations.length > 0) {
-      console.log("📊 First migration sample:", allMigrations[0]);
-    }
-  }, [allMigrations]);
 
   const {
     events: liveEvents,
@@ -50,12 +41,6 @@ export default function Overview() {
     clearEvents,
     reconnect,
   } = useMigrationEvents();
-
-  // Debug: Log data counts
-  useEffect(() => {
-    console.log("📊 allMigrations count:", allMigrations.length);
-    console.log("📊 First migration sample:", allMigrations[0]);
-  }, [allMigrations]);
 
   // Merge live updates
   const migrationsWithLive = useMemo(() => {

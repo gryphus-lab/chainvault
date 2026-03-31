@@ -1,36 +1,37 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import axios from "axios";
-import type { Migration, MigrationStats, MigrationDetail } from "@/types";
+import ky from "ky";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 10000,
+const api = ky.create({
+  prefixUrl: "/api", // All requests will be prefixed with /api
+  timeout: 15000, // 15 seconds timeout
+  retry: {
+    limit: 2, // Retry failed requests up to 2 times
+    methods: ["get", "post", "put", "delete"],
+  },
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-export const getMigrations = async (params?: {
-  status?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<Migration[]> => {
-  const res = await api.get("/api/migrations", { params });
-  return res.data;
+// Export typed API functions
+export const getMigrations = async (params?: { limit?: number }) => {
+  return api.get("migrations", { searchParams: params }).json();
 };
 
-export const getMigrationById = async (id: string): Promise<Migration> => {
-  const res = await api.get(`/api/migrations/${id}`);
-  return res.data;
+export const getMigrationStats = async () => {
+  return api.get("migrations/stats").json();
 };
 
-export const getMigrationStats = async (): Promise<MigrationStats> => {
-  const res = await api.get("/api/migrations/stats");
-  return res.data;
+export const getMigrationDetail = async (id: string) => {
+  return api.get(`migrations/${id}`).json();
 };
 
-export const getMigrationDetail = async (
-  id: string,
-): Promise<MigrationDetail> => {
-  const res = await api.get(`/api/migrations/${id}/detail`);
-  return res.data;
+// Optional: Add more methods as needed
+export const getMigrationEvents = async (migrationId: string) => {
+  return api.get(`migrations/${migrationId}/events`).json();
 };
+
+// You can also export the raw ky instance if you need custom requests later
+export { api };

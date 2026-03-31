@@ -38,7 +38,10 @@ function Dashboard() {
         gridAutoRows="140px"
         gap="20px"
       >
-        <AvgEngineLoadsFleetFuelLevel colors={colors} selectedData={undefined}      />
+        <AvgEngineLoadsFleetFuelLevel
+          colors={colors}
+          selectedData={undefined}
+        />
       </Box>
       <Box sx={{ flex: 1 }}>
         <Routes>

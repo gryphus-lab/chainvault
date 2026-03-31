@@ -12,8 +12,8 @@ import { useMigrationEvents } from "@/hooks/useMigrationEvents";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Migration } from "@/types";
-import MigrationStatus from "@/scenes/dashboard/migrationStatus";
 import { safeFormat } from "@/lib/utils";
+import MigrationDataGrid from "@/scenes/dashboard/migrationDataGrid";
 
 type StatusFilter = "ALL" | "SUCCESS" | "FAILED" | "RUNNING" | "PENDING";
 
@@ -139,6 +139,10 @@ export default function Overview() {
     }
   }
 
+  function getMigrationDataGrid(props: { filteredMigrations: Migration[] }) {
+    const data = props.filteredMigrations;
+    return <MigrationDataGrid {...data} />;
+  }
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -248,8 +252,6 @@ export default function Overview() {
         </select>
       </div>
 
-      {/* Stats Cards */}
-
       {/* Migrations Table */}
       <Card>
         <CardHeader>
@@ -261,7 +263,7 @@ export default function Overview() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <MigrationStatus />
+          {getMigrationDataGrid({ filteredMigrations })}
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">

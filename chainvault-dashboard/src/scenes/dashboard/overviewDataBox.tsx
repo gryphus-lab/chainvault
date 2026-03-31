@@ -3,10 +3,7 @@
  */
 import { Box } from "@mui/material";
 import StatBox from "@/components/StatBox"; // Ensure this matches your actual export path
-import PowerIcon from "@mui/icons-material/Power";
-import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
-import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import SvgIcon from "@mui/icons-material/Circle";
 
 interface MigrationStats {
   total?: number;
@@ -41,7 +38,7 @@ const OverviewDataBox = ({ colors, stats }: OverviewDataBoxProps) => {
           title={stats?.total?.toString() ?? "0"}
           subtitle="Total Migrations"
           icon={
-            <PowerIcon
+            <SvgIcon
               sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
             />
           }
@@ -54,7 +51,7 @@ const OverviewDataBox = ({ colors, stats }: OverviewDataBoxProps) => {
           title={stats?.success?.toString() ?? "0"}
           subtitle="Successful"
           icon={
-            <LocalGasStationIcon
+            <SvgIcon
               sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
             />
           }
@@ -67,8 +64,8 @@ const OverviewDataBox = ({ colors, stats }: OverviewDataBoxProps) => {
           title={((stats?.pending ?? 0) + (stats?.running ?? 0)).toString()}
           subtitle="In Progress"
           icon={
-            <ElectricalServicesIcon
-              sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+            <SvgIcon
+              sx={{ color: colors.orangeAccent[600], fontSize: "26px" }}
             />
           }
         />
@@ -80,9 +77,7 @@ const OverviewDataBox = ({ colors, stats }: OverviewDataBoxProps) => {
           title={stats?.failed?.toString() ?? "0"}
           subtitle="Failed"
           icon={
-            <WarningAmberIcon
-              sx={{ color: colors.redAccent[600], fontSize: "26px" }}
-            />
+            <SvgIcon sx={{ color: colors.redAccent[600], fontSize: "26px" }} />
           }
         />
       </Box>

@@ -11,7 +11,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const safeFormat = (
   dateStr: string | undefined | null,
-  fallback: string = "—"
+  fallback: string = "—",
 ) => {
   if (!dateStr) return fallback;
   try {

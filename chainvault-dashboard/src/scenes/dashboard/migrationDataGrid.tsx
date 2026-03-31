@@ -3,10 +3,11 @@
  */
 import { Box, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { allGeneratorsData } from "@/data/allGeneratorsData";
 import { tokens } from "@/theme";
 
-const MigrationStatus = () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MigrationDataGrid(data: any) {
+  console.log(data);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -18,9 +19,9 @@ const MigrationStatus = () => {
       flex: 1,
       cellClassName: "name-column--cell",
     },
-    { field: "Title", headerName: "Title" },
-    { field: "Created", headerName: "Created" },
-    { field: "Updated", headerName: "Updated" },
+    { field: "title", headerName: "Title" },
+    { field: "createdAt", headerName: "Created" },
+    { field: "updatedAt", headerName: "Updated" },
     { field: "Actions", headerName: "Actions" },
   ];
 
@@ -67,7 +68,7 @@ const MigrationStatus = () => {
     >
       <Box mb="10px"></Box>
       <DataGrid
-        rows={allGeneratorsData}
+        rows={data}
         columns={columns}
         //   components={{ Toolbar: GridToolbar }}
         initialState={{
@@ -81,6 +82,6 @@ const MigrationStatus = () => {
       />
     </Box>
   );
-};
+}
 
-export default MigrationStatus;
+export default MigrationDataGrid;

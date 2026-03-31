@@ -18,8 +18,9 @@ vi.mock("@/components/StatBox", () => ({
 describe("OverviewDataBox Component", () => {
   const mockColors = {
     primary: { 400: "#123" },
-    greenAccent: { 600: "#456" },
-    redAccent: { 600: "#789" },
+    greenAccent: { 600: "#0F0" },
+    redAccent: { 600: "#F00" },
+    orangeAccent: { 600: "#e67e00" },
   };
 
   it("renders all four stat boxes with correct titles", () => {

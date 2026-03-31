@@ -8,7 +8,8 @@ import { useMemo, useState, createContext } from "react";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const tokens = (mode: any) => ({
   ...(mode === "dark"
-    ? { // dark-mode colors
+    ? {
+        // dark-mode colors
         gray: {
           100: "#e0e0e0",
           200: "#c2c2c2",
@@ -64,8 +65,20 @@ export const tokens = (mode: any) => ({
           800: "#2a2d64",
           900: "#151632",
         },
+        orangeAccent: {
+          100: "#ffe8cc",
+          200: "#ffd199",
+          300: "#ffba66",
+          400: "#ffa333",
+          500: "#ff8c00",
+          600: "#e67e00",
+          700: "#cc7000",
+          800: "#b36200",
+          900: "#ffa500",
+        },
       }
-    : { // light-mode colors
+    : {
+        // light-mode colors
         gray: {
           100: "#141414",
           200: "#292929",
@@ -120,6 +133,17 @@ export const tokens = (mode: any) => ({
           700: "#3e4396",
           800: "#2a2d64",
           900: "#151632",
+        },
+        orangeAccent: {
+          100: "#fff7ed",
+          200: "#ffedd5",
+          300: "#fed7aa",
+          400: "#fdba74",
+          500: "#fb923c",
+          600: "#f97316",
+          700: "#ea580c",
+          800: "#c2410c",
+          900: "#ffa500",
         },
       }),
 });

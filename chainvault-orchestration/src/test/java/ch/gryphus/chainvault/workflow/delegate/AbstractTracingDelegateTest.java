@@ -78,7 +78,6 @@ class AbstractTracingDelegateTest {
         when(mockSpanBuilder.startSpan()).thenReturn(mockSpan);
         when(mockSpan.getSpanContext()).thenReturn(mockSpanContext);
         when(mockSpanContext.getTraceId()).thenReturn("traceId");
-
     }
 
     /**

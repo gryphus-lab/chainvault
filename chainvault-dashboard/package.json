@@ -37,7 +37,6 @@
     "react-pro-sidebar": "^1.1.0",
     "react-router-dom": "^7.13.2",
     "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.2",
     "yup": "^1.7.1"
   },
   "devDependencies": {

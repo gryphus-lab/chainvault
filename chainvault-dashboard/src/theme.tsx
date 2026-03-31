@@ -8,7 +8,7 @@ import { useMemo, useState, createContext } from "react";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const tokens = (mode: any) => ({
   ...(mode === "dark"
-    ? {
+    ? { // dark-mode colors
         gray: {
           100: "#e0e0e0",
           200: "#c2c2c2",
@@ -65,7 +65,7 @@ export const tokens = (mode: any) => ({
           900: "#151632",
         },
       }
-    : {
+    : { // light-mode colors
         gray: {
           100: "#141414",
           200: "#292929",

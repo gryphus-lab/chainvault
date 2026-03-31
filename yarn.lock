@@ -2811,7 +2811,6 @@ __metadata:
     react-pro-sidebar: "npm:^1.1.0"
     react-router-dom: "npm:^7.13.2"
     tailwind-merge: "npm:^3.5.0"
-    tailwindcss: "npm:^4.2.2"
     typescript: "npm:~5.9.3"
     typescript-eslint: "npm:^8.58.0"
     vite: "npm:^8.0.3"
@@ -7038,13 +7037,6 @@ __metadata:
   version: 3.5.0
   resolution: "tailwind-merge@npm:3.5.0"
   checksum: 10c0/4dc588f5b5296ba3f38e1ebb41f02b6d24a8c5bb45e44b33748c118fb4b5767dd0efc464431ca3e75404056b618b5f67bec3708158baa65fed8a2fc9201e0c53
-  languageName: node
-  linkType: hard
-
-"tailwindcss@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "tailwindcss@npm:4.2.2"
-  checksum: 10c0/6eae8a125c35d504ba6c518d26ec64fba694ff4a9ab9b9cd9883050128e0b7afdf491388c472d9bed2624664c1c7d4a133d19b653151a6b52e6ce6953168a857
   languageName: node
   linkType: hard
 

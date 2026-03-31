@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
-import { Search, Clock, Link } from "lucide-react";
+import { Clock, Link, Search } from "lucide-react";
 
 import { getMigrations } from "@/lib/api";
 import { useMigrationEvents } from "@/hooks/useMigrationEvents";
@@ -13,20 +13,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Migration } from "@/types";
 import MigrationStatus from "@/scenes/dashboard/migrationStatus";
+import { safeFormat } from "@/lib/utils";
 
 type StatusFilter = "ALL" | "SUCCESS" | "FAILED" | "RUNNING" | "PENDING";
-
-const safeFormat = (
-  dateStr: string | undefined | null,
-  fallback: string = "—",
-) => {
-  if (!dateStr) return fallback;
-  try {
-    return format(parseISO(dateStr), "PPp");
-  } catch {
-    return fallback;
-  }
-};
 
 function getVariant(migration: Migration) {
   switch (migration.status) {

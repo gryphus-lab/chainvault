@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
 import { Search, Clock, Link } from "lucide-react";
 
-import { getMigrations, getMigrationStats } from "@/lib/api";
+import { getMigrations } from "@/lib/api";
 import { useMigrationEvents } from "@/hooks/useMigrationEvents";
 
 import { Badge } from "@/components/ui/Badge";
@@ -45,11 +45,6 @@ export default function Overview() {
   const [dateFilter, setDateFilter] = useState<"all" | "24h" | "7d" | "30d">(
     "all",
   );
-
-  const { data: stats } = useQuery({
-    queryKey: ["migration-stats"],
-    queryFn: getMigrationStats,
-  });
 
   const {
     data: allMigrations = [],
@@ -159,10 +154,6 @@ export default function Overview() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Migration Dashboard
-        </h1>
-
         <div className="flex gap-3">
           <div
             className={`flex gap-2 px-4 py-1.5 rounded-full text-sm font-medium ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
@@ -269,59 +260,6 @@ export default function Overview() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Total Migrations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-gray-900">
-              {stats?.total ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Successful
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-green-600">
-              {stats?.success ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Failed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-red-600">
-              {stats?.failed ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              In Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-blue-600">
-              {(stats?.pending ?? 0) + (stats?.running ?? 0)}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Migrations Table */}
       <Card>

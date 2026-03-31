@@ -7,10 +7,12 @@ import Chart from "react-apexcharts";
 import AvgEngineLoadsChart from "./avgEngineLoadsChart";
 import FleetFuelLevelChart from "./fleetFuelLevelChart";
 import OverviewDataBox from "@/scenes/dashboard/overviewDataBox";
+import { getMigrationStats } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 
-const AvgEngineLoadsFleetFuelLevel = ({ colors, selectedData }) => {
+const StatisticsPanel = ({ colors, selectedData }) => {
   const ApexGaugeChart = ({ title, value }) => {
-    const getApexColor = (val) => {
+    const getApexColor = (val: number) => {
       if (val <= 80) return "#4ade80";
       if (val <= 90) return "#facc15";
       return "#f87171";
@@ -92,6 +94,11 @@ const AvgEngineLoadsFleetFuelLevel = ({ colors, selectedData }) => {
     />
   );
 
+  const { data: stats } = useQuery({
+    queryKey: ["migration-stats"],
+    queryFn: getMigrationStats,
+  });
+
   return (
     <>
       <Box
@@ -149,9 +156,10 @@ const AvgEngineLoadsFleetFuelLevel = ({ colors, selectedData }) => {
           height="200px"
         ></Box>
       </Box>
-      <OverviewDataBox colors={colors} stats={selectedData} />
+
+      <OverviewDataBox colors={colors} stats={stats} />
     </>
   );
 };
 
-export default AvgEngineLoadsFleetFuelLevel;
+export default StatisticsPanel;

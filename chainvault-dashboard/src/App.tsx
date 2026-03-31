@@ -10,10 +10,7 @@ import {
   Theme,
 } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
-import { Navbar } from "./scenes";
-import { Route, Routes } from "react-router-dom";
-import Overview from "./pages/Overview";
-import MigrationDetailPage from "./pages/MigrationDetailPage";
+import { Dashboard, Navbar } from "./scenes";
 import { ToggledContext } from "./context/ToggledContext";
 
 function App(): ReactElement {
@@ -44,6 +41,7 @@ function App(): ReactElement {
             }}
           >
             <Navbar />
+            <Dashboard />
             <Container
               maxWidth="xl"
               sx={{
@@ -52,17 +50,7 @@ function App(): ReactElement {
                 display: "flex",
                 flexDirection: "column",
               }}
-            >
-              <Box sx={{ flex: 1 }}>
-                <Routes>
-                  <Route path="/" element={<Overview />} />
-                  <Route
-                    path="/migration/:id"
-                    element={<MigrationDetailPage />}
-                  />
-                </Routes>
-              </Box>
-            </Container>
+            ></Container>
           </Box>
         </ToggledContext.Provider>
       </ThemeProvider>

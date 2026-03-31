@@ -2,7 +2,7 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { Box, useTheme } from "@mui/material";
-import { tokens } from "../theme";
+import { tokens } from "@/theme";
 
 const ProgressCircle = ({ progress = 0.75, size = 40 }) => {
   const theme = useTheme();

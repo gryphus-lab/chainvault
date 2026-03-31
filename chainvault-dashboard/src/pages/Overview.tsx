@@ -2,22 +2,17 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
-import { Search, Clock } from "lucide-react";
+import { Search, Clock, Link } from "lucide-react";
 
-import { getMigrations, getMigrationStats } from "../lib/api";
-import { useMigrationEvents } from "../hooks/useMigrationEvents";
+import { getMigrations, getMigrationStats } from "@/lib/api";
+import { useMigrationEvents } from "@/hooks/useMigrationEvents";
 
-import { Badge } from "../components/ui/Badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Migration } from "@/types";
+import MigrationStatus from "@/scenes/dashboard/migrationStatus";
 
 type StatusFilter = "ALL" | "SUCCESS" | "FAILED" | "RUNNING" | "PENDING";
 
@@ -163,14 +158,14 @@ export default function Overview() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between">
         <h1 className="text-3xl font-bold text-gray-900">
           Migration Dashboard
         </h1>
 
-        <div className="flex items-center gap-3">
+        <div className="flex gap-3">
           <div
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+            className={`flex gap-2 px-4 py-1.5 rounded-full text-sm font-medium ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
           >
             <div
               className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}
@@ -339,6 +334,7 @@ export default function Overview() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
+          <MigrationStatus />
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">

@@ -61,4 +61,3 @@ describe("useMode Hook", () => {
     expect(firstRenderColorMode).toBe(secondRenderColorMode);
   });
 });
-

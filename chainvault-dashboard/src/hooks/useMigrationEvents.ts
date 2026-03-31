@@ -28,8 +28,6 @@ export function useMigrationEvents() {
     eventSource.onmessage = (event) => {
       try {
         const rawData = event.data.trim();
-        console.log("📥 Raw SSE data received:", rawData);
-
         if (!rawData) return;
 
         const newEvent: MigrationEvent = JSON.parse(rawData);
@@ -38,12 +36,6 @@ export function useMigrationEvents() {
           console.warn("⚠️ Received incomplete event:", newEvent);
           return;
         }
-
-        console.log(
-          "✅ Successfully parsed event:",
-          newEvent.eventType,
-          newEvent.message,
-        );
 
         setEvents((prev) => [newEvent, ...prev].slice(0, 100));
       } catch (err) {

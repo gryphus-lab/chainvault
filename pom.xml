@@ -473,13 +473,6 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>node_modules</directory>
-                            <includes>
-                                <include>**</include>
-                            </includes>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                        <fileset>
                             <directory>dist</directory>
                             <includes>
                                 <include>**</include>

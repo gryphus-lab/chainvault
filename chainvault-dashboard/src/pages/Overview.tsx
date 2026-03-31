@@ -1,43 +1,19 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
-import { Search, Clock } from "lucide-react";
+import { Clock, Search } from "lucide-react";
 
-import { getMigrations, getMigrationStats } from "@/lib/api";
+import { getMigrations } from "@/lib/api";
 import { useMigrationEvents } from "@/hooks/useMigrationEvents";
 
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Migration } from "@/types";
+import MigrationDataGrid from "@/scenes/dashboard/migrationDataGrid";
 
 type StatusFilter = "ALL" | "SUCCESS" | "FAILED" | "RUNNING" | "PENDING";
-
-const safeFormat = (
-  dateStr: string | undefined | null,
-  fallback: string = "—",
-) => {
-  if (!dateStr) return fallback;
-  try {
-    return format(parseISO(dateStr), "PPp");
-  } catch {
-    return fallback;
-  }
-};
-
-function getVariant(migration: Migration) {
-  switch (migration.status) {
-    case "SUCCESS":
-      return "success";
-    case "FAILED":
-      return "danger";
-    default:
-      return "default";
-  }
-}
 
 export default function Overview() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,11 +21,6 @@ export default function Overview() {
   const [dateFilter, setDateFilter] = useState<"all" | "24h" | "7d" | "30d">(
     "all",
   );
-
-  const { data: stats } = useQuery({
-    queryKey: ["migration-stats"],
-    queryFn: getMigrationStats,
-  });
 
   const {
     data: allMigrations = [],
@@ -158,14 +129,10 @@ export default function Overview() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Migration Dashboard
-        </h1>
-
-        <div className="flex items-center gap-3">
+      <div className="flex justify-between">
+        <div className="flex gap-3">
           <div
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+            className={`flex gap-2 px-4 py-1.5 rounded-full text-sm font-medium ${isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
           >
             <div
               className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}
@@ -268,61 +235,6 @@ export default function Overview() {
         </select>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Total Migrations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-gray-900">
-              {stats?.total ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Successful
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-green-600">
-              {stats?.success ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Failed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-red-600">
-              {stats?.failed ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              In Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-blue-600">
-              {(stats?.pending ?? 0) + (stats?.running ?? 0)}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Migrations Table */}
       <Card>
         <CardHeader>
@@ -334,80 +246,11 @@ export default function Overview() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Migration ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Updated
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredMigrations.length > 0 ? (
-                  filteredMigrations.map((migration, index) => (
-                    <tr
-                      key={migration?.id || `row-${index}`}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-5 whitespace-nowrap font-mono text-sm text-gray-900">
-                        {migration?.id || "—"}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-700 max-w-xs truncate">
-                        {migration?.title || "Untitled"}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        <Badge variant={getVariant(migration || ({} as any))}>
-                          {migration?.status || "UNKNOWN"}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-500">
-                        {safeFormat(migration?.createdAt)}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-500">
-                        {safeFormat(migration?.updatedAt)}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-right">
-                        {migration?.id && (
-                          <Link
-                            to={`/migration/${migration.id}`}
-                            className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                          >
-                            View Details →
-                          </Link>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-6 py-16 text-center text-gray-500"
-                    >
-                      {getMigrationStatus()}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {filteredMigrations.length > 0 ? (
+            <MigrationDataGrid data={filteredMigrations} />
+          ) : (
+            <div>{getMigrationStatus()}</div>
+          )}
         </CardContent>
       </Card>
     </div>

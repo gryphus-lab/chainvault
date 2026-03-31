@@ -3,7 +3,6 @@
  */
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format, parseISO } from "date-fns";
 import { ArrowLeft, FileText, Download } from "lucide-react";
 
 import { getMigrationDetail } from "@/lib/api";
@@ -12,21 +11,10 @@ import type { MigrationDetail } from "@/types";
 import Timeline from "@/components/Dashboard/Timeline";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { safeFormat } from "@/lib/utils";
 
 export default function MigrationDetailPage() {
   const { id } = useParams<{ id: string }>();
-
-  const safeFormat = (
-    dateStr: string | undefined | null,
-    fallback: string = "—",
-  ) => {
-    if (!dateStr) return fallback;
-    try {
-      return format(parseISO(dateStr), "PPp");
-    } catch {
-      return fallback;
-    }
-  };
 
   const {
     data: migration,

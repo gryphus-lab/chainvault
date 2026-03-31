@@ -4,29 +4,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, subDays } from "date-fns";
-import { Clock, Link, Search } from "lucide-react";
+import { Clock, Search } from "lucide-react";
 
 import { getMigrations } from "@/lib/api";
 import { useMigrationEvents } from "@/hooks/useMigrationEvents";
 
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Migration } from "@/types";
-import { safeFormat } from "@/lib/utils";
 import MigrationDataGrid from "@/scenes/dashboard/migrationDataGrid";
 
 type StatusFilter = "ALL" | "SUCCESS" | "FAILED" | "RUNNING" | "PENDING";
-
-function getVariant(migration: Migration) {
-  switch (migration.status) {
-    case "SUCCESS":
-      return "success";
-    case "FAILED":
-      return "danger";
-    default:
-      return "default";
-  }
-}
 
 export default function Overview() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -139,10 +126,6 @@ export default function Overview() {
     }
   }
 
-  function getMigrationDataGrid(props: { filteredMigrations: Migration[] }) {
-    const data = props.filteredMigrations;
-    return <MigrationDataGrid {...data} />;
-  }
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -263,81 +246,11 @@ export default function Overview() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {getMigrationDataGrid({ filteredMigrations })}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Migration ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Updated
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredMigrations.length > 0 ? (
-                  filteredMigrations.map((migration, index) => (
-                    <tr
-                      key={migration?.id || `row-${index}`}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-5 whitespace-nowrap font-mono text-sm text-gray-900">
-                        {migration?.id || "—"}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-700 max-w-xs truncate">
-                        {migration?.title || "Untitled"}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        <Badge variant={getVariant(migration || ({} as any))}>
-                          {migration?.status || "UNKNOWN"}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-500">
-                        {safeFormat(migration?.createdAt)}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-500">
-                        {safeFormat(migration?.updatedAt)}
-                      </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-right">
-                        {migration?.id && (
-                          <Link
-                            to={`/migration/${migration.id}`}
-                            className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                          >
-                            View Details →
-                          </Link>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-6 py-16 text-center text-gray-500"
-                    >
-                      {getMigrationStatus()}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {filteredMigrations.length > 0 ? (
+            <MigrationDataGrid data={filteredMigrations} />
+          ) : (
+            <div>{getMigrationStatus()}</div>
+          )}
         </CardContent>
       </Card>
     </div>

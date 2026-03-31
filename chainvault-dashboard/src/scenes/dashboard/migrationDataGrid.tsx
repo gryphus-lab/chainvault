@@ -2,27 +2,58 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { Box, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { tokens } from "@/theme";
+import { safeFormat } from "@/lib/utils.ts";
+import { Link } from "react-router-dom";
+
+interface RowData {
+  id: number;
+  name: string;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function MigrationDataGrid(data: any) {
-  console.log(data);
+const MigrationDataGrid = (input: { data: any; })  => {
+  const gridData = Array.isArray(input.data) ? input.data : [];
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const columns = [
-    { field: "id", headerName: "Migration ID", flex: 0.5 },
+  const formattedResults = gridData.map((item) => ({
+    ...item,
+    title: item.title || "Untiled",
+    status: item.status,
+    createdAt: safeFormat(item.createdAt),
+    updatedAt: safeFormat(item.updatedAt),
+  }));
+
+  const columns: GridColDef[] = [
+    { field: "id", headerName: "Migration ID" },
     {
       field: "status",
       headerName: "Status",
-      flex: 1,
       cellClassName: "name-column--cell",
     },
     { field: "title", headerName: "Title" },
-    { field: "createdAt", headerName: "Created" },
-    { field: "updatedAt", headerName: "Updated" },
-    { field: "Actions", headerName: "Actions" },
+    {
+      field: "createdAt",
+      headerName: "Created",
+    },
+    {
+      field: "updatedAt",
+      headerName: "Updated",
+    },
+    {
+      field: "action",
+      headerName: "Actions",
+      renderCell: (params: GridRenderCellParams<RowData>) =>
+        params.row.id && (
+          <Link
+            to={`/migration/${params.row.id}`}
+            className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+          >View Details →</Link>
+        ),
+      cellClassName: "name-column--cell"
+    },
   ];
 
   return (
@@ -68,9 +99,8 @@ function MigrationDataGrid(data: any) {
     >
       <Box mb="10px"></Box>
       <DataGrid
-        rows={data}
+        rows={formattedResults}
         columns={columns}
-        //   components={{ Toolbar: GridToolbar }}
         initialState={{
           pagination: {
             paginationModel: {
@@ -78,7 +108,6 @@ function MigrationDataGrid(data: any) {
             },
           },
         }}
-        //   checkboxSelection
       />
     </Box>
   );

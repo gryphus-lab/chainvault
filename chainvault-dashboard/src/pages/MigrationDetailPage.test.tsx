@@ -15,7 +15,7 @@ vi.mock("@/lib/api", () => ({
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Mock Timeline (avoid complexity)
-vi.mock("@/components/Dashboard/Timeline", () => ({
+vi.mock("@/components/dashboard/Timeline", () => ({
   default: ({ events }: any) => (
     <div data-testid="timeline">{events.length} events</div>
   ),

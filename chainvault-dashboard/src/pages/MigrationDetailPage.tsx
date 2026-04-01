@@ -8,7 +8,7 @@ import { ArrowLeft, FileText, Download } from "lucide-react";
 import { getMigrationDetail } from "@/lib/api";
 import type { MigrationDetail } from "@/types";
 
-import Timeline from "@/components/Dashboard/Timeline";
+import Timeline from "@/components/dashboard/Timeline";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { safeFormat } from "@/lib/utils";

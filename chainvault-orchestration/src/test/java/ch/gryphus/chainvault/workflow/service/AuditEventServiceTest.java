@@ -319,8 +319,7 @@ class AuditEventServiceTest {
         migration.setDocId("DOC-TEST-123");
         migration.setStatus("PENDING");
         migration.setCreatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(ZoneOffset.UTC));
-        migration.setUpdatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
-                .toInstant(ZoneOffset.UTC));
+        migration.setUpdatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(ZoneOffset.UTC));
         migration.setProcessInstanceKey("abcd-1234");
         migration.setTraceId("abcd-1234");
         migration.setOcrAttempted(false);
@@ -349,8 +348,9 @@ class AuditEventServiceTest {
                                 .completedAt(
                                         LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
                                                 .toInstant(ZoneOffset.UTC))
-                                .lastUpdatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
-                                        .toInstant(ZoneOffset.UTC))
+                                .lastUpdatedAt(
+                                        LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
+                                                .toInstant(ZoneOffset.UTC))
                                 .inputPayloadHash("inputPayloadHash")
                                 .outputFileKey("outputFileKey")
                                 .chainOfCustodyZip("chainOfCustodyZip")

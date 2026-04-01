@@ -319,7 +319,10 @@ class AuditEventServiceTest {
         migration.setDocId("DOC-TEST-123");
         migration.setStatus("PENDING");
         migration.setCreatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(ZoneOffset.UTC));
-        migration.setTraceId("traceId");
+        migration.setUpdatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
+                .toInstant(ZoneOffset.UTC));
+        migration.setProcessInstanceKey("abcd-1234");
+        migration.setTraceId("abcd-1234");
         migration.setOcrAttempted(false);
         migration.setOcrSuccess(false);
         migration.setOcrPageCount(0);
@@ -331,7 +334,7 @@ class AuditEventServiceTest {
                 List.of(
                         MigrationAudit.builder()
                                 .id(0L)
-                                .processInstanceKey("processInstanceId")
+                                .processInstanceKey("abcd-1234")
                                 .documentId("DOC-TEST-123")
                                 .status(MigrationAudit.MigrationStatus.PENDING)
                                 .failureReason("errorMsg")
@@ -346,11 +349,13 @@ class AuditEventServiceTest {
                                 .completedAt(
                                         LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
                                                 .toInstant(ZoneOffset.UTC))
+                                .lastUpdatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
+                                        .toInstant(ZoneOffset.UTC))
                                 .inputPayloadHash("inputPayloadHash")
                                 .outputFileKey("outputFileKey")
                                 .chainOfCustodyZip("chainOfCustodyZip")
                                 .mergedPdfHash("mergedPdfHash")
-                                .traceId("traceId")
+                                .traceId("abcd-1234")
                                 .ocrAttempted(false)
                                 .ocrPageCount(0)
                                 .ocrTotalTextLength(0L)

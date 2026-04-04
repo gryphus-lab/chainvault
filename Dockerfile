@@ -21,5 +21,8 @@ RUN chmod +x /opt/setup.sh && /opt/setup.sh
 USER "$USERNAME"
 WORKDIR /app
 COPY --from=build /workspace/chainvault-orchestration/target/chainvault-${CHAINVAULT_VERSION}.jar app.jar
-EXPOSE 8080
+# Matches server.port in chainvault-orchestration application config
+EXPOSE 8085
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
+  CMD ["curl", "-fsS", "http://127.0.0.1:8085/actuator/health"]
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,24 @@
+# Git and IDE
+.git
+.gitignore
+.idea
+.vscode
+*.iml
+
+# Build outputs (rebuilt inside the image)
+**/target/
+
+# Frontend: dependencies and artifacts are produced by Maven inside the container
+chainvault-dashboard/node_modules
+chainvault-dashboard/coverage
+chainvault-dashboard/dist
+
+# Local logs and env (never needed in image)
+logs
+*.log
+.env
+.env.*
+
+# Docs and CI noise
+*.md
+.github

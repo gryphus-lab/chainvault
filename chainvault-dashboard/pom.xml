@@ -18,6 +18,7 @@
         <node.version>v24.14.1</node.version>
         <yarn.version>v1.22.22</yarn.version>
         <frontend-maven-plugin.version>2.0.0</frontend-maven-plugin.version>
+        <sync-packagejson-version-maven-plugin.version>1.3.0</sync-packagejson-version-maven-plugin.version>
         
         <sonar.sources>src</sonar.sources>
         <sonar.tests>src</sonar.tests>
@@ -82,6 +83,26 @@
                         <configuration>
                             <arguments>test:coverage</arguments>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>de.ingogriebsch.maven</groupId>
+                <artifactId>sync-packagejson-version-maven-plugin</artifactId>
+                <version>${sync-packagejson-version-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>sync</id>
+                        <goals>
+                            <goal>sync</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -8,6 +8,7 @@ node = "24"
 yarn = "4.13.0"
 jq = "latest"
 uv = "latest"
+trivy = "latest"
 
 # ────────────────────────────────────────
 # Environment (activated repo-wide)

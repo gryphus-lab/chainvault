@@ -141,10 +141,13 @@ mise test-docker            # Full Docker integration tests (Testcontainers)
 mise verify                 # Full build + tests + JaCoCo aggregate coverage
 mise docker-build           # Build & tag local Docker image
 mise docker-build-versioned # Build & tag Docker image with version from POM
+mise compose-down           # Docker compose down - all services                         
+mise compose-down-full      # Docker compose down - all services and volumes             
+mise compose-up             # Docker compose up - all services             
 mise smoke-test             # Run smoke test
 mise load-test              # Run load test (1000 iterations)
-mise fmt                    # Format source code via Spotless
 mise check                  # Check formatting via Spotless
+mise format                 # Format source code via Spotless
 ```
 
 ### Observability Stack (optional but recommended)

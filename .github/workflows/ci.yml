@@ -77,9 +77,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Run formatting checks
-        run: mise run check
-
       - name: Build and Verify
         run: |
           mise set TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata

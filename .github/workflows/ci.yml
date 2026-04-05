@@ -39,7 +39,6 @@ jobs:
           cache: true
 
       - name: Install Dependencies & Build Leptonica
-        if: steps.cache-leptonica.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y libtesseract-dev tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng \
@@ -55,7 +54,7 @@ jobs:
           sudo make install
           sudo ldconfig /usr/local/lib
 
-      - name: Cache Maven/Sonar
+      - name: Cache maven/sonar packages
         uses: actions/cache@v5
         with:
           path: |
@@ -64,6 +63,19 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-build
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache yarn packages
+        uses: actions/cache@v5
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Build and Verify
         run: |

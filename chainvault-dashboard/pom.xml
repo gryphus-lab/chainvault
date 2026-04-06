@@ -26,8 +26,7 @@
             **/*.test.tsx,
             **/*.spec.ts,
             **/*.spec.tsx,
-            src/test/setup.ts,
-            src/test/test-utils.tsx</sonar.test.inclusions>
+            </sonar.test.inclusions>
         <sonar.exclusions>*/node_modules/**,
             **/dist/**,
             build/**,

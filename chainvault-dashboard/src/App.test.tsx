@@ -17,9 +17,6 @@ vi.mock('./theme', async () => {
   return {
     ...actual,
     useMode: vi.fn(),
-    ColorModeContext: {
-      Provider: ({ children }: any) => <div>{children}</div>,
-    },
   }
 })
 
@@ -30,11 +27,9 @@ vi.mock('./scenes', () => ({
 }))
 
 // mock toggled context
-vi.mock('./context/ToggledContext', () => ({
-  ToggledContext: {
-    Provider: ({ children }: any) => <div>{children}</div>,
-  },
-}))
+vi.mock('./context/ToggledContext', async () => {
+  return await vi.importActual<any>('./context/ToggledContext')
+})
 
 import { useMode } from './theme'
 
@@ -51,11 +46,10 @@ describe('App', () => {
     expect(screen.getByText('Dashboard Component')).toBeInTheDocument()
   })
 
-  it('renders layout container', () => {
-    const { container } = render(<App />)
-
-    // MUI Box renders a div — just ensure structure exists
-    expect(container.querySelector('div')).toBeTruthy()
+  it('renders core layout sections', () => {
+    render(<App />)
+    expect(screen.getByText('Navbar Component')).toBeInTheDocument()
+    expect(screen.getByText('Dashboard Component')).toBeInTheDocument()
   })
 
   it('uses useMode hook to provide theme', () => {

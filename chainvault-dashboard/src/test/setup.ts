@@ -8,6 +8,7 @@ import { cleanup } from '@testing-library/react'
 // Cleanup after each test
 afterEach(() => {
   cleanup()
+  MockEventSource.instances.length = 0
 })
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -3,7 +3,7 @@ import { render, type RenderOptions } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { MemoryRouter } from 'react-router-dom'
 import { CSpinner } from '@coreui/react'
-import store from 'src/store'
+import store from '../store'
 
 export function resetStore() {
   store.dispatch({
@@ -14,11 +14,11 @@ export function resetStore() {
   })
 }
 
-function StoreOnly({ children }: { children: React.ReactNode }) {
+function StoreOnly({ children }: Readonly<{ children: React.ReactNode }>) {
   return <Provider store={store}>{children}</Provider>
 }
 
-function StoreAndRouter({ children }: { children: React.ReactNode }) {
+function StoreAndRouter({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <Provider store={store}>
       <MemoryRouter>{children}</MemoryRouter>

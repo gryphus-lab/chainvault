@@ -9,7 +9,7 @@ describe('DocsExample', () => {
   })
 
   it('renders without throwing', async () => {
-    const { container } = renderWithProviders(<DocsExample />)
+    const { container } = renderWithProviders(<DocsExample children={undefined} href={''} />)
     await waitFor(() => {
       expect(container.firstChild).toBeTruthy()
     })

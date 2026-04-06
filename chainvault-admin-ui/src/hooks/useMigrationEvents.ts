@@ -2,7 +2,7 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { MigrationEvent } from '@/types'
+import type { MigrationEvent } from '../types'
 
 export function useMigrationEvents() {
   const [events, setEvents] = useState<MigrationEvent[]>([])

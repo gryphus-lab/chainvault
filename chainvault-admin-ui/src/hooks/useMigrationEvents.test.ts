@@ -5,7 +5,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useMigrationEvents } from './useMigrationEvents'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // --- Mock EventSource ---
 class MockEventSource {
   url: string
@@ -22,7 +21,7 @@ class MockEventSource {
   static instances: MockEventSource[] = []
 }
 
-;(global as any).EventSource = MockEventSource
+;(globalThis as any).EventSource = MockEventSource
 
 describe('useMigrationEvents', () => {
   beforeEach(() => {

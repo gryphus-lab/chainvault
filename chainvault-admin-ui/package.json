@@ -13,13 +13,13 @@
   "license": "MIT",
   "author": "The CoreUI Team (https://github.com/orgs/coreui/people)",
   "scripts": {
-    "build": "vite build",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "serve": "vite preview",
-    "start": "vite",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "dev": "vite",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "prettier": "prettier --write .",
     "prettier:check": "prettier --check ."

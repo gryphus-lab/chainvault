@@ -4,7 +4,11 @@ import React from 'react'
 vi.mock('@coreui/react-chartjs', () => {
   const make = (name: string) => {
     const Stub = React.forwardRef<HTMLDivElement, Record<string, unknown>>((props, ref) =>
-      React.createElement('div', { ref, 'data-testid': `chart-${name}`, ...props }),
+      React.createElement('div', {
+        ref,
+        'data-testid': `chart-${name}`,
+        ...props,
+      }),
     )
     Stub.displayName = name
     return Stub

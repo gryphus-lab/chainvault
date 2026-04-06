@@ -1,8 +1,10 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'node:path'
 import autoprefixer from 'autoprefixer'
+import path, { dirname } from 'node:path'
+
+const __dirname = dirname(__filename)
 
 export default defineConfig(() => {
   return {

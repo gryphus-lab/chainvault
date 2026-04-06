@@ -19,8 +19,14 @@ const MainChart = () => {
           return
         }
         const scales = c.options.scales as {
-          x?: { grid?: { borderColor?: string; color?: string }; ticks?: { color?: string } }
-          y?: { grid?: { borderColor?: string; color?: string }; ticks?: { color?: string } }
+          x?: {
+            grid?: { borderColor?: string; color?: string }
+            ticks?: { color?: string }
+          }
+          y?: {
+            grid?: { borderColor?: string; color?: string }
+            ticks?: { color?: string }
+          }
         }
         scales.x!.grid!.borderColor = getStyle('--cui-border-color-translucent')
         scales.x!.grid!.color = getStyle('--cui-border-color-translucent')

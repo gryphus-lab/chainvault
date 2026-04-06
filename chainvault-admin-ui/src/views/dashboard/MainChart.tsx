@@ -1,9 +1,12 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React, { useEffect, useRef } from 'react'
 import type { Chart } from 'chart.js'
 
 import { CChartLine } from '@coreui/react-chartjs'
 import { getStyle } from '@coreui/utils'
-import { randomInt } from 'node:crypto'
+import secureRandomInt from '../../lib/utils'
 
 const MainChart = () => {
   const chartRef = useRef<Chart | null>(null)
@@ -44,7 +47,7 @@ const MainChart = () => {
       document.documentElement.removeEventListener('ColorSchemeChange', handleColorSchemeChange)
   }, [chartRef])
 
-  const random = (min = 0, max = 100) => randomInt(0, max - min + 1) + min
+  const random = (min = 0, max = 100) => secureRandomInt(max - min + 1) + min
 
   return (
     <CChartLine

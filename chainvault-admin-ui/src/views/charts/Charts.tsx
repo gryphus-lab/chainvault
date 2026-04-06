@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React from 'react'
 import { CCard, CCardBody, CCol, CCardHeader, CRow } from '@coreui/react'
 import {
@@ -9,10 +12,10 @@ import {
   CChartRadar,
 } from '@coreui/react-chartjs'
 import { DocsLink } from '../../components'
-import { randomInt } from 'node:crypto'
+import secureRandomInt from '../../lib/utils'
 
 const Charts = () => {
-  const random = () => randomInt(0, 101)
+  const random = () => secureRandomInt(101)
 
   return (
     <CRow>

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React from 'react'
 import {
   CCard,
@@ -33,10 +36,10 @@ import { DocsExample } from '../../components'
 
 import WidgetsBrand from './WidgetsBrand'
 import WidgetsDropdown from './WidgetsDropdown'
-import { randomInt } from 'node:crypto'
+import secureRandomInt from '../../lib/utils'
 
 const Widgets = () => {
-  const random = (min: number, max: number) => randomInt(0, max - min + 1) + min
+  const random = (min: number, max: number) => secureRandomInt(max - min + 1) + min
 
   return (
     <CCard className="mb-4">

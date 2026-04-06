@@ -292,8 +292,8 @@
                         </java>
                         <typescript>
                             <includes>
-                                <include>chainvault-dashboard/src/**/*.ts</include>
-                                <include>chainvault-dashboard/src/**/*.tsx</include>
+                                <include>**/*.ts</include>
+                                <include>**/*.tsx</include>
                             </includes>
                             
                             <licenseHeader>

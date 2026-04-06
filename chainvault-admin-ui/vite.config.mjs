@@ -13,9 +13,12 @@ export default defineConfig(() => {
       outDir: 'build',
     },
     test: {
-      environment: 'jsdom',
+      environment: 'happy-dom',
+      pool: 'forks',
+      globals: true,
       setupFiles: ['./src/test/setup.ts'],
       include: ['src/**/*.{test,spec}.{ts,tsx}'],
+      exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
       css: true,
       clearMocks: true,
       coverage: {

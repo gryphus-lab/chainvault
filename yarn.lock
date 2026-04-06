@@ -2428,11 +2428,11 @@ __metadata:
   linkType: hard
 
 "baseline-browser-mapping@npm:^2.10.12":
-  version: 2.10.15
-  resolution: "baseline-browser-mapping@npm:2.10.15"
+  version: 2.10.16
+  resolution: "baseline-browser-mapping@npm:2.10.16"
   bin:
     baseline-browser-mapping: dist/cli.cjs
-  checksum: 10c0/0bbcdefe842e79a1bcded41f7ffd6cca7a89edc035cfabae84ed80f19a0318de3f909ee64e184c39165cef12213eba89335745b101eeace2a4eaf290680d3af2
+  checksum: 10c0/9947243bb8f16db3f8e05397c5c3e7a91243dcf2d1ec6a681ad5ffabeadee36c1061cd18e5f0432088df6798fa0689890ba26db173b9ad23c5650709b7b2e7cf
   languageName: node
   linkType: hard
 
@@ -4901,9 +4901,9 @@ __metadata:
   linkType: hard
 
 "lru-cache@npm:^11.0.0, lru-cache@npm:^11.1.0, lru-cache@npm:^11.2.1":
-  version: 11.3.0
-  resolution: "lru-cache@npm:11.3.0"
-  checksum: 10c0/f50d32064c07b17390e7bf89fa09fcf05c19018d8cb03359a04dad3e16e4213812958af32eb0e29a92239a1f13631b58c26c007367f99946defcf4e495c1c123
+  version: 11.3.1
+  resolution: "lru-cache@npm:11.3.1"
+  checksum: 10c0/4fb5cf792cf6fb40bee3f4a0a0903f74b7869bfeaf500a6194dffcd556d16819342f02a7d0bac13b55557ddf231970c58740ff2098ecffbf23c8a99569084acb
   languageName: node
   linkType: hard
 
@@ -5698,9 +5698,9 @@ __metadata:
   linkType: hard
 
 "protocol-buffers-schema@npm:^3.3.1":
-  version: 3.6.0
-  resolution: "protocol-buffers-schema@npm:3.6.0"
-  checksum: 10c0/23a08612e5cc903f917ae3b680216ccaf2d889c61daa68d224237f455182fa96fff16872ac94b1954b5dd26fc7e8ce7e9360c54d54ea26218d107b2f059fca37
+  version: 3.6.1
+  resolution: "protocol-buffers-schema@npm:3.6.1"
+  checksum: 10c0/e0a6858d085aa1a6719c924c0be52000dafc24bf3b0d0b1a6e1e68c8b95f8efe3d4069902e14270a2101f2144374eeefc11381dff07ad9909386a4fbc70c7ebd
   languageName: node
   linkType: hard
 
@@ -6862,64 +6862,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.0 || ^7.0.0 || ^8.0.0, vite@npm:^8.0.3":
-  version: 8.0.5
-  resolution: "vite@npm:8.0.5"
-  dependencies:
-    fsevents: "npm:~2.3.3"
-    lightningcss: "npm:^1.32.0"
-    picomatch: "npm:^4.0.4"
-    postcss: "npm:^8.5.8"
-    rolldown: "npm:1.0.0-rc.12"
-    tinyglobby: "npm:^0.2.15"
-  peerDependencies:
-    "@types/node": ^20.19.0 || >=22.12.0
-    "@vitejs/devtools": ^0.1.0
-    esbuild: ^0.27.0 || ^0.28.0
-    jiti: ">=1.21.0"
-    less: ^4.0.0
-    sass: ^1.70.0
-    sass-embedded: ^1.70.0
-    stylus: ">=0.54.8"
-    sugarss: ^5.0.0
-    terser: ^5.16.0
-    tsx: ^4.8.1
-    yaml: ^2.4.2
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  peerDependenciesMeta:
-    "@types/node":
-      optional: true
-    "@vitejs/devtools":
-      optional: true
-    esbuild:
-      optional: true
-    jiti:
-      optional: true
-    less:
-      optional: true
-    sass:
-      optional: true
-    sass-embedded:
-      optional: true
-    stylus:
-      optional: true
-    sugarss:
-      optional: true
-    terser:
-      optional: true
-    tsx:
-      optional: true
-    yaml:
-      optional: true
-  bin:
-    vite: bin/vite.js
-  checksum: 10c0/bfc22896b2661753c01c398a058f1859bdbd3ebe55f3d8505ab629b39e5f68790c0a6f55f8644b6692b0b9b8e210f698082ef9f4fd0d76509f4a46762fbfbba2
-  languageName: node
-  linkType: hard
-
-"vite@npm:^8.0.5":
+"vite@npm:^6.0.0 || ^7.0.0 || ^8.0.0, vite@npm:^8.0.5":
   version: 8.0.5
   resolution: "vite@npm:8.0.5"
   dependencies:

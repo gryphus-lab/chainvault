@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React from 'react'
 import {
   CCard,
@@ -33,12 +36,7 @@ import { DocsExample } from '../../components'
 
 import WidgetsBrand from './WidgetsBrand'
 import WidgetsDropdown from './WidgetsDropdown'
-
-function secureRandomInt(max: number): number {
-  const array = new Uint32Array(1)
-  crypto.getRandomValues(array)
-  return array[0] % (max + 1)
-}
+import secureRandomInt from '../../lib/utils'
 
 const Widgets = () => {
   const random = (min: number, max: number) => secureRandomInt(max - min + 1) + min

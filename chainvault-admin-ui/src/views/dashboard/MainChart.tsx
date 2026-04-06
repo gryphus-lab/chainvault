@@ -1,14 +1,12 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React, { useEffect, useRef } from 'react'
 import type { Chart } from 'chart.js'
 
 import { CChartLine } from '@coreui/react-chartjs'
 import { getStyle } from '@coreui/utils'
-
-function secureRandomInt(max: number): number {
-  const array = new Uint32Array(1)
-  crypto.getRandomValues(array)
-  return array[0] % (max + 1)
-}
+import secureRandomInt from '../../lib/utils'
 
 const MainChart = () => {
   const chartRef = useRef<Chart | null>(null)

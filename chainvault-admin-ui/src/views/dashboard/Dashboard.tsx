@@ -271,8 +271,8 @@ const Dashboard = () => {
                     </CCol>
                   </CRow>
                   <hr className="mt-0" />
-                  {progressGroupExample1.map((item, index) => (
-                    <div className="progress-group mb-4" key={`${item.title}-${index}`}>
+                  {progressGroupExample1.map((item) => (
+                    <div className="progress-group mb-4" key={item.title}>
                       <div className="progress-group-prepend">
                         <span className="text-body-secondary small">{item.title}</span>
                       </div>
@@ -301,8 +301,8 @@ const Dashboard = () => {
 
                   <hr className="mt-0" />
 
-                  {progressGroupExample2.map((item, index) => (
-                    <div className="progress-group mb-4" key={`${item.title}-${index}`}>
+                  {progressGroupExample2.map((item) => (
+                    <div className="progress-group mb-4" key={item.title}>
                       <div className="progress-group-header">
                         <CIcon className="me-2" icon={item.icon} size="lg" />
                         <span>{item.title}</span>
@@ -316,8 +316,8 @@ const Dashboard = () => {
 
                   <div className="mb-5"></div>
 
-                  {progressGroupExample3.map((item, index) => (
-                    <div className="progress-group" key={`${item.title}-${index}`}>
+                  {progressGroupExample3.map((item) => (
+                    <div className="progress-group" key={item.title}>
                       <div className="progress-group-header">
                         <CIcon className="me-2" icon={item.icon} size="lg" />
                         <span>{item.title}</span>

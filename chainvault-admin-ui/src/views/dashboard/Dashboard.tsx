@@ -234,7 +234,7 @@ const Dashboard = () => {
                 className={classNames({
                   'd-none d-xl-block': index + 1 === items.length,
                 })}
-                key={`${item.color}-${index}`}
+                key={`${item.title}-${index}`}
               >
                 <div className="text-body-secondary">{item.title}</div>
                 <div className="fw-semibold text-truncate">

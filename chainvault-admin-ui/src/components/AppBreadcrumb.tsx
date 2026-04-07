@@ -19,6 +19,11 @@ const AppBreadcrumb = () => {
   const getBreadcrumbs = (location: string) => {
     const breadcrumbs = location.split('/').reduce(
       (acc, curr, index, array) => {
+        // Skip empty path segments to avoid duplicate Home breadcrumb
+        if (curr === '') {
+          return acc
+        }
+
         const prevPath = acc.currentPath
         const currentPathname = prevPath === '/' ? `/${curr}` : `${prevPath}/${curr}`
 

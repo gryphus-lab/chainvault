@@ -1,23 +1,6 @@
-/**
- * AppHeader Component
- *
- * Main application header with navigation, theme switcher, and user menu.
- * Features include:
- * - Sidebar toggle button
- * - Primary navigation links
- * - Notification and action icons
- * - Theme switcher (light/dark/auto)
- * - User dropdown menu
- * - Breadcrumb navigation
- * - Sticky positioning with scroll shadow effect
- *
- * @component
- * @example
- * return (
- *   <AppHeader />
- * )
+/*
+ * Copyright (c) 2026. Gryphus Lab
  */
-
 import React, { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../hooks'
@@ -69,7 +52,7 @@ function getCDropdownToggle(colorMode: string | undefined) {
  *
  * @returns {React.ReactElement} Header component with navigation and controls
  */
-const AppHeader = () => {
+const AppHeader = (): React.ReactElement => {
   const headerRef = useRef<HTMLDivElement | null>(null)
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
 

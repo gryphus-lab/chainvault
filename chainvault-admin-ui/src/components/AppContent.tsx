@@ -1,23 +1,6 @@
-/**
- * AppContent Component
- *
- * Main content area that renders routes defined in routes.js.
- * Handles lazy loading with Suspense and provides a loading spinner
- * while components are being loaded.
- *
- * Features:
- * - Dynamic route rendering from routes configuration
- * - Suspense boundary for lazy-loaded components
- * - Automatic redirect from root to dashboard
- * - Loading spinner fallback during component load
- *
- * @component
- * @example
- * return (
- *   <AppContent />
- * )
+/*
+ * Copyright (c) 2026. Gryphus Lab
  */
-
 import React, { Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { CContainer, CSpinner } from '@coreui/react'
@@ -37,7 +20,7 @@ import { routes, type AppRoute } from '../routes'
  *
  * @returns {React.ReactElement} Content container with routed views
  */
-const AppContent = () => {
+const AppContent = (): React.ReactElement => {
   return (
     <CContainer className="px-4" lg>
       <Suspense fallback={<CSpinner color="primary" />}>
@@ -46,7 +29,7 @@ const AppContent = () => {
             return (
               route.element &&
               route.path !== undefined && (
-                <Route key={idx} path={route.path} element={<route.element />} />
+                <Route key={`${route.path}-${idx}`} path={route.path} element={<route.element />} />
               )
             )
           })}

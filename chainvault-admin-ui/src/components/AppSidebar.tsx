@@ -1,24 +1,6 @@
-/**
- * AppSidebar Component
- *
- * Collapsible navigation sidebar with branding, menu items, and toggle controls.
- *
- * Features:
- * - Redux-controlled visibility state
- * - Unfoldable/narrow mode for more screen space
- * - Brand logo with full and narrow variants
- * - Close button for mobile devices
- * - Footer with toggle button
- * - Dark color scheme
- * - Fixed positioning
- *
- * @component
- * @example
- * return (
- *   <AppSidebar />
- * )
+/*
+ * Copyright (c) 2026. Gryphus Lab
  */
-
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../hooks'
@@ -53,7 +35,7 @@ import navigation from '../_nav'
  *
  * @returns {React.ReactElement} Sidebar with navigation
  */
-const AppSidebar = () => {
+const AppSidebar = (): React.ReactElement => {
   const dispatch = useAppDispatch()
   const unfoldable = useAppSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useAppSelector((state) => state.sidebarShow)

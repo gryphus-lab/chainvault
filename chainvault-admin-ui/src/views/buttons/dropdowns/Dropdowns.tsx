@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React from 'react'
 import {
   CButton,
@@ -44,20 +47,18 @@ const Dropdowns = () => {
             </p>
             <DocsExample href="components/dropdown#single-button">
               <>
-                {['primary', 'secondary', 'success', 'info', 'warning', 'danger'].map(
-                  (color, index) => (
-                    <CDropdown variant="btn-group" key={index}>
-                      <CDropdownToggle color={color}>{color}</CDropdownToggle>
-                      <CDropdownMenu>
-                        <CDropdownItem href="#">Action</CDropdownItem>
-                        <CDropdownItem href="#">Another action</CDropdownItem>
-                        <CDropdownItem href="#">Something else here</CDropdownItem>
-                        <CDropdownDivider />
-                        <CDropdownItem href="#">Separated link</CDropdownItem>
-                      </CDropdownMenu>
-                    </CDropdown>
-                  ),
-                )}
+                {['primary', 'secondary', 'success', 'info', 'warning', 'danger'].map((color) => (
+                  <CDropdown variant="btn-group" key={color}>
+                    <CDropdownToggle color={color}>{color}</CDropdownToggle>
+                    <CDropdownMenu>
+                      <CDropdownItem href="#">Action</CDropdownItem>
+                      <CDropdownItem href="#">Another action</CDropdownItem>
+                      <CDropdownItem href="#">Something else here</CDropdownItem>
+                      <CDropdownDivider />
+                      <CDropdownItem href="#">Separated link</CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown>
+                ))}
               </>
             </DocsExample>
           </CCardBody>
@@ -82,21 +83,19 @@ const Dropdowns = () => {
             </p>
             <DocsExample href="components/dropdown#split-button">
               <>
-                {['primary', 'secondary', 'success', 'info', 'warning', 'danger'].map(
-                  (color, index) => (
-                    <CDropdown variant="btn-group" key={index}>
-                      <CButton color={color}>{color}</CButton>
-                      <CDropdownToggle color={color} split />
-                      <CDropdownMenu>
-                        <CDropdownItem href="#">Action</CDropdownItem>
-                        <CDropdownItem href="#">Another action</CDropdownItem>
-                        <CDropdownItem href="#">Something else here</CDropdownItem>
-                        <CDropdownDivider />
-                        <CDropdownItem href="#">Separated link</CDropdownItem>
-                      </CDropdownMenu>
-                    </CDropdown>
-                  ),
-                )}
+                {['primary', 'secondary', 'success', 'info', 'warning', 'danger'].map((color) => (
+                  <CDropdown variant="btn-group" key={color}>
+                    <CButton color={color}>{color}</CButton>
+                    <CDropdownToggle color={color} split />
+                    <CDropdownMenu>
+                      <CDropdownItem href="#">Action</CDropdownItem>
+                      <CDropdownItem href="#">Another action</CDropdownItem>
+                      <CDropdownItem href="#">Something else here</CDropdownItem>
+                      <CDropdownDivider />
+                      <CDropdownItem href="#">Separated link</CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown>
+                ))}
               </>
             </DocsExample>
           </CCardBody>

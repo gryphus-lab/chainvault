@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -14,32 +17,46 @@ const AppBreadcrumb = () => {
   }
 
   const getBreadcrumbs = (location: string) => {
-    const breadcrumbs: { pathname: string; name: any; active: boolean }[] = []
-    location.split('/').reduce((prev: any, curr: any, index: number, array: string | any[]) => {
-      const currentPathname = `${prev}/${curr}`
-      const routeName = getRouteName(currentPathname, routes)
-      if (routeName) {
-        breadcrumbs.push({
-          pathname: currentPathname,
-          name: routeName,
-          active: index + 1 === array.length,
-        })
-      }
-      return currentPathname
-    })
-    return breadcrumbs
+    const breadcrumbs = location.split('/').reduce(
+      (acc, curr, index, array) => {
+        const prevPath = acc.currentPath
+        const currentPathname = prevPath === '/' ? `/${curr}` : `${prevPath}/${curr}`
+
+        const routeName = getRouteName(currentPathname, routes)
+        if (routeName) {
+          acc.list.push({
+            pathname: currentPathname,
+            name: routeName,
+            active: index + 1 === array.length,
+          })
+        }
+
+        return {
+          list: acc.list,
+          currentPath: currentPathname,
+        }
+      },
+      { list: [] as { pathname: string; name: any; active: boolean }[], currentPath: '' },
+    )
+
+    return breadcrumbs.list
   }
 
   const breadcrumbs = getBreadcrumbs(currentLocation)
 
   return (
     <CBreadcrumb className="my-0">
-      <CBreadcrumbItem href="/">Home</CBreadcrumbItem>
+      {/* Explicitly unique key for the Home item */}
+      <CBreadcrumbItem key="breadcrumb-home" href="/">
+        Home
+      </CBreadcrumbItem>
+
       {breadcrumbs.map((breadcrumb, index) => {
         return (
           <CBreadcrumbItem
             {...(breadcrumb.active ? { active: true } : { href: breadcrumb.pathname })}
-            key={index}
+            // Combining index and path guarantees uniqueness even if paths repeat
+            key={`${breadcrumb.pathname}-${index}`}
           >
             {breadcrumb.name}
           </CBreadcrumbItem>

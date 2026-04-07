@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React from 'react'
 import {
   CBadge,
@@ -167,7 +170,7 @@ const ListGroups = () => {
                 <CListGroup
                   className="mb-2"
                   layout={`horizontal${breakpoint}` as CListHorizontalLayout}
-                  key={index}
+                  key={`${breakpoint}-${index}`}
                 >
                   <CListGroupItem>Cras justo odio</CListGroupItem>
                   <CListGroupItem>Dapibus ac facilisis in</CListGroupItem>
@@ -200,7 +203,7 @@ const ListGroups = () => {
                   'light',
                   'dark',
                 ].map((color, index) => (
-                  <CListGroupItem color={color} key={index}>
+                  <CListGroupItem color={color} key={`${color}-${index}`}>
                     A simple {color} list group item
                   </CListGroupItem>
                 ))}
@@ -227,7 +230,7 @@ const ListGroups = () => {
                   'light',
                   'dark',
                 ].map((color, index) => (
-                  <CListGroupItem as="a" href="#" color={color} key={index}>
+                  <CListGroupItem as="a" href="#" color={color} key={`${color}-${index}`}>
                     A simple {color} list group item
                   </CListGroupItem>
                 ))}

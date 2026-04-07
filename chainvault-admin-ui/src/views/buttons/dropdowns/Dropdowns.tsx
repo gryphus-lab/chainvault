@@ -48,8 +48,8 @@ const Dropdowns = () => {
             <DocsExample href="components/dropdown#single-button">
               <>
                 {['primary', 'secondary', 'success', 'info', 'warning', 'danger'].map(
-                  (color, index) => (
-                    <CDropdown variant="btn-group" key={`${color}-${index}`}>
+                  (color) => (
+                    <CDropdown variant="btn-group" key={color}>
                       <CDropdownToggle color={color}>{color}</CDropdownToggle>
                       <CDropdownMenu>
                         <CDropdownItem href="#">Action</CDropdownItem>
@@ -86,8 +86,8 @@ const Dropdowns = () => {
             <DocsExample href="components/dropdown#split-button">
               <>
                 {['primary', 'secondary', 'success', 'info', 'warning', 'danger'].map(
-                  (color, index) => (
-                    <CDropdown variant="btn-group" key={`${color}-${index}`}>
+                  (color) => (
+                    <CDropdown variant="btn-group" key={color}>
                       <CButton color={color}>{color}</CButton>
                       <CDropdownToggle color={color} split />
                       <CDropdownMenu>

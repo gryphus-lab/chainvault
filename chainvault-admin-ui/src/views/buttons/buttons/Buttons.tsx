@@ -24,17 +24,17 @@ const Buttons = () => {
               foreground of an experience.
             </p>
             <DocsExample href="components/buttons">
-              {['normal', 'active', 'disabled'].map((state, index) => (
-                <CRow className="align-items-center mb-3" key={`${state}-${index}`}>
+              {['normal', 'active', 'disabled'].map((state) => (
+                <CRow className="align-items-center mb-3" key={state}>
                   <CCol xs={12} xl={2} className="mb-3 mb-xl-0">
                     {state.charAt(0).toUpperCase() + state.slice(1)}
                   </CCol>
                   <CCol xs>
                     {['primary', 'secondary', 'success', 'danger', 'warning', 'info'].map(
-                      (color, index) => (
+                      (color) => (
                         <CButton
                           color={color}
-                          key={`${color}-${index}`}
+                          key={color}
                           active={state === 'active'}
                           disabled={state === 'disabled'}
                         >
@@ -60,17 +60,17 @@ const Buttons = () => {
               You can combine button with our <a href="https://coreui.io/icons/">CoreUI Icons</a>.
             </p>
             <DocsExample href="components/buttons">
-              {['normal', 'active', 'disabled'].map((state, index) => (
-                <CRow className="align-items-center mb-3" key={`${state}-${index}`}>
+              {['normal', 'active', 'disabled'].map((state) => (
+                <CRow className="align-items-center mb-3" key={state}>
                   <CCol xs={12} xl={2} className="mb-3 mb-xl-0">
                     {state.charAt(0).toUpperCase() + state.slice(1)}
                   </CCol>
                   <CCol xs>
                     {['primary', 'secondary', 'success', 'danger', 'warning', 'info'].map(
-                      (color, index) => (
+                      (color) => (
                         <CButton
                           color={color}
-                          key={`${color}-${index}`}
+                          key={color}
                           active={state === 'active'}
                           disabled={state === 'disabled'}
                         >
@@ -132,18 +132,18 @@ const Buttons = () => {
               <code>variant=&#34;outline&#34;</code> prop to remove all background colors.
             </p>
             <DocsExample href="components/buttons#outline-buttons">
-              {['normal', 'active', 'disabled'].map((state, index) => (
-                <CRow className="align-items-center mb-3" key={`${state}-${index}`}>
+              {['normal', 'active', 'disabled'].map((state) => (
+                <CRow className="align-items-center mb-3" key={state}>
                   <CCol xs={12} xl={2} className="mb-3 mb-xl-0">
                     {state.charAt(0).toUpperCase() + state.slice(1)}
                   </CCol>
                   <CCol xs>
                     {['primary', 'secondary', 'success', 'danger', 'warning', 'info'].map(
-                      (color, index) => (
+                      (color) => (
                         <CButton
                           color={color}
                           variant="outline"
-                          key={`${color}-${index}`}
+                          key={color}
                           active={state === 'active'}
                           disabled={state === 'disabled'}
                         >
@@ -169,18 +169,18 @@ const Buttons = () => {
               to remove all background colors.
             </p>
             <DocsExample href="components/buttons#ghost-buttons">
-              {['normal', 'active', 'disabled'].map((state, index) => (
-                <CRow className="align-items-center mb-3" key={`${state}-${index}`}>
+              {['normal', 'active', 'disabled'].map((state) => (
+                <CRow className="align-items-center mb-3" key={state}>
                   <CCol xs={12} xl={2} className="mb-3 mb-xl-0">
                     {state.charAt(0).toUpperCase() + state.slice(1)}
                   </CCol>
                   <CCol xs>
                     {['primary', 'secondary', 'success', 'danger', 'warning', 'info'].map(
-                      (color, index) => (
+                      (color) => (
                         <CButton
                           color={color}
                           variant="ghost"
-                          key={`${color}-${index}`}
+                          key={color}
                           active={state === 'active'}
                           disabled={state === 'disabled'}
                         >
@@ -240,8 +240,8 @@ const Buttons = () => {
                 'info',
                 'light',
                 'dark',
-              ].map((color, index) => (
-                <CButton color={color} shape="rounded-pill" key={`${color}-${index}`}>
+              ].map((color) => (
+                <CButton color={color} shape="rounded-pill" key={color}>
                   {color.charAt(0).toUpperCase() + color.slice(1)}
                 </CButton>
               ))}
@@ -265,8 +265,8 @@ const Buttons = () => {
                 'info',
                 'light',
                 'dark',
-              ].map((color, index) => (
-                <CButton color={color} shape="rounded-0" key={`${color}-${index}`}>
+              ].map((color) => (
+                <CButton color={color} shape="rounded-0" key={color}>
                   {color.charAt(0).toUpperCase() + color.slice(1)}
                 </CButton>
               ))}

@@ -47,7 +47,10 @@ const AppBreadcrumb = () => {
   return (
     <CBreadcrumb className="my-0">
       {/* Explicitly unique key for the Home item */}
-      <CBreadcrumbItem key="breadcrumb-home" href="/">
+      <CBreadcrumbItem
+        key="breadcrumb-home"
+        {...(currentLocation === '/' ? { active: true } : { href: '/' })}
+      >
         Home
       </CBreadcrumbItem>
 

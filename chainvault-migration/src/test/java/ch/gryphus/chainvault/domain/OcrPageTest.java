@@ -85,6 +85,11 @@ class OcrPageTest {
         assertThat(ocrPageUnderTest.getName()).isEqualTo("sample1.tiff");
     }
 
+    /**
+     * Test is supported image returns true for supported formats.
+     *
+     * @throws IOException the io exception
+     */
     @Test
     void testIsSupportedImage_ReturnsTrueForSupportedFormats() throws IOException {
         // Run the test
@@ -102,6 +107,9 @@ class OcrPageTest {
         assertThat(result).isTrue();
     }
 
+    /**
+     * Test is supported image returns false for unsupported formats.
+     */
     @Test
     void testIsSupportedImage_ReturnsFalseForUnsupportedFormats() {
         OcrPage anotherOcrPage =

@@ -11,12 +11,18 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The type Migration architecture test.
+ */
 @Slf4j
 @AnalyzeClasses(
         packages = "ch.gryphus.chainvault",
         importOptions = ImportOption.DoNotIncludeTests.class)
 class MigrationArchitectureTest {
 
+    /**
+     * The constant layered_architecture.
+     */
     @ArchTest
     static final ArchRule layered_architecture =
             layeredArchitecture()

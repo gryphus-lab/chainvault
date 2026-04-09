@@ -37,3 +37,4 @@ kafka.keystore.jks*
 **/coverage
 **/*.tsbuildinfo
 **/build/
+/.claude/

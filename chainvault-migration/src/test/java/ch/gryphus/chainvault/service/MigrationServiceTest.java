@@ -917,6 +917,11 @@ class MigrationServiceTest {
         return baos.toByteArray();
     }
 
+    /**
+     * Test create merged pdf should return expected results.
+     *
+     * @throws Exception the exception
+     */
     @Test
     void testCreateMergedPdf_shouldReturnExpectedResults() throws Exception {
         List<OcrPage> pages =

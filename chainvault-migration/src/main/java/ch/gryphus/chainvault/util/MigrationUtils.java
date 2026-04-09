@@ -72,6 +72,14 @@ public final class MigrationUtils {
         return tika.detect(bytes);
     }
 
+    /**
+     * Extract pdf pages list.
+     *
+     * @param pdfBytes     the pdf bytes
+     * @param originalName the original name
+     * @return the list
+     * @throws IOException the io exception
+     */
     public static List<OcrPage> extractPdfPages(byte[] pdfBytes, String originalName)
             throws IOException {
         List<OcrPage> pdfPages = new ArrayList<>();

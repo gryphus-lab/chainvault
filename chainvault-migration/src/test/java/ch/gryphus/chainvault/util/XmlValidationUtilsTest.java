@@ -26,6 +26,8 @@ class XmlValidationUtilsTest {
 
     /**
      * Test valid xml.
+     *
+     * @throws IOException the io exception
      */
     @Test
     void testValidXML() throws IOException {
@@ -38,6 +40,8 @@ class XmlValidationUtilsTest {
 
     /**
      * Test invalid xml.
+     *
+     * @throws IOException the io exception
      */
     @Test
     void testInvalidXML() throws IOException {

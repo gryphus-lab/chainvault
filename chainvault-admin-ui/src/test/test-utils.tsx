@@ -20,7 +20,7 @@ const AllTheProviders = ({ children }: { children: ReactNode }) => {
   })
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <MemoryRouter>{children}</MemoryRouter>
     </QueryClientProvider>
   )
 }

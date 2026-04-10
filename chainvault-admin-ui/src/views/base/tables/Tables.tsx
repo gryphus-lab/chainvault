@@ -235,7 +235,14 @@ const Tables: React.FC = () => {
       </CCol>
 
       {SECTIONS.map((section, index) => (
-        <TableSection key={`${section.title}-${index}`} title={''} href={''} tables={[]} />
+        <TableSection
+          key={`${section.title}-${index}`}
+          title={section.title}
+          subtitle={section.subtitle}
+          description={section.description}
+          href={section.href}
+          tables={section.tables}
+        />
       ))}
     </CRow>
   )

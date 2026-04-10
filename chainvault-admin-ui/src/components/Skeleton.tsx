@@ -12,13 +12,14 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * Renders an animated skeleton placeholder element.
+ * Renders an animated placeholder div used as a skeleton loader.
  *
- * Applies the provided `width` and `height` values directly as Tailwind class strings on the element.
+ * Applies provided `width` and `height` as Tailwind class strings directly.
  *
  * @param width - Optional Tailwind width class (e.g., "w-32", "w-full")
  * @param height - Optional Tailwind height class (e.g., "h-6", "h-10")
- * @param className - Additional classes to apply to the element
+ * @param className - Additional class names to merge onto the element
+ * @returns The rendered `<div>` element acting as a skeleton loader
  */
 export function Skeleton({ className, width, height, ...props }: Readonly<SkeletonProps>) {
   return (

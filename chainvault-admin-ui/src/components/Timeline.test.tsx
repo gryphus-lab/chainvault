@@ -2,9 +2,9 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import Timeline from './Timeline'
-import type { MigrationEvent } from '@/types'
+import type { MigrationEvent } from '../types'
 
 const mockEvents: MigrationEvent[] = [
   {

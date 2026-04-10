@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { format, parseISO, differenceInSeconds } from 'date-fns'
-import { CheckCircle2, XCircle, Clock } from 'lucide-react'
-import type { MigrationEvent } from '@/types'
+import { differenceInSeconds, format, parseISO } from 'date-fns'
+import { CheckCircle2, Clock, XCircle } from 'lucide-react'
+import type { MigrationEvent } from '../types'
 
 interface TimelineProps {
   events: MigrationEvent[]

@@ -2,7 +2,7 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { Badge } from './Badge'
 
 // Mock the cn utility if you want to test logic,

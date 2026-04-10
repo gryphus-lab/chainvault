@@ -2,8 +2,8 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
-import { Card, CardHeader, CardTitle, CardContent } from './Card'
+import { describe, expect, it } from 'vitest'
+import { Card, CardContent, CardHeader, CardTitle } from './Card'
 
 describe('Card Components', () => {
   describe('Card', () => {

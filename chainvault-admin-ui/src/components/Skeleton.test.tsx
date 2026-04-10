@@ -2,8 +2,8 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
-import { Skeleton, SkeletonText, SkeletonCard } from './Skeleton'
+import { describe, expect, it } from 'vitest'
+import { Skeleton, SkeletonCard, SkeletonText } from './Skeleton'
 
 describe('Skeleton Components', () => {
   describe('Skeleton', () => {

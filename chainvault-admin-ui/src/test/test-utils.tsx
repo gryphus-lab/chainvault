@@ -1,9 +1,34 @@
-import React, { Suspense } from 'react'
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
+import React, { ReactElement, ReactNode, Suspense } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { MemoryRouter } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 import { CSpinner } from '@coreui/react'
 import store from '../store'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      staleTime: Infinity,
+    },
+  },
+})
+
+const AllTheProviders = ({ children }: { children: ReactNode }) => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>{children}</BrowserRouter>
+    </QueryClientProvider>
+  )
+}
+
+export const customRender = (ui: ReactElement) => {
+  return render(ui, { wrapper: AllTheProviders })
+}
 
 export function resetStore() {
   store.dispatch({

@@ -12,7 +12,6 @@ import {
 
 describe('API Service', () => {
   // Mock the .json() resolution
-
   const mockJsonResponse = (data: any) => ({
     json: vi.fn().mockResolvedValue(data),
   })
@@ -23,10 +22,7 @@ describe('API Service', () => {
 
   it('getMigrations calls the correct endpoint with params', async () => {
     const mockData = [{ id: '1' }]
-    const spy = vi
-      .spyOn(api, 'get')
-
-      .mockReturnValue(mockJsonResponse(mockData) as any)
+    const spy = vi.spyOn(api, 'get').mockReturnValue(mockJsonResponse(mockData) as any)
 
     const result = await getMigrations({ limit: 10 })
 

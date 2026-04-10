@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { useParams, Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, FileText, Download } from 'lucide-react'
+import { ArrowLeft, Download, FileText } from 'lucide-react'
 
-import { getMigrationDetail } from '@/lib/api'
-import type { MigrationDetail } from '@/types'
+import { getMigrationDetail } from '../../../lib/api'
+import type { MigrationDetail } from '../../../types'
 
-import Timeline from '@/components/dashboard/Timeline'
-import { Badge } from '@/components/ui/Badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { safeFormat } from '@/lib/utils'
+import Timeline from '../../../components/Timeline'
+import { Badge } from '../../../components/Badge'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/Card'
+import { safeFormat } from '../../../lib/utils'
 
 export default function MigrationDetailPage() {
   const { id } = useParams<{ id: string }>()

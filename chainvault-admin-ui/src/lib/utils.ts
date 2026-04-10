@@ -2,6 +2,8 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import { format, parseISO } from 'date-fns'
+import clsx, { ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 /**
  * Generates a cryptographically secure random integer in the range [0, maxExclusive).
@@ -20,6 +22,10 @@ export default function secureRandomInt(maxExclusive: number): number {
     crypto.getRandomValues(array)
   } while (array[0] >= limit)
   return array[0] % maxExclusive
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
 
 export const safeFormat = (dateStr: string | undefined | null, fallback: string = '—') => {

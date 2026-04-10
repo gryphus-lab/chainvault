@@ -6,12 +6,11 @@ import { useQuery } from '@tanstack/react-query'
 import { format, parseISO, subDays } from 'date-fns'
 import { Clock, Search } from 'lucide-react'
 
-import { getMigrations } from '@/lib/api'
-import { useMigrationEvents } from '@/hooks/useMigrationEvents'
+import { getMigrations } from '../../../lib/api'
+import { useMigrationEvents } from '../../../hooks/useMigrationEvents'
 
-import { Badge } from '@/components/ui/Badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import MigrationDataGrid from '@/scenes/dashboard/migrationDataGrid'
+import { Badge } from '../../../components/Badge'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/Card'
 
 type StatusFilter = 'ALL' | 'SUCCESS' | 'FAILED' | 'RUNNING' | 'PENDING'
 
@@ -51,6 +50,7 @@ export default function Overview() {
     return merged
   }, [allMigrations, liveEvents])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const filteredMigrations = useMemo(() => {
     let result = [...migrationsWithLive]
 
@@ -92,6 +92,7 @@ export default function Overview() {
     )
   }, [migrationsWithLive, statusFilter, dateFilter, searchTerm])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function getMigrationStatus() {
     if (migrationsLoading) {
       return 'Loading migrations...'
@@ -191,7 +192,6 @@ export default function Overview() {
 
         <select
           value={dateFilter}
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           onChange={(e) => setDateFilter(e.target.value as any)}
           className="px-5 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
@@ -202,11 +202,11 @@ export default function Overview() {
         </select>
       </div>
 
-      {/* Migrations Table */}
+      {/* Migrations Table
       <Card>
         <CardHeader>
           <CardTitle>
-            Recent Migrations{/* no space */}
+            Recent Migrations{/* no space
             <span className="text-sm font-normal text-gray-500 ml-2">
               ({filteredMigrations.length} shown)
             </span>
@@ -219,7 +219,7 @@ export default function Overview() {
             <div>{getMigrationStatus()}</div>
           )}
         </CardContent>
-      </Card>
+      </Card>*/}
     </div>
   )
 }

@@ -34,17 +34,20 @@ type TableRowData = {
   active?: boolean
 }
 
+type TableConfig = {
+  head?: TableRendererProps['head']
+  rows: TableRendererProps['rows']
+  caption?: TableRendererProps['caption']
+  headColor?: TableRendererProps['headColor']
+  props?: TableRendererProps['tableProps']
+}
+
 type TableSectionConfig = {
   title: string
   subtitle?: string
   description?: string
   href: string
-  tables: {
-    props?: React.ComponentProps<typeof CTable>
-    caption?: string
-    headColor?: React.ComponentProps<typeof CTableHead>['color']
-    rows: TableRowData[]
-  }[]
+  tables: TableConfig[]
 }
 
 /* -----------------------------
@@ -132,6 +135,7 @@ const TableSection = ({ title, subtitle, description, href, tables }: TableSecti
         {tables.map((table, i) => (
           <DocsExample key={`${table}-${i}`} href={href}>
             <TableRenderer
+              head={table.head}
               rows={table.rows}
               caption={table.caption}
               headColor={table.headColor}

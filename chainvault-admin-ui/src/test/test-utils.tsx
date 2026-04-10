@@ -4,23 +4,21 @@
 import React, { ReactElement, ReactNode, Suspense, useRef } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { BrowserRouter, MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import { CSpinner } from '@coreui/react'
 import store from '../store'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const AllTheProviders = ({ children }: { children: ReactNode }) => {
-  const queryClientRef = useRef<QueryClient>()
-  if (!queryClientRef.current) {
-    queryClientRef.current = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-          staleTime: Infinity,
-        },
+  const queryClientRef = useRef<QueryClient | undefined>(undefined)
+  queryClientRef.current ??= new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        staleTime: Infinity,
       },
-    })
-  }
+    },
+  })
   return (
     <QueryClientProvider client={queryClientRef.current}>
       <MemoryRouter>{children}</MemoryRouter>

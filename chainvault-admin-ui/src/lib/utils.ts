@@ -34,10 +34,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const safeFormat = (dateStr: string | undefined | null, fallback: string = '—') => {
+export const safeFormat = (
+  dateStr: string | undefined | null,
+  datePattern: string = 'PPp',
+  fallback: string = '—',
+) => {
   if (!dateStr) return fallback
   try {
-    return format(parseISO(dateStr), 'PPp')
+    return format(parseISO(dateStr), datePattern)
   } catch {
     return fallback
   }

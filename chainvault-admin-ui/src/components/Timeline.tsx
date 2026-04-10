@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { differenceInSeconds, format, parseISO } from 'date-fns'
+import { differenceInSeconds, format, isValid, parseISO } from 'date-fns'
 import { CheckCircle2, Clock, XCircle } from 'lucide-react'
 import type { MigrationEvent } from '../types'
 
@@ -15,16 +15,17 @@ const Timeline = ({ events }: TimelineProps) => {
   }
 
   const sortedEvents = [...events]
-    .filter((e) => e?.timestamp)
-    .sort((a, b) => parseISO(a.timestamp).getTime() - parseISO(b.timestamp).getTime())
+    .filter((e) => e?.timestamp && isValid(parseISO(e.timestamp)))
+    .map((e) => ({ ...e, parsedTime: parseISO(e.timestamp) }))
+    .sort((a, b) => a.parsedTime.getTime() - b.parsedTime.getTime())
 
   return (
     <div className="flow-root">
       <ul className="-mb-8">
         {sortedEvents.map((event, index) => {
           const isLast = index === sortedEvents.length - 1
-          const prevTime = index > 0 ? parseISO(sortedEvents[index - 1].timestamp) : null
-          const currTime = parseISO(event.timestamp)
+          const prevTime = index > 0 ? sortedEvents[index - 1].parsedTime : null
+          const currTime = event.parsedTime
           const duration = prevTime ? differenceInSeconds(currTime, prevTime) : 0
 
           return (
@@ -38,7 +39,6 @@ const Timeline = ({ events }: TimelineProps) => {
                 )}
 
                 <div className="relative flex items-start space-x-4">
-                  {/* Icon */}
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-8 ring-white">
                     {event.eventType === 'TASK_COMPLETED' && (
                       <CheckCircle2 className="h-6 w-6 text-green-600" />

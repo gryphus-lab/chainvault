@@ -25,6 +25,12 @@ const ThemeView = () => {
 
   return (
     <table className="table w-100" ref={ref}>
+      <thead>
+        <tr>
+          <th colSpan={2}>Theme</th>
+          <th colSpan={2}>Color</th>
+        </tr>
+      </thead>
       <tbody>
         <tr>
           <td className="text-body-secondary">HEX:</td>

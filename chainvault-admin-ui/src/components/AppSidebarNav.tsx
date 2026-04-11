@@ -7,15 +7,28 @@ import 'simplebar-react/dist/simplebar.min.css'
 
 import { CBadge, CNavLink, CSidebarNav } from '@coreui/react'
 
-export type NavConfigItem = {
+type BaseNavConfigItem = {
   component: React.ElementType
-  name?: string
+  name?: ReactNode
   icon?: ReactNode
   badge?: { color: string; text: string }
-  to?: string
-  href?: string
   items?: NavConfigItem[]
 }
+
+export type NavConfigItem = BaseNavConfigItem & (
+  | {
+      to: string
+      href?: never
+    }
+  | {
+      href: string
+      to?: never
+    }
+  | {
+      to?: never
+      href?: never
+    }
+)
 
 type AppSidebarNavProps = {
   items: NavConfigItem[]
@@ -23,7 +36,7 @@ type AppSidebarNavProps = {
 
 export const AppSidebarNav = ({ items }: AppSidebarNavProps) => {
   const navLink = (
-    name: string | undefined,
+    name: ReactNode | undefined,
     icon: ReactNode | undefined,
     badge?: NavConfigItem['badge'],
     indent = false,

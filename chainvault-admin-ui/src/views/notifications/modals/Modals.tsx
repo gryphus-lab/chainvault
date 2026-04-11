@@ -92,7 +92,7 @@ const BrandWidget = ({ icon, values, color, chartData }: any) => (
     icon={icon}
     values={values}
     {...(chartData && { chart: <ChartWidget data={chartData} /> })}
-    style={color ? { '--cui-card-cap-bg': color } : undefined}
+    style={color ? ({ '--cui-card-cap-bg': color } as React.CSSProperties) : undefined}
   />
 )
 
@@ -100,7 +100,7 @@ const BrandWidget = ({ icon, values, color, chartData }: any) => (
 const AppCarousel = ({ items, withCaption, ...props }: any) => (
   <CCarousel {...props}>
     {items.map((item: any, i: number) => (
-      <CCarouselItem key={item.label}>
+      <CCarouselItem key={item.src || `${item.title}-${i}`}>
         <img className="d-block w-100" src={item.src} alt={`slide ${i}`} />
         {withCaption && (
           <CCarouselCaption>
@@ -138,9 +138,9 @@ const DashboardDemo = () => {
   ]
 
   const carouselItems = [
-    { src: '/img1.jpg', title: 'First', text: 'First slide' },
-    { src: '/img2.jpg', title: 'Second', text: 'Second slide' },
-    { src: '/img3.jpg', title: 'Third', text: 'Third slide' },
+    { src: 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23777%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2226px%22%20fill%3D%22%23fff%22%3EFirst%20slide%3C%2Ftext%3E%3C%2Fsvg%3E', title: 'First', text: 'First slide' },
+    { src: 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23666%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2226px%22%20fill%3D%22%23fff%22%3ESecond%20slide%3C%2Ftext%3E%3C%2Fsvg%3E', title: 'Second', text: 'Second slide' },
+    { src: 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23555%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2226px%22%20fill%3D%22%23fff%22%3EThird%20slide%3C%2Ftext%3E%3C%2Fsvg%3E', title: 'Third', text: 'Third slide' },
   ]
 
   return (

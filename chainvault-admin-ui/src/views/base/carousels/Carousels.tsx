@@ -24,9 +24,9 @@ import VueImg from '../../../assets/images/vue.jpg'
  * @type {string[]}
  */
 const slidesLight = [
-  'data:image/svg+xml;charset=UTF-8,...',
-  'data:image/svg+xml;charset=UTF-8,...',
-  'data:image/svg+xml;charset=UTF-8,...',
+  'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23f5f5f5%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2226px%22%20fill%3D%22%23999%22%3EFirst%20slide%3C%2Ftext%3E%3C%2Fsvg%3E',
+  'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23e5e5e5%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2226px%22%20fill%3D%22%23888%22%3ESecond%20slide%3C%2Ftext%3E%3C%2Fsvg%3E',
+  'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23d5d5d5%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2226px%22%20fill%3D%22%23777%22%3EThird%20slide%3C%2Ftext%3E%3C%2Fsvg%3E',
 ]
 
 const Carousels = () => {
@@ -150,6 +150,9 @@ const Carousels = () => {
                 <CCarouselItem>
                   <img className="d-block w-100" src={ReactImg} alt="React slide" />
                 </CCarouselItem>
+                <CCarouselItem>
+                  <img className="d-block w-100" src={AngularImg} alt="Angular slide" />
+                </CCarouselItem>
               </CCarousel>
             </DocsExample>
           </CCardBody>
@@ -169,7 +172,25 @@ const Carousels = () => {
             <DocsExample href="components/carousel/#dark-variant">
               <CCarousel controls indicators dark>
                 <CCarouselItem>
-                  <img className="d-block w-100" src={slidesLight[0]} alt="Slide" />
+                  <img className="d-block w-100" src={slidesLight[0]} alt="First slide" />
+                  <CCarouselCaption className="d-none d-md-block">
+                    <h5>First slide label</h5>
+                    <p>Some representative placeholder content for the first slide.</p>
+                  </CCarouselCaption>
+                </CCarouselItem>
+                <CCarouselItem>
+                  <img className="d-block w-100" src={slidesLight[1]} alt="Second slide" />
+                  <CCarouselCaption className="d-none d-md-block">
+                    <h5>Second slide label</h5>
+                    <p>Some representative placeholder content for the second slide.</p>
+                  </CCarouselCaption>
+                </CCarouselItem>
+                <CCarouselItem>
+                  <img className="d-block w-100" src={slidesLight[2]} alt="Third slide" />
+                  <CCarouselCaption className="d-none d-md-block">
+                    <h5>Third slide label</h5>
+                    <p>Some representative placeholder content for the third slide.</p>
+                  </CCarouselCaption>
                 </CCarouselItem>
               </CCarousel>
             </DocsExample>

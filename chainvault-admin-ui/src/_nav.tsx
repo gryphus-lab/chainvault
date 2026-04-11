@@ -34,11 +34,18 @@ type BaseNavItem = {
   badge?: Badge
 }
 
-type NavItem = BaseNavItem & {
-  component: typeof CNavItem
-  to?: string
-  href?: string
-}
+type NavItem = BaseNavItem & (
+  | {
+      component: typeof CNavItem
+      to: string
+      href?: never
+    }
+  | {
+      component: typeof CNavItem
+      href: string
+      to?: never
+    }
+)
 
 type NavGroup = BaseNavItem & {
   component: typeof CNavGroup
@@ -57,7 +64,7 @@ type NavNode = NavItem | NavGroup | NavTitle
 /*                                  HELPERS                                   */
 /* -------------------------------------------------------------------------- */
 
-const icon = (i: any) => <CIcon icon={i} customClassName="nav-icon" />
+const icon = (i: React.ComponentProps<typeof CIcon>['icon']) => <CIcon icon={i} customClassName="nav-icon" />
 
 const external = (label: string): ReactNode => (
   <>
@@ -125,7 +132,7 @@ const _nav: NavNode[] = [
       { component: CNavItem, name: 'Progress', to: '/base/progress' },
       {
         component: CNavItem,
-        name: 'Smart Pagination',
+        name: external('Smart Pagination'),
         href: 'https://coreui.io/react/docs/components/smart-pagination/',
         badge: proBadge,
       },
@@ -187,7 +194,7 @@ const _nav: NavNode[] = [
       },
       {
         component: CNavItem,
-        name: 'Date Range Picker',
+        name: external('Date Range Picker'),
         href: 'https://coreui.io/react/docs/forms/date-range-picker/',
         badge: proBadge,
       },
@@ -297,7 +304,7 @@ const _nav: NavNode[] = [
 
   {
     component: CNavItem,
-    name: 'Docs',
+    name: external('Docs'),
     href: 'https://coreui.io/react/docs/templates/installation/',
     icon: icon(cilDescription),
   },

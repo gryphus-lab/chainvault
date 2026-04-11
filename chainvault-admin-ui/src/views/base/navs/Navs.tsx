@@ -234,7 +234,7 @@ const Navs: FC = () => {
         subtitle="Tabs with dropdowns"
         example={
           <DocsExample href="components/nav-tabs#tabs-dropdown">
-            <NavExample withDropdown />
+            <NavExample withDropdown variant="tabs" />
           </DocsExample>
         }
       />

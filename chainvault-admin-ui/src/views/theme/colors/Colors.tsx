@@ -27,8 +27,8 @@ const ThemeView = () => {
     <table className="table w-100" ref={ref}>
       <thead>
         <tr>
-          <th colSpan={2}>Theme</th>
-          <th colSpan={2}>Color</th>
+          <th>Theme</th>
+          <th>Color</th>
         </tr>
       </thead>
       <tbody>

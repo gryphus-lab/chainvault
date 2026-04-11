@@ -134,7 +134,7 @@ const ColorCards = ({ bordered = false, topBorder = false }: ColorCardsProps) =>
           <CCol lg={4} key={`${color}-${i}`}>
             <CCard
               color={!bordered && !topBorder ? color : undefined}
-              textColor={bordered || topBorder ? (color as any) : getColorVariant(color)}
+              textColor={bordered || topBorder ? ((bordered || topBorder) && color === 'light' ? getColorVariant(color) : (color as any)) : getColorVariant(color)}
               className={`mb-3 ${bordered ? borderedValue : ''} ${topBorder ? topBorderedValue : ''}`}
             >
               <CCardHeader>Header</CCardHeader>

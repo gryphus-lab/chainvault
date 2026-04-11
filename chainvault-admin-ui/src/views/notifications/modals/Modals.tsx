@@ -73,7 +73,11 @@ const Modals = () => {
         </DocsExample>
 
         <DocsExample href="components/modal/#vertically-centered">
-          <AppModal title="Vertically centered modal" trigger="Vertically centered" alignment="center">
+          <AppModal
+            title="Vertically centered modal"
+            trigger="Vertically centered"
+            alignment="center"
+          >
             <p>This modal is vertically centered on the page for better visual focus.</p>
           </AppModal>
         </DocsExample>
@@ -100,8 +104,8 @@ const Modals = () => {
         <DocsExample href="components/modal/#fullscreen-modal">
           <AppModal title="Fullscreen modal" trigger="Fullscreen modal" fullscreen>
             <p>
-              This modal takes up the entire viewport, providing maximum space for content. Great for
-              complex forms or detailed information.
+              This modal takes up the entire viewport, providing maximum space for content. Great
+              for complex forms or detailed information.
             </p>
           </AppModal>
         </DocsExample>

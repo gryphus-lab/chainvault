@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2026. Gryphus Lab
+ */
 import React, { type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -15,20 +18,21 @@ type BaseNavConfigItem = {
   items?: NavConfigItem[]
 }
 
-export type NavConfigItem = BaseNavConfigItem & (
-  | {
-      to: string
-      href?: never
-    }
-  | {
-      href: string
-      to?: never
-    }
-  | {
-      to?: never
-      href?: never
-    }
-)
+export type NavConfigItem = BaseNavConfigItem &
+  (
+    | {
+        to: string
+        href?: never
+      }
+    | {
+        href: string
+        to?: never
+      }
+    | {
+        to?: never
+        href?: never
+      }
+  )
 
 type AppSidebarNavProps = {
   items: NavConfigItem[]

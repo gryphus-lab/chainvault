@@ -34,18 +34,19 @@ type BaseNavItem = {
   badge?: Badge
 }
 
-type NavItem = BaseNavItem & (
-  | {
-      component: typeof CNavItem
-      to: string
-      href?: never
-    }
-  | {
-      component: typeof CNavItem
-      href: string
-      to?: never
-    }
-)
+type NavItem = BaseNavItem &
+  (
+    | {
+        component: typeof CNavItem
+        to: string
+        href?: never
+      }
+    | {
+        component: typeof CNavItem
+        href: string
+        to?: never
+      }
+  )
 
 type NavGroup = BaseNavItem & {
   component: typeof CNavGroup
@@ -64,7 +65,9 @@ type NavNode = NavItem | NavGroup | NavTitle
 /*                                  HELPERS                                   */
 /* -------------------------------------------------------------------------- */
 
-const icon = (i: React.ComponentProps<typeof CIcon>['icon']) => <CIcon icon={i} customClassName="nav-icon" />
+const icon = (i: React.ComponentProps<typeof CIcon>['icon']) => (
+  <CIcon icon={i} customClassName="nav-icon" />
+)
 
 const external = (label: string): ReactNode => (
   <>

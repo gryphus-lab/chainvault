@@ -115,6 +115,14 @@ function getColorVariant(color: string): 'dark' | 'white' {
   return color === 'light' ? 'dark' : 'white'
 }
 
+function getBorderColors(
+  bordered: undefined | boolean,
+  topBorder: undefined | boolean,
+  color: string,
+) {
+  return (bordered || topBorder) && color === 'light' ? getColorVariant(color) : (color as any)
+}
+
 const ColorCards = ({ bordered = false, topBorder = false }: ColorCardsProps) => {
   const variants = [
     'primary',
@@ -136,7 +144,11 @@ const ColorCards = ({ bordered = false, topBorder = false }: ColorCardsProps) =>
           <CCol lg={4} key={`${color}-${i}`}>
             <CCard
               color={!bordered && !topBorder ? color : undefined}
-              textColor={bordered || topBorder ? ((bordered || topBorder) && color === 'light' ? getColorVariant(color) : (color as any)) : getColorVariant(color)}
+              textColor={
+                bordered || topBorder
+                  ? getBorderColors(bordered, topBorder, color)
+                  : getColorVariant(color)
+              }
               className={`mb-3 ${bordered ? borderedValue : ''} ${topBorder ? topBorderedValue : ''}`}
             >
               <CCardHeader>Header</CCardHeader>

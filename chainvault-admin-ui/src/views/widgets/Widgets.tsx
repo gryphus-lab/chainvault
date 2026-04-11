@@ -166,7 +166,6 @@ const getWidgetIcon = (hasFooter: boolean, color: string, defaultIcon: string | 
   hasFooter && color === 'info' ? cilLaptop : defaultIcon
 
 const Widgets: FC = () => {
-
   return (
     <CCard className="mb-4">
       <CCardHeader>Widgets</CCardHeader>
@@ -222,9 +221,7 @@ const Widgets: FC = () => {
             {statsFData.map((item) => (
               <CCol key={item.color} xs={12} sm={6} xl={4} xxl={3}>
                 <CWidgetStatsF
-                  icon={
-                    <CIcon width={24} icon={getWidgetIcon(hasFooter, item.color, item.icon)} />
-                  }
+                  icon={<CIcon width={24} icon={getWidgetIcon(hasFooter, item.color, item.icon)} />}
                   title={item.title}
                   value="$1.999,50"
                   color={item.color}

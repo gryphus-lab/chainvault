@@ -32,6 +32,7 @@ import {
   cilUserFollow,
 } from '@coreui/icons'
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
+import type { ChartOptions } from 'chart.js'
 import { DocsExample } from '../../components'
 
 import WidgetsBrand from './WidgetsBrand'
@@ -115,10 +116,13 @@ const MiniChart: FC<MiniChartProps> = ({ color, variant = 'bar' }) => {
   )
 
   const style = { height: '40px', width: '80px' }
-  const ChartComponent = variant === 'bar' ? CChartBar : CChartLine
-  const options = variant === 'bar' ? baseChartOptions : { ...baseChartOptions, ...lineExtras }
+  const barOptions: ChartOptions<'bar'> = baseChartOptions
+  const lineOptions: ChartOptions<'line'> = { ...baseChartOptions, ...lineExtras }
 
-  return <ChartComponent className="mx-auto" style={style} data={data} options={options as any} />
+  if (variant === 'bar') {
+    return <CChartBar className="mx-auto" style={style} data={data} options={barOptions} />
+  }
+  return <CChartLine className="mx-auto" style={style} data={data} options={lineOptions} />
 }
 
 /* -------------------------------------------------------------------------- */

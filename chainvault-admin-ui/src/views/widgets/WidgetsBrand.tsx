@@ -9,6 +9,11 @@ import { cibFacebook, cibLinkedin, cibTwitter, cilCalendar } from '@coreui/icons
 import { CChart } from '@coreui/react-chartjs'
 
 const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
+  /**
+   * Shared chart configuration for all widgets
+   *
+   * @type {Object}
+   */
   const chartOptions = {
     elements: {
       line: {
@@ -28,17 +33,14 @@ const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
       },
     },
     scales: {
-      x: {
-        display: false,
-      },
-      y: {
-        display: false,
-      },
+      x: { display: false },
+      y: { display: false },
     },
   }
 
   return (
     <CRow className={props.className} xs={{ gutter: 4 }}>
+      {/* Facebook Widget */}
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsD
           {...(props.withCharts && {
@@ -68,13 +70,11 @@ const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
             { title: 'friends', value: '89K' },
             { title: 'feeds', value: '459' },
           ]}
-          style={
-            {
-              '--cui-card-cap-bg': '#3b5998',
-            } as React.CSSProperties
-          }
+          style={{ '--cui-card-cap-bg': '#3b5998' } as React.CSSProperties}
         />
       </CCol>
+
+      {/* Twitter Widget */}
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsD
           {...(props.withCharts && {
@@ -83,14 +83,12 @@ const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
                 className="position-absolute w-100 h-100"
                 type="line"
                 data={{
-                  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                   datasets: [
                     {
+                      data: [1, 13, 9, 17, 34, 41, 38],
                       backgroundColor: 'rgba(255,255,255,.1)',
                       borderColor: 'rgba(255,255,255,.55)',
-                      pointHoverBackgroundColor: '#fff',
                       borderWidth: 2,
-                      data: [1, 13, 9, 17, 34, 41, 38],
                       fill: true,
                     },
                   ],
@@ -104,13 +102,11 @@ const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
             { title: 'followers', value: '973k' },
             { title: 'tweets', value: '1.792' },
           ]}
-          style={
-            {
-              '--cui-card-cap-bg': '#00aced',
-            } as React.CSSProperties
-          }
+          style={{ '--cui-card-cap-bg': '#00aced' } as React.CSSProperties}
         />
       </CCol>
+
+      {/* LinkedIn Widget */}
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsD
           {...(props.withCharts && {
@@ -119,14 +115,12 @@ const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
                 className="position-absolute w-100 h-100"
                 type="line"
                 data={{
-                  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                   datasets: [
                     {
+                      data: [78, 81, 80, 45, 34, 12, 40],
                       backgroundColor: 'rgba(255,255,255,.1)',
                       borderColor: 'rgba(255,255,255,.55)',
-                      pointHoverBackgroundColor: '#fff',
                       borderWidth: 2,
-                      data: [78, 81, 80, 45, 34, 12, 40],
                       fill: true,
                     },
                   ],
@@ -140,13 +134,11 @@ const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
             { title: 'contacts', value: '500' },
             { title: 'feeds', value: '1.292' },
           ]}
-          style={
-            {
-              '--cui-card-cap-bg': '#4875b4',
-            } as React.CSSProperties
-          }
+          style={{ '--cui-card-cap-bg': '#4875b4' } as React.CSSProperties}
         />
       </CCol>
+
+      {/* Calendar Widget */}
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsD
           color="warning"
@@ -156,14 +148,12 @@ const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
                 className="position-absolute w-100 h-100"
                 type="line"
                 data={{
-                  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
                   datasets: [
                     {
+                      data: [35, 23, 56, 22, 97, 23, 64],
                       backgroundColor: 'rgba(255,255,255,.1)',
                       borderColor: 'rgba(255,255,255,.55)',
-                      pointHoverBackgroundColor: '#fff',
                       borderWidth: 2,
-                      data: [35, 23, 56, 22, 97, 23, 64],
                       fill: true,
                     },
                   ],
@@ -183,6 +173,9 @@ const WidgetsBrand = (props: { className?: string; withCharts?: boolean }) => {
   )
 }
 
+/**
+ * Runtime prop validation (for non-TypeScript consumers)
+ */
 WidgetsBrand.propTypes = {
   className: PropTypes.string,
   withCharts: PropTypes.bool,

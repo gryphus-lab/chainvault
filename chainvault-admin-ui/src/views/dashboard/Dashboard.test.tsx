@@ -14,4 +14,33 @@ describe('Dashboard', () => {
       expect(container.firstChild).toBeTruthy()
     })
   })
+
+  it('renders all table headers', () => {
+    const { getByText } = renderWithProviders(<Dashboard />)
+
+    // Verify each header is present
+    expect(getByText('#')).toBeTruthy()
+    expect(getByText('DocId')).toBeTruthy()
+    expect(getByText('Title')).toBeTruthy()
+    expect(getByText('Status')).toBeTruthy()
+    expect(getByText('Created At')).toBeTruthy()
+    expect(getByText('Updated At')).toBeTruthy()
+    expect(getByText('View Details')).toBeTruthy()
+  })
+
+  it('renders empty state with correct attributes', () => {
+    const { getByText } = renderWithProviders(<Dashboard />)
+
+    // Verify empty state text is present
+    const emptyStateCell = getByText('No documents available')
+    expect(emptyStateCell).toBeTruthy()
+
+    // Verify colSpan attribute
+    expect(emptyStateCell.getAttribute('colspan')).toBe('7')
+
+    // Verify className contains expected styling
+    const className = emptyStateCell.className
+    expect(className).toContain('text-center')
+    expect(className).toContain('text-muted')
+  })
 })

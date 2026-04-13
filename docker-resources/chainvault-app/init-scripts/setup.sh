@@ -9,6 +9,7 @@ readonly LEPT_URL="https://github.com/DanBloomberg/leptonica/releases/download/$
 readonly LEPT_SHA256="1fa08e40bb37fd45802d5e6e7b43927449a5c47d4608ef99d3bd3f0fa76baedc"
 readonly PREFIX="/usr/local"
 
+# main builds and installs Leptonica from source, verifies the downloaded tarball's SHA256 checksum, updates the dynamic linker cache, and removes build-time packages and temporary files.
 main() {
     apt-get update && apt-get install -y --no-install-recommends \
         build-essential curl pkg-config ca-certificates \

@@ -313,8 +313,8 @@
                                 <keepBlankLines>true</keepBlankLines>
                                 <endWithNewline>true</endWithNewline>
                                 <nrOfIndentSpace>4</nrOfIndentSpace>
+                                <indentAttribute>schemaLocation</indentAttribute>
                                 <indentBlankLines>true</indentBlankLines>
-                                <indentSchemaLocation>true</indentSchemaLocation>
                                 <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
                                 <sortDependencies>groupId,artifactId</sortDependencies>
                                 <sortDependencyManagement>groupId,artifactId</sortDependencyManagement>
@@ -325,16 +325,6 @@
                                 <sortExecutions>true</sortExecutions>
                             </sortPom>
                         </pom>
-                        <python>
-                            <includes>
-                                <include>**/*.py</include>
-                            </includes>
-                            
-                            <black>
-                                <version>26.3.1</version>
-                                <pathToExe>.venv/bin/black</pathToExe>
-                            </black>
-                        </python>
                         <markdown>
                             <includes>
                                 <include>**/*.md</include>

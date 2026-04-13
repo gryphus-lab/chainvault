@@ -17,6 +17,9 @@ import { getMigrations, getMigrationStats } from '../../lib/api'
 import { Migration, MigrationStats } from '../../types'
 import { safeFormat } from '../../lib/utils'
 import { Link } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 const Dashboard = () => {
   const [migrations, setMigrations] = useState<Migration[] | null>(null)
@@ -62,7 +65,7 @@ const Dashboard = () => {
   const inProgress = (migrationStats?.pending ?? 0) + (migrationStats?.running ?? 0)
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <CRow>
         <CCol xs={6}>
           <CWidgetStatsB
@@ -141,7 +144,7 @@ const Dashboard = () => {
           ))}
         </CTableBody>
       </CTable>
-    </>
+    </QueryClientProvider>
   )
 }
 

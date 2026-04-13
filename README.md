@@ -20,7 +20,7 @@ Used by Gryphus Lab to coordinate extraction, transformation, signing, merging a
 
 |      Aspect       |              Technology              |
 |-------------------|--------------------------------------|
-| Language          | Java 25, Typescript 5.9.3            |
+| Language          | Java 25, TypeScript 5.9.3            |
 | Framework         | Spring Boot 4, React 19 + Vite       |
 | Orchestration     | Flowable (BPMN 2.0)                  |
 | Database          | PostgreSQL 18 (Docker)               |

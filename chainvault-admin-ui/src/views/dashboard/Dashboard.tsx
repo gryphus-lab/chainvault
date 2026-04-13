@@ -31,16 +31,8 @@ const Dashboard = () => {
         <CTableBody>
           {/* TODO: Populate with actual data */}
           <CTableRow>
-            <CTableHeaderCell scope="row">1</CTableHeaderCell>
-            <CTableDataCell>doc123</CTableDataCell>
-            <CTableDataCell>Sample Document</CTableDataCell>
-            <CTableDataCell>
-              <span className="badge bg-success">SUCCESS</span>
-            </CTableDataCell>
-            <CTableDataCell>2024-06-01 10:00:00</CTableDataCell>
-            <CTableDataCell>2024-06-01 10:05:00</CTableDataCell>
-            <CTableDataCell>
-              <button className="btn btn-primary btn-sm">View Details</button>
+            <CTableDataCell colSpan={7} className="text-center text-muted py-4">
+              No documents available
             </CTableDataCell>
           </CTableRow>
         </CTableBody>

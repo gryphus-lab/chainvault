@@ -70,7 +70,7 @@ const WidgetsDropdown = (props: { className?: string }) => {
               </span>
             </>
           }
-          title="Total"
+          title="Users"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -159,7 +159,7 @@ const WidgetsDropdown = (props: { className?: string }) => {
               </span>
             </>
           }
-          title="In Progress"
+          title="Income"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -247,7 +247,7 @@ const WidgetsDropdown = (props: { className?: string }) => {
               </span>
             </>
           }
-          title="Completed"
+          title="Conversion Rate"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -319,7 +319,7 @@ const WidgetsDropdown = (props: { className?: string }) => {
               </span>
             </>
           }
-          title="Error"
+          title="Sessions"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">

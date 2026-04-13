@@ -12,7 +12,7 @@ COPY docker-resources/chainvault-app/init-scripts/setup.sh ./
 
 # Install libatomic1 for Node.js 25.x / frontend-maven-plugin compatibility
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libatomic1 && \
+    apt-get install -y --no-install-recommends libatomic1=14.2.0-4ubuntu2~24.04.1 && \
     rm -rf /var/lib/apt/lists/*
 RUN mvn -DskipTests -q package
 

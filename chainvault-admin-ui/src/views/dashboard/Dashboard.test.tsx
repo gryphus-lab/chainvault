@@ -50,7 +50,7 @@ describe('Dashboard Component', () => {
     render(<Dashboard />)
 
     const totalWidgets = screen.getAllByText('—')
-    expect(totalWidgets.length).toBeGreaterThan(0)
+    expect(totalWidgets).toHaveLength(4)
   })
 
   it('renders stats and table data successfully', async () => {

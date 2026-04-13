@@ -4,8 +4,12 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 readonly LEPT_VERSION="1.86.0"
 readonly LEPT_URL="https://github.com/DanBloomberg/leptonica/releases/download/${LEPT_VERSION}/leptonica-${LEPT_VERSION}.tar.gz"
+
+# SHA256 checksum for leptonica-1.86.0.tar.gz (verified from official GitHub release)
+readonly LEPT_SHA256="1fa08e40bb37fd45802d5e6e7b43927449a5c47d4608ef99d3bd3f0fa76baedc"
 readonly PREFIX="/usr/local"
 
+# main builds and installs Leptonica from source, verifies the downloaded tarball's SHA256 checksum, updates the dynamic linker cache, and removes build-time packages and temporary files.
 main() {
     apt-get update && apt-get install -y --no-install-recommends \
         build-essential curl pkg-config ca-certificates \
@@ -19,6 +23,10 @@ main() {
 
     curl --proto "=https" --tlsv1.2 -sSfLO \
         "$LEPT_URL"
+
+    # Verify integrity: check SHA256 hash before extraction to prevent tampering
+    echo "${LEPT_SHA256}  leptonica-${LEPT_VERSION}.tar.gz" | sha256sum -c -
+
     tar -xf "leptonica-${LEPT_VERSION}.tar.gz"
 
     cd "leptonica-${LEPT_VERSION}"

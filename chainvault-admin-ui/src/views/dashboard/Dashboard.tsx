@@ -18,7 +18,7 @@ import { Migration, MigrationStats } from '../../types'
 import { safeFormat } from '../../lib/utils'
 
 const Dashboard = () => {
-  const [migrations, setMigrations] = useState<Migration[]>([])
+  const [migrations, setMigrations] = useState<Migration[] | null>(null)
   const [migrationStats, setMigrationStats] = useState<MigrationStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -44,6 +44,7 @@ const Dashboard = () => {
         setMigrations(data)
       } catch (err) {
         console.error('Failed to fetch migrations:', err)
+        setError('Failed to load migrations')
       }
     }
 
@@ -108,14 +109,21 @@ const Dashboard = () => {
           </CTableRow>
         </CTableHead>
         <CTableBody>
-          {migrations.length === 0 && (
+          {migrations === null && (
+            <CTableRow>
+              <CTableDataCell colSpan={7} className="text-center text-muted">
+                Loading...
+              </CTableDataCell>
+            </CTableRow>
+          )}
+          {migrations !== null && migrations.length === 0 && (
             <CTableRow>
               <CTableDataCell colSpan={7} className="text-center text-muted">
                 No documents available
               </CTableDataCell>
             </CTableRow>
           )}
-          {migrations.map((migration, index) => (
+          {migrations?.map((migration, index) => (
             <CTableRow key={migration.id}>
               <CTableDataCell>{index + 1}</CTableDataCell>
               <CTableDataCell>{migration.docId}</CTableDataCell>

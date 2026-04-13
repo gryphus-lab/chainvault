@@ -6,7 +6,7 @@ services:
       - ENABLE_OBI=true
       - OBI_TARGET=java
     volumes:
-      - ./env/prometheus.yaml:/otel-lgtm/prometheus.yaml
+      - ./docker-resources/otel-lgtm/prometheus.yaml:/otel-lgtm/prometheus.yaml
     ports:
       - '3000:3000'
       - '4317:4317'

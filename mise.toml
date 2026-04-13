@@ -9,10 +9,6 @@ jq = "latest"
 uv = "latest"
 trivy = "latest"
 
-# ────────────────────────────────────────
-# Environment (activated repo-wide)
-# ────────────────────────────────────────
-
 [env]
 # Leverage Java 25 features (e.g., generous defaults for virtual threads)
 _JAVA_OPTIONS = "-Xmx2048m -XX:+UseZGC -Djdk.virtualThreadScheduler.parallelism=auto"
@@ -21,7 +17,7 @@ MAVEN_OPTS = "-Xmx1024m"
 # Install seed packages (pip, setuptools, and wheel) into the virtual environment.
 _.python.venv = { path = ".venv", create = true, uv_create_args = ["--seed"] }
 UV_PROJECT_ENVIRONMENT = ".venv"
-MISE_PYTHON_DEFAULT_PACKAGES_FILE = "./default-python-packages"
+MISE_PYTHON_DEFAULT_PACKAGES_FILE = ".default-python-packages"
 
 # Spring Boot 4 common defaults
 SPRING_PROFILES_ACTIVE = "local"
@@ -31,10 +27,6 @@ TESSDATA_PREFIX = "/opt/homebrew/share/tessdata"
 
 [settings]
 python.default_packages_file = "./default-python-packages"
-
-# ────────────────────────────────────────
-# Tasks (run from anywhere — mise uses root config)
-# ────────────────────────────────────────
 
 [tasks]
 bootstrap = { run = "mvn dependency:go-offline", description = "One-time setup after clone / clean machine" }

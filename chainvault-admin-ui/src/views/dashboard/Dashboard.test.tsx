@@ -23,12 +23,16 @@ const mockStats = {
 
 const mockMigrations = [
   {
-    id: 1,
+    id: '550e8400-e29b-41d4-a716-446655440000',
     docId: 'DOC-101',
     title: 'Migration One',
-    status: 'success',
+    status: 'SUCCESS',
     createdAt: '2026-01-01T10:00:00Z',
     updatedAt: '2026-01-01T11:00:00Z',
+    processInstanceKey: 'proc-123',
+    pageCount: 5,
+    ocrAttempted: true,
+    ocrSuccess: true,
   },
 ]
 
@@ -64,9 +68,10 @@ describe('Dashboard Component', () => {
     })
 
     // Check Table Data
+    expect(screen.getByText('1')).toBeInTheDocument() // Row index
     expect(screen.getByText('DOC-101')).toBeInTheDocument()
     expect(screen.getByText('Migration One')).toBeInTheDocument()
-    expect(screen.getByText('success')).toBeInTheDocument()
+    expect(screen.getByText('SUCCESS')).toBeInTheDocument()
   })
 
   it('renders empty state when no migrations are returned', async () => {

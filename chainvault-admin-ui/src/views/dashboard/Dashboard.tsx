@@ -115,9 +115,9 @@ const Dashboard = () => {
               </CTableDataCell>
             </CTableRow>
           )}
-          {migrations.map((migration) => (
+          {migrations.map((migration, index) => (
             <CTableRow key={migration.id}>
-              <CTableDataCell>{migration.id}</CTableDataCell>
+              <CTableDataCell>{index + 1}</CTableDataCell>
               <CTableDataCell>{migration.docId}</CTableDataCell>
               <CTableDataCell>{migration.title}</CTableDataCell>
               <CTableDataCell>{migration.status}</CTableDataCell>

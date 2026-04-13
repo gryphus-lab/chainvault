@@ -8,6 +8,7 @@ yarn = "4.13.0"
 jq = "latest"
 uv = "latest"
 trivy = "latest"
+hadolint = "latest"
 
 [env]
 # Leverage Java 25 features (e.g., generous defaults for virtual threads)

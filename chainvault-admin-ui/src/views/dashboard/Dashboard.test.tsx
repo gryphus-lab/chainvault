@@ -69,10 +69,12 @@ describe('Dashboard Component', () => {
     })
 
     // Check Table Data
-    expect(screen.getByText('1')).toBeInTheDocument() // Row index
-    expect(screen.getByText('DOC-101')).toBeInTheDocument()
-    expect(screen.getByText('Migration One')).toBeInTheDocument()
-    expect(screen.getByText('SUCCESS')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('1')).toBeInTheDocument() // Row index
+      expect(screen.getByText('DOC-101')).toBeInTheDocument()
+      expect(screen.getByText('Migration One')).toBeInTheDocument()
+      expect(screen.getByText('SUCCESS')).toBeInTheDocument()
+    })
   })
 
   it('renders empty state when no migrations are returned', async () => {
@@ -89,17 +91,19 @@ describe('Dashboard Component', () => {
   it('displays "Unavailable" in widgets when API fails', async () => {
     // Suppress console.error for this test
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.mocked(api.getMigrationStats).mockRejectedValue(new Error('API Error'))
-    vi.mocked(api.getMigrations).mockResolvedValue([])
+    try {
+      vi.mocked(api.getMigrationStats).mockRejectedValue(new Error('API Error'))
+      vi.mocked(api.getMigrations).mockResolvedValue([])
 
-    render(<Dashboard />)
+      render(<Dashboard />)
 
-    await waitFor(() => {
-      const errorStates = screen.getAllByText('Unavailable')
-      expect(errorStates.length).toBe(4)
-    })
-
-    consoleSpy.mockRestore()
+      await waitFor(() => {
+        const errorStates = screen.getAllByText('Unavailable')
+        expect(errorStates.length).toBe(4)
+      })
+    } finally {
+      consoleSpy.mockRestore()
+    }
   })
 
   it('calculates "In Progress" as sum of pending and running', async () => {

@@ -1,49 +1,115 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { beforeEach, describe, expect, it } from 'vitest'
-import { waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import Dashboard from './Dashboard'
-import { renderWithProviders, resetStore } from '../../test/test-utils'
+import * as api from '../../lib/api'
+import { MigrationStats } from '../../types'
 
-describe('Dashboard', () => {
+// Mock the API module
+vi.mock('../../lib/api', () => ({
+  getMigrations: vi.fn(),
+  getMigrationStats: vi.fn(),
+}))
+
+const mockStats = {
+  total: 10,
+  pending: 2,
+  running: 1,
+  success: 5,
+  failed: 2,
+}
+
+const mockMigrations = [
+  {
+    id: 1,
+    docId: 'DOC-101',
+    title: 'Migration One',
+    status: 'success',
+    createdAt: '2026-01-01T10:00:00Z',
+    updatedAt: '2026-01-01T11:00:00Z',
+  },
+]
+
+describe('Dashboard Component', () => {
   beforeEach(() => {
-    resetStore()
+    vi.resetAllMocks()
   })
 
-  it('renders without throwing', async () => {
-    const { container } = renderWithProviders(<Dashboard />)
+  it('shows loading placeholders initially', async () => {
+    // Delay the stats response to check loading state
+    vi.mocked(api.getMigrationStats).mockReturnValue(new Promise(() => {}))
+    vi.mocked(api.getMigrations).mockResolvedValue([])
+
+    render(<Dashboard />)
+
+    const totalWidgets = screen.getAllByText('—')
+    expect(totalWidgets.length).toBeGreaterThan(0)
+  })
+
+  it('renders stats and table data successfully', async () => {
+    vi.mocked(api.getMigrationStats).mockResolvedValue(mockStats as MigrationStats)
+    vi.mocked(api.getMigrations).mockResolvedValue(mockMigrations)
+
+    render(<Dashboard />)
+
+    // Check Stats Widgets
+    // Total: 10, In Progress: 2+1=3, Success: 5, Failed: 2
     await waitFor(() => {
-      expect(container.firstChild).toBeTruthy()
+      expect(screen.getByText('10')).toBeInTheDocument()
+      expect(screen.getByText('3')).toBeInTheDocument()
+      expect(screen.getByText('5')).toBeInTheDocument()
+      expect(screen.getByText('2')).toBeInTheDocument()
+    })
+
+    // Check Table Data
+    expect(screen.getByText('DOC-101')).toBeInTheDocument()
+    expect(screen.getByText('Migration One')).toBeInTheDocument()
+    expect(screen.getByText('success')).toBeInTheDocument()
+  })
+
+  it('renders empty state when no migrations are returned', async () => {
+    vi.mocked(api.getMigrationStats).mockResolvedValue(mockStats as MigrationStats)
+    vi.mocked(api.getMigrations).mockResolvedValue([])
+
+    render(<Dashboard />)
+
+    await waitFor(() => {
+      expect(screen.getByText('No documents available')).toBeInTheDocument()
     })
   })
 
-  it('renders all table headers', () => {
-    const { getByText } = renderWithProviders(<Dashboard />)
+  it('displays "Unavailable" in widgets when API fails', async () => {
+    // Suppress console.error for this test
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(api.getMigrationStats).mockRejectedValue(new Error('API Error'))
+    vi.mocked(api.getMigrations).mockResolvedValue([])
 
-    // Verify each header is present
-    expect(getByText('#')).toBeTruthy()
-    expect(getByText('DocId')).toBeTruthy()
-    expect(getByText('Title')).toBeTruthy()
-    expect(getByText('Status')).toBeTruthy()
-    expect(getByText('Created At')).toBeTruthy()
-    expect(getByText('Updated At')).toBeTruthy()
-    expect(getByText('View Details')).toBeTruthy()
+    render(<Dashboard />)
+
+    await waitFor(() => {
+      const errorStates = screen.getAllByText('Unavailable')
+      expect(errorStates.length).toBe(4)
+    })
+
+    consoleSpy.mockRestore()
   })
 
-  it('renders empty state with correct attributes', () => {
-    const { getByText } = renderWithProviders(<Dashboard />)
+  it('calculates "In Progress" as sum of pending and running', async () => {
+    vi.mocked(api.getMigrationStats).mockResolvedValue({
+      last24h: 0,
+      ...mockStats,
+      pending: 10,
+      running: 5,
+    })
+    vi.mocked(api.getMigrations).mockResolvedValue([])
 
-    // Verify empty state text is present
-    const emptyStateCell = getByText('No documents available')
-    expect(emptyStateCell).toBeTruthy()
+    render(<Dashboard />)
 
-    // Verify colSpan attribute
-    expect(emptyStateCell.getAttribute('colspan')).toBe('7')
-
-    // Verify className contains expected styling
-    const className = emptyStateCell.className
-    expect(className).toContain('text-center')
-    expect(className).toContain('text-muted')
+    await waitFor(() => {
+      // 10 (pending) + 5 (running) = 15
+      expect(screen.getByText('15')).toBeInTheDocument()
+    })
   })
 })

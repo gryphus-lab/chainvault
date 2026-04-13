@@ -44,7 +44,6 @@ const Dashboard = () => {
         setMigrations(data)
       } catch (err) {
         console.error('Failed to fetch migrations:', err)
-        // Optionally set an error state for migrations
       }
     }
 

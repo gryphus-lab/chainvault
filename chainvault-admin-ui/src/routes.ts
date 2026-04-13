@@ -12,6 +12,9 @@ export type AppRoute = {
 
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const MigrationDetailPage = React.lazy(
+  () => import('./views/pages/migration/MigrationDetailPage'),
+)
 
 /**
  * Array of route configuration objects
@@ -32,6 +35,7 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
  */
 export const routes: AppRoute[] = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  { path: '/migration/:id', name: 'Migration Detail', element: MigrationDetailPage },
   { path: '*', name: 'Not Found', element: Dashboard }, // Fallback for unmatched routes
 ]
 

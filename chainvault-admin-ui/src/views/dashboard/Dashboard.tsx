@@ -133,10 +133,9 @@ const Dashboard = () => {
               <CTableDataCell>{safeFormat(migration.createdAt)}</CTableDataCell>
               <CTableDataCell>{safeFormat(migration.updatedAt)}</CTableDataCell>
               <CTableDataCell>
-                <button className="btn btn-link">
-                  {/* link to MigrationDetailPage */}
-                  <a href={`/migration/${migration.id}`}>View Details</a>
-                </button>
+                <Link to={`/migration/${migration.id}`} className="btn btn-link">
+                  View Details
+                </Link>
               </CTableDataCell>
             </CTableRow>
           ))}

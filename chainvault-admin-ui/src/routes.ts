@@ -30,6 +30,9 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
  * // Route with exact match required
  * { path: '/base', name: 'Base', element: Cards, exact: true }
  */
-export const routes: AppRoute[] = [{ path: '/dashboard', name: 'Dashboard', element: Dashboard }]
+export const routes: AppRoute[] = [
+  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  { path: '*', name: 'Not Found', element: Dashboard }, // Fallback for unmatched routes
+]
 
 export default routes

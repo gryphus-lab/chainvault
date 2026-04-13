@@ -39,6 +39,7 @@ COPY --from=build /workspace/chainvault-orchestration/target/chainvault-${CHAINV
 # Matches server.port in chainvault-orchestration application config
 EXPOSE 8085
 
+# Note: curl is installed via setup.sh above
 # Healthcheck to ensure the application is running and responsive
 HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
   CMD ["curl", "-fsS", "http://127.0.0.1:8085/actuator/health"]

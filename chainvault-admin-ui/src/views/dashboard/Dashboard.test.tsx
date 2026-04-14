@@ -117,7 +117,7 @@ describe('Dashboard Component', () => {
     renderDashboard()
 
     // Find the header button for Doc ID
-    const sortBtn = await screen.findByLabelText(/sort by document id/i)
+    const sortBtn = await screen.findByLabelText(/sort by doc id/i)
     const headerCell = sortBtn.closest('th')
 
     // Initial state (from code: default is createdAt desc, so docId is 'none')

@@ -97,7 +97,7 @@ export default function MigrationDetailPage() {
     )
   }
 
-  const textBgColorClass = STATUS_CLASSES[migration.status] ?? 'bg-gray-100 text-gray-800'
+  const textBgColorClass = STATUS_CLASSES[migration.status] ?? 'secondary'
   const tempoExploreUrlTemplate = import.meta.env.VITE_TEMPO_EXPLORE_URL
   const traceIDUrl =
     migration.traceId && tempoExploreUrlTemplate?.includes('{traceId}')

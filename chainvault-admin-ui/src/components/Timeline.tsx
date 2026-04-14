@@ -12,12 +12,6 @@ interface TimelineProps {
 }
 
 const Timeline = ({ events }: TimelineProps) => {
-  if (events.length === 0) {
-    return (
-      <div className="py-5 text-center text-medium-emphasis">No timeline events available yet.</div>
-    )
-  }
-
   const sortedEvents = [...events]
     .filter((e) => e?.timestamp && isValid(parseISO(e.timestamp)))
     .map((e) => ({ ...e, parsedTime: parseISO(e.timestamp) }))
@@ -25,7 +19,6 @@ const Timeline = ({ events }: TimelineProps) => {
 
   return (
     <div className="timeline-wrapper pt-3" style={{ minHeight: '100px' }}>
-      {' '}
       {sortedEvents.map((event, index) => {
         const isLast = index === sortedEvents.length - 1
         const prevTime = index > 0 ? sortedEvents[index - 1].parsedTime : null

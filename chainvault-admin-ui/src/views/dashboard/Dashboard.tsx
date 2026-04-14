@@ -119,7 +119,6 @@ const Dashboard = () => {
           <CTableRow>
             <CTableHeaderCell scope="col">#</CTableHeaderCell>
             <CTableHeaderCell scope="col">DocId</CTableHeaderCell>
-            <CTableHeaderCell scope="col">Title</CTableHeaderCell>
             <CTableHeaderCell scope="col">Status</CTableHeaderCell>
             <CTableHeaderCell scope="col">Created At</CTableHeaderCell>
             <CTableHeaderCell scope="col">Updated At</CTableHeaderCell>
@@ -145,7 +144,6 @@ const Dashboard = () => {
             <CTableRow key={migration.id}>
               <CTableDataCell>{migration.id}</CTableDataCell>
               <CTableDataCell>{migration.docId}</CTableDataCell>
-              <CTableDataCell>{migration.title}</CTableDataCell>
               <CTableDataCell>{migration.status}</CTableDataCell>
               <CTableDataCell>{safeFormat(migration.createdAt)}</CTableDataCell>
               <CTableDataCell>{safeFormat(migration.updatedAt)}</CTableDataCell>

@@ -26,7 +26,6 @@ const mockMigrations = [
   {
     id: 'uuid-1',
     docId: 'DOC-001',
-    title: 'First Migration',
     status: 'success',
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-02T00:00:00Z',
@@ -71,7 +70,6 @@ describe('Dashboard Component', () => {
     expect(totalValue).toBeInTheDocument()
     expect(inProgressValue).toBeInTheDocument()
     expect(screen.getByText('DOC-001')).toBeInTheDocument()
-    expect(screen.getByText('First Migration')).toBeInTheDocument()
 
     // Check link path
     const link = screen.getByRole('link', { name: /view details/i })

@@ -4,7 +4,6 @@
 export interface Migration {
   id: string
   docId: string
-  title: string
   status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED'
   createdAt: string
   updatedAt: string

@@ -85,7 +85,6 @@ export default function MigrationDetailPage() {
         </Link>
         <div>
           <h2>Migration: {migration.id}</h2>
-          <p>Title: {migration.title}</p>
         </div>
         <Badge className={statusClass}>{migration.status}</Badge>
       </CRow>

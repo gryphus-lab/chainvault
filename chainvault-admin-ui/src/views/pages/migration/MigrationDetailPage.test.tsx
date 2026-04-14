@@ -78,7 +78,6 @@ describe('MigrationDetailPage', () => {
       isError: false,
       data: {
         id: '123',
-        title: 'Test Migration',
         status: 'SUCCESS',
         docId: 'DOC-1',
         createdAt: '2024-01-01',
@@ -99,7 +98,6 @@ describe('MigrationDetailPage', () => {
     render(<MigrationDetailPage />)
 
     expect(screen.getByText('Migration: 123')).toBeInTheDocument()
-    expect(screen.getByText('Title: Test Migration')).toBeInTheDocument()
 
     expect(screen.getByText('DOC-1')).toBeInTheDocument()
     expect(screen.getByText('formatted-2024-01-01')).toBeInTheDocument()

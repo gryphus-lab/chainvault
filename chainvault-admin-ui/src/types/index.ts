@@ -4,7 +4,6 @@
 export interface Migration {
   id: string
   docId: string
-  title: string
   status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED'
   createdAt: string
   updatedAt: string
@@ -32,7 +31,9 @@ export interface MigrationEvent {
   migrationId: string
   eventType: 'TASK_STARTED' | 'TASK_COMPLETED' | 'TASK_FAILED'
   stepName?: string
+  taskType?: string
   message: string
+  createdAt: string
   timestamp: string
   traceId?: string
   durationMs?: number

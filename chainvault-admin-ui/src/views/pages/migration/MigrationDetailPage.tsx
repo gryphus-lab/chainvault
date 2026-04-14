@@ -9,15 +9,44 @@ import { getMigrationDetail } from '../../../lib/api'
 import type { MigrationDetail } from '../../../types'
 
 import Timeline from '../../../components/Timeline'
-import { Badge } from '../../../components/Badge'
 import { safeFormat } from '../../../lib/utils'
-import { CCard, CCardBody, CCardGroup, CCardHeader, CCol, CContainer, CRow } from '@coreui/react'
+import {
+  CBadge,
+  CCard,
+  CCardBody,
+  CCardGroup,
+  CCardHeader,
+  CCol,
+  CContainer,
+  CRow,
+} from '@coreui/react'
 
 const STATUS_CLASSES: Record<string, string> = {
-  SUCCESS: 'bg-green-100 text-green-800',
-  FAILED: 'bg-red-100 text-red-800',
-  RUNNING: 'bg-blue-100 text-blue-800',
-  PENDING: 'bg-gray-100 text-gray-800',
+  SUCCESS: 'success',
+  FAILED: 'danger',
+  RUNNING: 'warning',
+  PENDING: 'warning',
+}
+
+/**
+ * Validates that a URL string uses a safe scheme and is properly formatted.
+ * Only allows http:, https:, and blob: schemes to prevent XSS attacks via javascript: URLs.
+ *
+ * @param urlString - The URL string to validate
+ * @returns `true` if the URL is safe, `false` otherwise
+ */
+function isSafeUrl(urlString: string | null | undefined): boolean {
+  if (!urlString) {
+    return false
+  }
+
+  try {
+    const url = new URL(urlString, globalThis.location.origin)
+    const safeSchemes = ['http:', 'https:', 'blob:']
+    return safeSchemes.includes(url.protocol)
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -31,11 +60,9 @@ function getOcrSuccessLabel(migration: MigrationDetail) {
 }
 
 /**
- * Renders the migration detail page for the route `id`, loading migration data and showing a loading state, an error message,
- * or the full migration UI (header with status, stats grid, timeline, OCR/processing info, optional failure reason,
- * and optional download links).
+ * Display the migration detail page for the current route `id`, fetching migration data and showing either a loading state, an error message, or the detailed migration UI.
  *
- * @returns The rendered React element for the migration detail page.
+ * @returns The React element representing the migration detail page.
  */
 export default function MigrationDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -70,26 +97,28 @@ export default function MigrationDetailPage() {
     )
   }
 
-  const statusClass = STATUS_CLASSES[migration.status] ?? 'bg-gray-100 text-gray-800'
-
+  const textBgColorClass = STATUS_CLASSES[migration.status] ?? 'secondary'
+  const tempoExploreUrlTemplate = import.meta.env.VITE_TEMPO_EXPLORE_URL
+  const traceIDUrl =
+    migration.traceId && tempoExploreUrlTemplate?.includes('{traceId}')
+      ? tempoExploreUrlTemplate.replace('{traceId}', encodeURIComponent(migration.traceId))
+      : null
   return (
     <CContainer>
-      <CRow className="justify-content-center">
+      <CRow className="justify-content-start">
         <Link to="/" className="text-gray-500 hover:text-gray-900" aria-label="Back to dashboard">
           <ArrowLeft className="h-6 w-6" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Migration {migration.id}</h1>
-          <p className="text-gray-600 mt-1">{migration.title}</p>
+          <h2>Migration: {migration.id}</h2>
+          <CBadge textBgColor={textBgColorClass} shape="rounded-pill">
+            {migration.status}
+          </CBadge>
         </div>
-        <Badge className={statusClass}>{migration.status}</Badge>
       </CRow>
-      <CRow className="justify-content-center">
+      <CRow className="justify-content-start">
         <CCol md={8}>
           <CCard className="mb-4">
-            <CCardHeader>
-              <h2 className="text-xl font-semibold">Migration Details</h2>
-            </CCardHeader>
             <CCardBody>
               <CCardGroup className="mb-4">
                 <CCard>
@@ -106,18 +135,25 @@ export default function MigrationDetailPage() {
                 </CCard>
                 <CCard>
                   <CCardHeader>Trace Id</CCardHeader>
-                  <CCardBody>{migration.traceId || 'N/A'}</CCardBody>
+                  <CCardBody>
+                    {migration.traceId && traceIDUrl ? (
+                      <a href={traceIDUrl} target="_blank" rel="noopener noreferrer">
+                        {migration.traceId}
+                      </a>
+                    ) : (
+                      'N/A'
+                    )}
+                  </CCardBody>
                 </CCard>
               </CCardGroup>
-              <Timeline events={migration.events} />
               <CCardGroup className="mt-4">
                 <CCard>
                   <CCardHeader>
                     <FileText className="inline-block mr-2" />
-                    OCR Info
+                    OCR Text Preview
                   </CCardHeader>
                   <CCardBody>
-                    {migration.ocrTextPreview || 'No OCR information available.'}
+                    <p>{migration.ocrTextPreview ?? 'No OCR information available.'}</p>
                   </CCardBody>
                 </CCard>
                 <CCard>
@@ -157,29 +193,57 @@ export default function MigrationDetailPage() {
                     </CCardHeader>
                     <CCardBody>
                       {migration.pdfUrl && (
-                        <a
-                          href={migration.pdfUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-primary me-2"
-                        >
-                          Download PDF
-                        </a>
+                        <p>
+                          {isSafeUrl(migration.pdfUrl) ? (
+                            <a
+                              href={migration.pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-primary me-2"
+                            >
+                              Download PDF
+                            </a>
+                          ) : (
+                            <button disabled className="btn btn-primary me-2">
+                              Download PDF (Invalid URL)
+                            </button>
+                          )}
+                        </p>
                       )}
                       {migration.chainZipUrl && (
-                        <a
-                          href={migration.chainZipUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-primary"
-                        >
-                          Download ZIP
-                        </a>
+                        <p>
+                          {isSafeUrl(migration.chainZipUrl) ? (
+                            <a
+                              href={migration.chainZipUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-primary"
+                            >
+                              Download ZIP
+                            </a>
+                          ) : (
+                            <button disabled className="btn btn-primary">
+                              Download ZIP (Invalid URL)
+                            </button>
+                          )}
+                        </p>
                       )}
                     </CCardBody>
                   </CCard>
                 )}
               </CCardGroup>
+              <CCard className="mb-4 shadow-sm">
+                <CCardHeader className="fw-bold">Timeline</CCardHeader>
+                <CCardBody>
+                  {migration.events && migration.events.length > 0 ? (
+                    <Timeline events={migration.events} />
+                  ) : (
+                    <div className="text-center py-4 text-muted">
+                      No events recorded for this migration.
+                    </div>
+                  )}
+                </CCardBody>
+              </CCard>
             </CCardBody>
           </CCard>
         </CCol>

@@ -20,16 +20,13 @@ vi.mock('../../../components/Timeline', () => ({
   default: ({ events }: any) => <div>Timeline ({events.length})</div>,
 }))
 
-vi.mock('../../../components/Badge', () => ({
-  Badge: ({ children }: any) => <span>{children}</span>,
-}))
-
 vi.mock('../../../lib/utils', () => ({
   safeFormat: vi.fn((d) => `formatted-${d}`),
 }))
 
 // Mock CoreUI
 vi.mock('@coreui/react', () => ({
+  CBadge: ({ children }: any) => <div>{children}</div>,
   CContainer: ({ children }: any) => <div>{children}</div>,
   CRow: ({ children }: any) => <div>{children}</div>,
   CCol: ({ children }: any) => <div>{children}</div>,
@@ -72,13 +69,12 @@ describe('MigrationDetailPage', () => {
     expect(screen.getByText(/Back to Dashboard/i)).toBeInTheDocument()
   })
 
-  it('renders migration details', () => {
+  it('renders migration details with no events', () => {
     ;(useQuery as any).mockReturnValue({
       isLoading: false,
       isError: false,
       data: {
         id: '123',
-        title: 'Test Migration',
         status: 'SUCCESS',
         docId: 'DOC-1',
         createdAt: '2024-01-01',
@@ -98,8 +94,7 @@ describe('MigrationDetailPage', () => {
 
     render(<MigrationDetailPage />)
 
-    expect(screen.getByText('Migration 123')).toBeInTheDocument()
-    expect(screen.getByText('Test Migration')).toBeInTheDocument()
+    expect(screen.getByText('Migration: 123')).toBeInTheDocument()
 
     expect(screen.getByText('DOC-1')).toBeInTheDocument()
     expect(screen.getByText('formatted-2024-01-01')).toBeInTheDocument()
@@ -117,7 +112,8 @@ describe('MigrationDetailPage', () => {
     expect(screen.getByText('Download PDF')).toBeInTheDocument()
     expect(screen.getByText('Download ZIP')).toBeInTheDocument()
 
-    expect(screen.getByText('Timeline (0)')).toBeInTheDocument()
+    expect(screen.getByText('Timeline')).toBeInTheDocument()
+    expect(screen.getByText('No events recorded for this migration.')).toBeInTheDocument()
   })
 
   it('handles missing optional fields', () => {

@@ -59,6 +59,14 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
         this.errorCode = errorCode;
     }
 
+    /**
+     * Executes the delegate within an OpenTelemetry child span: starts an audit event, invokes
+     * subclass task logic, collects filtered transient outputs, emits an SSE event with the task
+     * status, and finalizes the audit event. Exceptions are recorded on the span and routed to the
+     * audit service; the span is always ended.
+     *
+     * @param execution the BPMN delegate execution providing process and transient variables
+     */
     @Override
     public void execute(DelegateExecution execution) {
         // Use the utility to get the parent context
@@ -101,7 +109,14 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
             sendSseEvent(processInstanceId, span, status);
 
             auditService.updateAuditEventEnd(
-                    processInstanceId, status, null, null, taskType, "Success", outputMap);
+                    processInstanceId,
+                    status,
+                    null,
+                    null,
+                    taskType,
+                    status == MigrationAudit.MigrationStatus.FAILED ? "Failure" : "Success",
+                    outputMap,
+                    span);
 
             log.info("{} finished", taskType);
         } catch (Exception e) {
@@ -118,12 +133,16 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
     private void sendSseEvent(
             String piKey, @NonNull Span span, MigrationAudit.MigrationStatus status) {
         log.info("{} sending SSE event", taskType);
+        String message =
+                status == MigrationAudit.MigrationStatus.FAILED
+                        ? "%s failed".formatted(taskType)
+                        : "%s completed successfully".formatted(taskType);
         MigrationEventDto event = new MigrationEventDto();
         event.setId(UUID.randomUUID().toString());
         event.setMigrationId(piKey);
         event.setEventType(taskType);
         event.setStepName(taskType);
-        event.setMessage("%s completed successfully".formatted(taskType));
+        event.setMessage(message);
         event.setStatus(String.valueOf(status));
         event.setTimestamp(Instant.now());
         event.setTraceId(span.getSpanContext().getTraceId());

@@ -96,12 +96,12 @@ describe('MigrationDetailPage', () => {
 
   it('renders failure reason when migration failed', async () => {
     vi.mocked(api.getMigrationDetail).mockResolvedValue({
-      pageCount: 0,
-      processInstanceKey: '123',
       ...mockMigration,
       status: 'FAILED',
       ocrSuccess: false,
       failureReason: 'OCR engine timeout',
+      pageCount: 0,
+      processInstanceKey: '123',
     })
 
     renderComponent()

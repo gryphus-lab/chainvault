@@ -96,7 +96,7 @@ export default function MigrationDetailPage() {
                 </CCard>
                 <CCard>
                   <CCardHeader>Trace Id</CCardHeader>
-                  <CCardBody>{migration.traceId}</CCardBody>
+                  <CCardBody>{migration.traceId || 'N/A'}</CCardBody>
                 </CCard>
               </CCardGroup>
               <Timeline events={migration.events} />

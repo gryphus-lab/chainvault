@@ -279,19 +279,23 @@ public class AuditEventService {
         audit.setOcrSuccess(true);
         audit.setOcrCompletedAt(Instant.now());
 
-        // Properly serialize the List<String> instead of calling toString()
         Object ocrResultsObj = varMap.get("ocrResults");
-        String ocrResultsText;
+        StringBuilder preview = new StringBuilder(512);
         if (ocrResultsObj instanceof List<?> ocrResultsList) {
-            // Join list entries with newline separator for stable preview
-            ocrResultsText =
-                    String.join("\n", ocrResultsList.stream().map(String::valueOf).toList());
+            for (Object page : ocrResultsList) {
+                if (!preview.isEmpty()) {
+                    preview.append('\n');
+                }
+                preview.append(page);
+                if (preview.length() >= 512) {
+                    break;
+                }
+            }
         } else {
-            // Fallback for unexpected types
-            ocrResultsText = String.valueOf(ocrResultsObj);
+            preview.append(ocrResultsObj);
         }
 
-        audit.setOcrResultReference(StringUtils.abbreviate(ocrResultsText, 512));
+        audit.setOcrResultReference(StringUtils.abbreviate(preview.toString(), 512));
 
         if (varMap.get("ocrPageCount") instanceof Integer count) audit.setOcrPageCount(count);
         if (varMap.get("ocrTextLength") instanceof Number number)

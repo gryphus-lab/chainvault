@@ -59,6 +59,14 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
         this.errorCode = errorCode;
     }
 
+    /**
+     * Executes the delegate within an OpenTelemetry child span: starts an audit event, invokes
+     * subclass task logic, collects filtered transient outputs, emits an SSE event with the task
+     * status, and finalizes the audit event. Exceptions are recorded on the span and routed to the
+     * audit service; the span is always ended.
+     *
+     * @param execution the BPMN delegate execution providing process and transient variables
+     */
     @Override
     public void execute(DelegateExecution execution) {
         // Use the utility to get the parent context

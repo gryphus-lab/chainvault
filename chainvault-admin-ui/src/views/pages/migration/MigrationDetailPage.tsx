@@ -60,11 +60,9 @@ function getOcrSuccessLabel(migration: MigrationDetail) {
 }
 
 /**
- * Renders the migration detail page for the route `id`, loading migration data and showing a loading state, an error message,
- * or the full migration UI (header with status, stats grid, timeline, OCR/processing info, optional failure reason,
- * and optional download links).
+ * Display the migration detail page for the current route `id`, fetching migration data and showing either a loading state, an error message, or the detailed migration UI.
  *
- * @returns The rendered React element for the migration detail page.
+ * @returns The React element representing the migration detail page.
  */
 export default function MigrationDetailPage() {
   const { id } = useParams<{ id: string }>()

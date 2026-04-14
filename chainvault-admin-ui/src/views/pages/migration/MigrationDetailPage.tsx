@@ -155,7 +155,7 @@ export default function MigrationDetailPage() {
                           href={migration.pdfUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn btn-primary"
+                          className="btn btn-primary me-2"
                         >
                           Download PDF
                         </a>

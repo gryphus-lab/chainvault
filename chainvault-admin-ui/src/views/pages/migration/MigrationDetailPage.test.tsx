@@ -155,5 +155,6 @@ describe('MigrationDetailPage', () => {
 
     // No downloads
     expect(screen.queryByText('Download PDF')).not.toBeInTheDocument()
+    expect(screen.queryByText('Download ZIP')).not.toBeInTheDocument()
   })
 })

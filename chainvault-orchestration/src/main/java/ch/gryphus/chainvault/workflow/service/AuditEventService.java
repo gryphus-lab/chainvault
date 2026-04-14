@@ -205,6 +205,10 @@ public class AuditEventService {
 
         if (status == MigrationAudit.MigrationStatus.FAILED) {
             applyFailureDetails(audit, errorCode, errorMsg, eventTaskType);
+        } else {
+            // Clear failure-specific fields for recovered migrations
+            audit.setFailureReason(null);
+            audit.setErrorCode(null);
         }
 
         applyContextHashes(audit, (MigrationContext) varMap.get("migrationContext"));

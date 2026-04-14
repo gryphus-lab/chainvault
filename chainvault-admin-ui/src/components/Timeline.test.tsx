@@ -5,7 +5,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import MigrationDetailPage from '../../src/views/pages/migration/MigrationDetailPage'
+import MigrationDetailPage from '../views/pages/migration/MigrationDetailPage'
 import * as api from '../lib/api'
 import type { Migration, MigrationDetail } from '../types'
 
@@ -28,16 +28,19 @@ const createTestQueryClient = () =>
     },
   })
 
-const mockMigrationData: any = {
+const mockMigrationData: MigrationDetail = {
   id: 'MIG-123',
   status: 'SUCCESS',
   docId: 'DOC-999',
   createdAt: '2026-01-01T10:00:00Z',
   updatedAt: '2026-01-01T11:00:00Z',
+  processInstanceKey: 'proc-123',
+  pageCount: 10,
   traceId: 'trace-abc-123',
   events: [
     {
       id: 'evt-1',
+      migrationId: 'MIG-123',
       eventType: 'TASK_STARTED',
       taskType: 'Initialization',
       message: 'Starting migration...',
@@ -45,6 +48,7 @@ const mockMigrationData: any = {
     },
     {
       id: 'evt-2',
+      migrationId: 'MIG-123',
       eventType: 'TASK_COMPLETED',
       taskType: 'OCR Processing',
       message: 'OCR finished successfully',
@@ -127,14 +131,14 @@ describe('MigrationDetailPage', () => {
   })
 
   it('handles failed migration status with failure reasons', async () => {
-    const failedMigration: Migration = {
+    const failedMigration: MigrationDetail = {
       ...mockMigrationData,
       status: 'FAILED',
       ocrSuccess: false,
       failureReason: 'Engine Timeout Error',
     }
 
-    vi.mocked(api.getMigrationDetail).mockResolvedValue(failedMigration as MigrationDetail)
+    vi.mocked(api.getMigrationDetail).mockResolvedValue(failedMigration)
 
     renderComponent()
 

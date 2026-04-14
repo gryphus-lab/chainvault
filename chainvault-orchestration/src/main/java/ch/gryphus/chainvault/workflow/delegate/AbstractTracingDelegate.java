@@ -109,7 +109,14 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
             sendSseEvent(processInstanceId, span, status);
 
             auditService.updateAuditEventEnd(
-                    processInstanceId, status, null, null, taskType, "Success", outputMap, span);
+                    processInstanceId,
+                    status,
+                    null,
+                    null,
+                    taskType,
+                    status == MigrationAudit.MigrationStatus.FAILED ? "Failure" : "Success",
+                    outputMap,
+                    span);
 
             log.info("{} finished", taskType);
         } catch (Exception e) {

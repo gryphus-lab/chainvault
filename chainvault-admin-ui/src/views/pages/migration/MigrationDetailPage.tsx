@@ -127,7 +127,15 @@ export default function MigrationDetailPage() {
                   </CCardBody>
                 </CCard>
               </CCardGroup>
-              <Timeline events={migration.events} />
+              <CCardGroup className="mb-4">
+                <CCard>
+                  <CCardHeader>Timeline</CCardHeader>
+                  <CCardBody>
+                    {' '}
+                    <Timeline events={migration.events} />
+                  </CCardBody>
+                </CCard>
+              </CCardGroup>
               <CCardGroup className="mt-4">
                 <CCard>
                   <CCardHeader>

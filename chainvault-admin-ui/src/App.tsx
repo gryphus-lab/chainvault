@@ -1,19 +1,6 @@
-/**
- * App Component
- *
- * Root application component that sets up routing, theme management,
- * and lazy-loaded page components with suspense boundaries.
- *
- * Features:
- * - Client-side routing with HashRouter
- * - Theme detection from URL parameters and Redux state
- * - Lazy loading for all routes with loading spinner fallback
- * - Public routes (login, register, error pages)
- * - Protected routes wrapped in DefaultLayout
- *
- * @module App
+/*
+ * Copyright (c) 2026. Gryphus Lab
  */
-
 import React, { Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { useAppSelector } from './hooks'

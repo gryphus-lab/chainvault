@@ -87,7 +87,10 @@ const Dashboard = () => {
       setMigrationsError(null)
 
       // Fetch endpoints independently so one failure doesn't discard the other result
-      const results = await Promise.allSettled([getMigrationStats(), getMigrations()])
+      const results = await Promise.allSettled([
+        getMigrationStats(),
+        getMigrations({ limit: pageSize, offset: (currentPage - 1) * pageSize }),
+      ])
 
       // Handle stats result
       if (results[0].status === 'fulfilled') {
@@ -108,7 +111,7 @@ const Dashboard = () => {
       setIsLoading(false)
     }
     fetchData()
-  }, [])
+  }, [currentPage, pageSize])
 
   const getDisplayValue = (value: number | undefined) => {
     if (isLoading) return '—'
@@ -130,12 +133,12 @@ const Dashboard = () => {
     })
   }, [migrations, sortKey, sortDir])
 
-  const totalMigrations = sortedMigrations.length
+  const totalMigrations = migrationStats?.total ?? 0
   const totalPages = Math.ceil(totalMigrations / pageSize)
   const currentMigrations = useMemo(() => {
-    const start = (currentPage - 1) * pageSize
-    return sortedMigrations.slice(start, start + pageSize)
-  }, [sortedMigrations, currentPage])
+    // Server-side pagination: display the fetched page as-is after client-side sorting
+    return sortedMigrations
+  }, [sortedMigrations])
 
   // Handlers
   const handleSort = (key: keyof Migration) => {

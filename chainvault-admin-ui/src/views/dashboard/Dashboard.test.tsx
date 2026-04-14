@@ -6,7 +6,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import Dashboard from './Dashboard'
 import * as api from '../../lib/api'
-import { MigrationStats } from '../../types'
+import { Migration, MigrationStats } from '../../types'
 
 // Mock API
 vi.mock('../../lib/api', () => ({
@@ -22,13 +22,16 @@ const mockStats = {
   failed: 5,
 }
 
-const mockMigrations = [
+const mockMigrations: Migration[] = [
   {
     id: 'uuid-1',
     docId: 'DOC-001',
-    status: 'success',
+    status: 'SUCCESS',
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-02T00:00:00Z',
+    processInstanceKey: 'proc-123',
+    pageCount: 5,
+    ocrAttempted: true,
   },
 ]
 

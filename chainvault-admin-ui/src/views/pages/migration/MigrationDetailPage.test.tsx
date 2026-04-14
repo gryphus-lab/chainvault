@@ -98,8 +98,8 @@ describe('MigrationDetailPage', () => {
 
     render(<MigrationDetailPage />)
 
-    expect(screen.getByText('Migration 123')).toBeInTheDocument()
-    expect(screen.getByText('Test Migration')).toBeInTheDocument()
+    expect(screen.getByText('Migration: 123')).toBeInTheDocument()
+    expect(screen.getByText('Title: Test Migration')).toBeInTheDocument()
 
     expect(screen.getByText('DOC-1')).toBeInTheDocument()
     expect(screen.getByText('formatted-2024-01-01')).toBeInTheDocument()

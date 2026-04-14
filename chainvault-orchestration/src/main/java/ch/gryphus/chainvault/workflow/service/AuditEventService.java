@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.engine.delegate.BpmnError;
 import org.springframework.data.domain.Limit;
@@ -138,6 +139,8 @@ public class AuditEventService {
             audit.setOcrSuccess(true);
             int ocrTextLength = (int) varMap.get("ocrTextLength");
             audit.setOcrTotalTextLength((long) ocrTextLength);
+            audit.setOcrResultReference(
+                    StringUtils.abbreviate(varMap.get("ocrResults").toString(), 512));
         }
 
         if (varMap.get("outputFileKey") != null) {
@@ -266,12 +269,15 @@ public class AuditEventService {
                         .findById(Long.valueOf(id))
                         .orElseThrow(
                                 () -> new EntityNotFoundException("Migration not found: " + id));
+        detail.setId(id);
         detail.setDocId(audit.getDocumentId());
         detail.setCreatedAt(audit.getCreatedAt());
+        detail.setUpdatedAt(audit.getLastUpdatedAt());
         detail.setOcrPageCount(audit.getOcrPageCount());
         detail.setOcrAttempted(audit.getOcrAttempted());
         detail.setOcrSuccess(audit.getOcrSuccess());
         detail.setOcrTotalTextLength(audit.getOcrTotalTextLength());
+        detail.setOcrTextPreview(audit.getOcrResultReference());
         detail.setTraceId(audit.getTraceId());
         detail.setEvents(eventRepo.getAllByMigrationAuditId((audit.getId())));
         detail.setChainZipUrl(audit.getChainOfCustodyZip());

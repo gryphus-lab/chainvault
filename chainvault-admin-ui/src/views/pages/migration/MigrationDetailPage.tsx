@@ -74,22 +74,20 @@ export default function MigrationDetailPage() {
 
   return (
     <CContainer>
-      <CRow className="justify-content-center">
+      <CRow className="justify-content-start">
         <Link to="/" className="text-gray-500 hover:text-gray-900" aria-label="Back to dashboard">
           <ArrowLeft className="h-6 w-6" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Migration {migration.id}</h1>
-          <p className="text-gray-600 mt-1">{migration.title}</p>
+          <h2>Migration: {migration.id}</h2>
+          <p>Title: {migration.title}</p>
         </div>
         <Badge className={statusClass}>{migration.status}</Badge>
       </CRow>
-      <CRow className="justify-content-center">
+      <CRow className="justify-content-start">
         <CCol md={8}>
           <CCard className="mb-4">
-            <CCardHeader>
-              <h2 className="text-xl font-semibold">Migration Details</h2>
-            </CCardHeader>
+            <CCardHeader />
             <CCardBody>
               <CCardGroup className="mb-4">
                 <CCard>

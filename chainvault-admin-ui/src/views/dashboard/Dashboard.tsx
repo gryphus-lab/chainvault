@@ -61,13 +61,30 @@ const Dashboard = () => {
 
   const inProgress = (migrationStats?.pending ?? 0) + (migrationStats?.running ?? 0)
 
+  let percentTotal = 0
+  let percentSuccess = 0
+  let percentError = 0
+  let percentInProgress = 0
+
+  if (migrationStats?.total && migrationStats?.total !== 0) {
+    percentTotal = 100
+    percentSuccess = ((migrationStats?.success ?? 0) / migrationStats?.total) * 100
+    percentError = ((migrationStats?.failed ?? 0) / migrationStats?.total) * 100
+    percentInProgress = (inProgress / migrationStats?.total) * 100
+  }
+
   return (
     <>
+      <CRow>
+        <CCol>
+          <h2>Migration Overview</h2>
+        </CCol>
+      </CRow>
       <CRow>
         <CCol xs={6}>
           <CWidgetStatsB
             className="mb-3"
-            color="primary"
+            progress={{ color: 'success', value: percentTotal }}
             title="Total"
             value={getDisplayValue(migrationStats?.total)}
           />
@@ -75,7 +92,7 @@ const Dashboard = () => {
         <CCol xs={6}>
           <CWidgetStatsB
             className="mb-3"
-            color="secondary"
+            progress={{ color: 'warning', value: percentInProgress }}
             title="In Progress"
             value={getDisplayValue(inProgress)}
           />
@@ -83,7 +100,7 @@ const Dashboard = () => {
         <CCol xs={6}>
           <CWidgetStatsB
             className="mb-3"
-            color="success"
+            progress={{ color: 'success', value: percentSuccess }}
             title="Success"
             value={getDisplayValue(migrationStats?.success)}
           />
@@ -91,7 +108,7 @@ const Dashboard = () => {
         <CCol xs={6}>
           <CWidgetStatsB
             className="mb-3"
-            color="danger"
+            progress={{ color: 'danger', value: percentError }}
             title="Error"
             value={getDisplayValue(migrationStats?.failed)}
           />
@@ -124,9 +141,9 @@ const Dashboard = () => {
               </CTableDataCell>
             </CTableRow>
           )}
-          {migrations?.map((migration, index) => (
+          {migrations?.map((migration) => (
             <CTableRow key={migration.id}>
-              <CTableDataCell>{index + 1}</CTableDataCell>
+              <CTableDataCell>{migration.id}</CTableDataCell>
               <CTableDataCell>{migration.docId}</CTableDataCell>
               <CTableDataCell>{migration.title}</CTableDataCell>
               <CTableDataCell>{migration.status}</CTableDataCell>

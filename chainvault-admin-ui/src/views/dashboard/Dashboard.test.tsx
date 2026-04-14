@@ -52,7 +52,7 @@ describe('Dashboard Component', () => {
 
     renderDashboard()
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading migration records...')).toBeInTheDocument()
     const placeholders = screen.getAllByText('—')
     expect(placeholders).toHaveLength(4)
   })
@@ -82,7 +82,7 @@ describe('Dashboard Component', () => {
 
     renderDashboard()
 
-    const emptyMessage = await screen.findByText('No documents available')
+    const emptyMessage = await screen.findByText('No migration data found.')
     expect(emptyMessage).toBeInTheDocument()
   })
 

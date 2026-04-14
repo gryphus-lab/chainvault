@@ -269,8 +269,8 @@ public class AuditEventService {
                         .findById(Long.valueOf(id))
                         .orElseThrow(
                                 () -> new EntityNotFoundException("Migration not found: " + id));
-        detail.setId(id);
-        detail.setStatus(audit.getStatus().toString());
+        detail.setId(String.valueOf(audit.getId()));
+        detail.setStatus(audit.getStatus() != null ? audit.getStatus().name() : null);
         detail.setDocId(audit.getDocumentId());
         detail.setCreatedAt(audit.getCreatedAt());
         detail.setUpdatedAt(audit.getLastUpdatedAt());

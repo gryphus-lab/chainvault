@@ -29,6 +29,27 @@ const STATUS_CLASSES: Record<string, string> = {
 }
 
 /**
+ * Validates that a URL string uses a safe scheme and is properly formatted.
+ * Only allows http:, https:, and blob: schemes to prevent XSS attacks via javascript: URLs.
+ *
+ * @param urlString - The URL string to validate
+ * @returns `true` if the URL is safe, `false` otherwise
+ */
+function isSafeUrl(urlString: string | null | undefined): boolean {
+  if (!urlString) {
+    return false
+  }
+
+  try {
+    const url = new URL(urlString, window.location.origin)
+    const safeSchemes = ['http:', 'https:', 'blob:']
+    return safeSchemes.includes(url.protocol)
+  } catch {
+    return false
+  }
+}
+
+/**
  * Provide a user-facing label that indicates whether OCR succeeded for a migration.
  *
  * @param migration - The migration record whose OCR result will be used
@@ -184,26 +205,38 @@ export default function MigrationDetailPage() {
                     <CCardBody>
                       {migration.pdfUrl && (
                         <p>
-                          <a
-                            href={migration.pdfUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-primary me-2"
-                          >
-                            Download PDF
-                          </a>
+                          {isSafeUrl(migration.pdfUrl) ? (
+                            <a
+                              href={migration.pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-primary me-2"
+                            >
+                              Download PDF
+                            </a>
+                          ) : (
+                            <button disabled className="btn btn-primary me-2">
+                              Download PDF (Invalid URL)
+                            </button>
+                          )}
                         </p>
                       )}
                       {migration.chainZipUrl && (
                         <p>
-                          <a
-                            href={migration.chainZipUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-primary"
-                          >
-                            Download ZIP
-                          </a>
+                          {isSafeUrl(migration.chainZipUrl) ? (
+                            <a
+                              href={migration.chainZipUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-primary"
+                            >
+                              Download ZIP
+                            </a>
+                          ) : (
+                            <button disabled className="btn btn-primary">
+                              Download ZIP (Invalid URL)
+                            </button>
+                          )}
                         </p>
                       )}
                     </CCardBody>

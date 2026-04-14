@@ -1,114 +1,159 @@
 /*
  * Copyright (c) 2026. Gryphus Lab
  */
-import { render, screen, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import MigrationDetailPage from './MigrationDetailPage'
-import * as api from '../../../lib/api'
 
-vi.mock('../../../lib/api', () => ({
-  getMigrationDetail: vi.fn(),
+// --- mocks ---
+
+vi.mock('react-router-dom', () => ({
+  Link: ({ children }: any) => <a>{children}</a>,
+  useParams: vi.fn(),
 }))
 
-const mockMigration = {
-  id: 'MIG-123',
-  title: 'Test Migration Title',
-  status: 'SUCCESS',
-  docId: 'DOC-999',
-  createdAt: '2026-01-01T10:00:00Z',
-  updatedAt: '2026-01-01T11:00:00Z',
-  traceId: 'trace-abc-123',
-  events: [],
-  pdfUrl: 'https://example.com/file.pdf',
-  ocrAttempted: true,
-  ocrSuccess: true,
-  ocrPageCount: 5,
-  ocrTotalTextLength: 1250,
-  pageCount: 5,
-  processInstanceKey: 'proc-inst-123',
-}
+vi.mock('@tanstack/react-query', () => ({
+  useQuery: vi.fn(),
+}))
 
-const renderComponent = (id = 'MIG-123') => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-    },
-  })
+vi.mock('../../../components/Timeline', () => ({
+  default: ({ events }: any) => <div>Timeline ({events.length})</div>,
+}))
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[`/migration/${id}`]}>
-        <Routes>
-          <Route path="/migration/:id" element={<MigrationDetailPage />} />
-          <Route path="/" element={<div>Dashboard</div>} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
-  )
-}
+vi.mock('../../../components/Badge', () => ({
+  Badge: ({ children }: any) => <span>{children}</span>,
+}))
+
+vi.mock('../../../lib/utils', () => ({
+  safeFormat: vi.fn((d) => `formatted-${d}`),
+}))
+
+// Mock CoreUI
+vi.mock('@coreui/react', () => ({
+  CContainer: ({ children }: any) => <div>{children}</div>,
+  CRow: ({ children }: any) => <div>{children}</div>,
+  CCol: ({ children }: any) => <div>{children}</div>,
+  CCard: ({ children }: any) => <div>{children}</div>,
+  CCardHeader: ({ children }: any) => <div>{children}</div>,
+  CCardBody: ({ children }: any) => <div>{children}</div>,
+  CCardGroup: ({ children }: any) => <div>{children}</div>,
+}))
+
+import { useParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 
 describe('MigrationDetailPage', () => {
   beforeEach(() => {
-    vi.resetAllMocks()
+    vi.clearAllMocks()
+    ;(useParams as any).mockReturnValue({ id: '123' })
   })
 
-  it('renders error state when API fails', async () => {
-    // 1. Silence console for a clean output
-    vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    // 2. Mock a clean rejection
-    const error = new Error('Fetch Failed')
-    vi.mocked(api.getMigrationDetail).mockRejectedValue(error)
-
-    // 3. Render
-    renderComponent('ERROR-ID')
-
-    // 4. Use a more robust check: Look for the Error text,
-    // but also check that the Loading text is GONE.
-    const errorMsg = await screen.findByText(/failed to load migration details/i)
-    expect(errorMsg).toBeInTheDocument()
-    expect(screen.getByText(/ERROR-ID/i)).toBeInTheDocument()
-
-    // 5. Verify the API was called with the correct ID
-    expect(vi.mocked(api.getMigrationDetail)).toHaveBeenCalledWith('ERROR-ID')
-  })
-
-  it('renders full migration details successfully', async () => {
-    vi.mocked(api.getMigrationDetail).mockResolvedValue(mockMigration)
-    renderComponent()
-
-    // Wait for title to load
-    expect(await screen.findByText(/Migration MIG-123/i)).toBeInTheDocument()
-
-    // FIX: Use regex to find the specific label + value combination
-    // or check text content of the parent
-    expect(screen.getByText(/OCR Attempted:/i).parentElement).toHaveTextContent(/Yes/)
-    expect(screen.getByText(/OCR Success:/i).parentElement).toHaveTextContent(/✅ Yes/)
-
-    // For numbers, use a regex to ignore potential formatting/whitespace
-    expect(screen.getByText(/1,250/)).toBeInTheDocument()
-
-    // Verify the API was called with the correct ID
-    expect(vi.mocked(api.getMigrationDetail)).toHaveBeenCalledWith('MIG-123')
-  })
-
-  it('renders failure reason when migration failed', async () => {
-    vi.mocked(api.getMigrationDetail).mockResolvedValue({
-      ...mockMigration,
-      status: 'FAILED',
-      ocrSuccess: false,
-      failureReason: 'OCR engine timeout',
-      pageCount: 0,
-      processInstanceKey: '123',
+  it('renders loading state', () => {
+    ;(useQuery as any).mockReturnValue({
+      isLoading: true,
     })
 
-    renderComponent()
+    render(<MigrationDetailPage />)
 
-    expect(await screen.findByText('FAILED')).toBeInTheDocument()
+    expect(screen.getByText('Loading migration details...')).toBeInTheDocument()
+  })
 
-    // Verify the failure reason exists anywhere in the body
-    expect(screen.getByText(/OCR engine timeout/i)).toBeInTheDocument()
+  it('renders error state', () => {
+    ;(useQuery as any).mockReturnValue({
+      isLoading: false,
+      isError: true,
+      data: undefined,
+    })
+
+    render(<MigrationDetailPage />)
+
+    expect(screen.getByText(/Failed to load migration details/i)).toBeInTheDocument()
+
+    expect(screen.getByText(/Back to Dashboard/i)).toBeInTheDocument()
+  })
+
+  it('renders migration details', () => {
+    ;(useQuery as any).mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        id: '123',
+        title: 'Test Migration',
+        status: 'SUCCESS',
+        docId: 'DOC-1',
+        createdAt: '2024-01-01',
+        updatedAt: '2024-01-02',
+        traceId: 'trace-123',
+        events: [],
+        ocrTextPreview: 'OCR TEXT',
+        ocrAttempted: true,
+        ocrSuccess: true,
+        ocrPageCount: 10,
+        ocrTotalTextLength: 5000,
+        failureReason: null,
+        pdfUrl: 'http://pdf',
+        chainZipUrl: 'http://zip',
+      },
+    })
+
+    render(<MigrationDetailPage />)
+
+    expect(screen.getByText('Migration 123')).toBeInTheDocument()
+    expect(screen.getByText('Test Migration')).toBeInTheDocument()
+
+    expect(screen.getByText('DOC-1')).toBeInTheDocument()
+    expect(screen.getByText('formatted-2024-01-01')).toBeInTheDocument()
+    expect(screen.getByText('formatted-2024-01-02')).toBeInTheDocument()
+
+    expect(screen.getByText('trace-123')).toBeInTheDocument()
+
+    expect(screen.getByText('OCR TEXT')).toBeInTheDocument()
+    expect(screen.getByText('Yes')).toBeInTheDocument()
+    expect(screen.getByText('✅ Yes')).toBeInTheDocument()
+
+    expect(screen.getByText('10')).toBeInTheDocument()
+    expect(screen.getByText('5,000 chars')).toBeInTheDocument()
+
+    expect(screen.getByText('Download PDF')).toBeInTheDocument()
+    expect(screen.getByText('Download ZIP')).toBeInTheDocument()
+
+    expect(screen.getByText('Timeline (0)')).toBeInTheDocument()
+  })
+
+  it('handles missing optional fields', () => {
+    ;(useQuery as any).mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        id: '123',
+        title: 'Test Migration',
+        status: 'FAILED',
+        docId: 'DOC-1',
+        createdAt: '2024-01-01',
+        updatedAt: '2024-01-02',
+        traceId: null,
+        events: [],
+        ocrTextPreview: null,
+        ocrAttempted: false,
+        ocrSuccess: false,
+        ocrPageCount: null,
+        ocrTotalTextLength: null,
+        failureReason: 'Something broke',
+        pdfUrl: null,
+        chainZipUrl: null,
+      },
+    })
+
+    render(<MigrationDetailPage />)
+
+    expect(screen.getAllByText('N/A')).toHaveLength(2)
+    expect(screen.getByText('No OCR information available.')).toBeInTheDocument()
+
+    expect(screen.getByText('No')).toBeInTheDocument()
+
+    expect(screen.getByText('Something broke')).toBeInTheDocument()
+
+    // No downloads
+    expect(screen.queryByText('Download PDF')).not.toBeInTheDocument()
   })
 })

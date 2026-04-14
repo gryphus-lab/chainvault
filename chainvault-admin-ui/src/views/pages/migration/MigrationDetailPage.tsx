@@ -20,6 +20,10 @@ const STATUS_CLASSES: Record<string, string> = {
   PENDING: 'bg-gray-100 text-gray-800',
 }
 
+function getOcrSuccessLabel(migration: MigrationDetail) {
+  return migration.ocrSuccess ? '✅ Yes' : '❌ No'
+}
+
 /**
  * Renders the migration detail page for the route `id`, loading migration data and showing a loading state, an error message,
  * or the full migration UI (header with status, stats grid, timeline, OCR/processing info, optional failure reason,
@@ -118,11 +122,7 @@ export default function MigrationDetailPage() {
                     </p>
                     <p>
                       <strong>OCR Success:</strong>{' '}
-                      {migration.ocrAttempted
-                        ? migration.ocrSuccess
-                          ? '✅ Yes'
-                          : '❌ No'
-                        : 'N/A'}
+                      {migration.ocrAttempted ? getOcrSuccessLabel(migration) : 'N/A'}
                     </p>
                     {migration.ocrPageCount !== undefined && migration.ocrPageCount !== null && (
                       <p>

@@ -146,18 +146,6 @@ export default function MigrationDetailPage() {
                   </CCardBody>
                 </CCard>
               </CCardGroup>
-              <CCard className="mb-4 shadow-sm">
-                <CCardHeader className="fw-bold">Timeline</CCardHeader>
-                <CCardBody>
-                  {migration.events && migration.events.length > 0 ? (
-                    <Timeline events={migration.events} />
-                  ) : (
-                    <div className="text-center py-4 text-muted">
-                      No events recorded for this migration.
-                    </div>
-                  )}
-                </CCardBody>
-              </CCard>
               <CCardGroup className="mt-4">
                 <CCard>
                   <CCardHeader>
@@ -244,6 +232,18 @@ export default function MigrationDetailPage() {
                   </CCard>
                 )}
               </CCardGroup>
+              <CCard className="mb-4 shadow-sm">
+                <CCardHeader className="fw-bold">Timeline</CCardHeader>
+                <CCardBody>
+                  {migration.events && migration.events.length > 0 ? (
+                    <Timeline events={migration.events} />
+                  ) : (
+                    <div className="text-center py-4 text-muted">
+                      No events recorded for this migration.
+                    </div>
+                  )}
+                </CCardBody>
+              </CCard>
             </CCardBody>
           </CCard>
         </CCol>

@@ -24,6 +24,7 @@ const mockEvent: MigrationEvent = {
   eventType: 'TASK_COMPLETED',
   stepName: 'SftpUpload',
   message: 'File uploaded successfully',
+  createdAt: '2026-01-01T10:05:00Z',
   timestamp: '2026-01-01T10:00:00Z',
 }
 

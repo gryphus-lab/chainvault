@@ -19,8 +19,8 @@ const Timeline = ({ events }: TimelineProps) => {
   }
 
   const sortedEvents = [...events]
-    .filter((e) => e?.timestamp && isValid(parseISO(e.timestamp)))
-    .map((e) => ({ ...e, parsedTime: parseISO(e.timestamp) }))
+    .filter((e) => e?.createdAt && isValid(parseISO(e.createdAt)))
+    .map((e) => ({ ...e, parsedTime: parseISO(e.createdAt) }))
     .sort((a, b) => a.parsedTime.getTime() - b.parsedTime.getTime())
 
   return (
@@ -67,9 +67,7 @@ const Timeline = ({ events }: TimelineProps) => {
               {/* Content Section */}
               <div className="ms-3 flex-grow-1">
                 <div className="d-flex justify-content-between align-items-center">
-                  <h6 className="mb-0 fw-bold text-dark">
-                    {event.stepName || event.eventType.replace(/_/g, ' ')}
-                  </h6>
+                  <h6>{event.taskType || event.eventType.replace(/_/g, ' ')}</h6>
                   <div className="text-end">
                     <small className="text-medium-emphasis fw-semibold">
                       {format(currTime, 'HH:mm:ss')}

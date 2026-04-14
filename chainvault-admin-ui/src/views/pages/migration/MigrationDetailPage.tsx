@@ -12,7 +12,6 @@ import Timeline from '../../../components/Timeline'
 import { Badge } from '../../../components/Badge'
 import { safeFormat } from '../../../lib/utils'
 import { CCard, CCardBody, CCardGroup, CCardHeader, CCol, CContainer, CRow } from '@coreui/react'
-import React from 'react'
 
 const STATUS_CLASSES: Record<string, string> = {
   SUCCESS: 'bg-green-100 text-green-800',
@@ -107,7 +106,9 @@ export default function MigrationDetailPage() {
                     <FileText className="inline-block mr-2" />
                     OCR Info
                   </CCardHeader>
-                  <CCardBody>{migration.pdfUrl || 'No OCR information available.'}</CCardBody>
+                  <CCardBody>
+                    {migration.ocrTextPreview || 'No OCR information available.'}
+                  </CCardBody>
                 </CCard>
                 <CCard>
                   <CCardHeader>OCR Details</CCardHeader>
@@ -116,7 +117,12 @@ export default function MigrationDetailPage() {
                       <strong>OCR Attempted:</strong> {migration.ocrAttempted ? 'Yes' : 'No'}
                     </p>
                     <p>
-                      <strong>OCR Success:</strong> {migration.ocrSuccess ? '✅ Yes' : '❌ No'}
+                      <strong>OCR Success:</strong>{' '}
+                      {migration.ocrAttempted
+                        ? migration.ocrSuccess
+                          ? '✅ Yes'
+                          : '❌ No'
+                        : 'N/A'}
                     </p>
                     {migration.ocrPageCount !== undefined && migration.ocrPageCount !== null && (
                       <p>
@@ -151,6 +157,16 @@ export default function MigrationDetailPage() {
                         className="btn btn-primary"
                       >
                         Download PDF
+                      </a>
+                    )}
+                    {migration.chainZipUrl && (
+                      <a
+                        href={migration.chainZipUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-primary"
+                      >
+                        Download ZIP
                       </a>
                     )}
                   </CCardBody>

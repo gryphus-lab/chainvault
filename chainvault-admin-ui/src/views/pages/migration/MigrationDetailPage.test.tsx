@@ -26,6 +26,8 @@ const mockMigration = {
   ocrSuccess: true,
   ocrPageCount: 5,
   ocrTotalTextLength: 1250,
+  pageCount: 5,
+  processInstanceKey: 'proc-inst-123',
 }
 
 const renderComponent = (id = 'MIG-123') => {
@@ -65,21 +67,13 @@ describe('MigrationDetailPage', () => {
 
     // 4. Use a more robust check: Look for the Error text,
     // but also check that the Loading text is GONE.
-    await waitFor(
-      () => {
-        const body = document.body.innerHTML
-        expect(body).toContain('Failed to load migration details')
-      },
-      { timeout: 4000 },
-    )
-
     const errorMsg = await screen.findByText(/failed to load migration details/i)
     expect(errorMsg).toBeInTheDocument()
     expect(screen.getByText(/ERROR-ID/i)).toBeInTheDocument()
   })
 
   it('renders full migration details successfully', async () => {
-    vi.mocked(api.getMigrationDetail).mockResolvedValue(mockMigration as any)
+    vi.mocked(api.getMigrationDetail).mockResolvedValue(mockMigration)
     renderComponent()
 
     // Wait for title to load

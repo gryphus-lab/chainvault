@@ -117,7 +117,7 @@ export default function MigrationDetailPage() {
         </div>
       </CRow>
       <CRow className="justify-content-start">
-        <CCol md={8}>
+        <CCol>
           <CCard className="mb-4">
             <CCardBody>
               <CCardGroup className="mb-4">
@@ -153,7 +153,9 @@ export default function MigrationDetailPage() {
                     OCR Text Preview
                   </CCardHeader>
                   <CCardBody>
-                    <p>{migration.ocrTextPreview ?? 'No OCR information available.'}</p>
+                    <div className="font-monospace text-muted mt-1" style={{ fontSize: '0.75rem' }}>
+                      {migration.ocrTextPreview ?? 'No OCR information available.'}
+                    </div>
                   </CCardBody>
                 </CCard>
                 <CCard>

@@ -65,7 +65,7 @@ export default function MigrationDetailPage() {
   return (
     <CContainer>
       <CRow className="justify-content-center">
-        <Link to="/" className="text-gray-500 hover:text-gray-900">
+        <Link to="/" className="text-gray-500 hover:text-gray-900" aria-label="Back to dashboard">
           <ArrowLeft className="h-6 w-6" />
         </Link>
         <div>
@@ -143,34 +143,36 @@ export default function MigrationDetailPage() {
                     )}
                   </CCardBody>
                 </CCard>
-                <CCard>
-                  <CCardHeader>
-                    <Download className="inline-block mr-2" />
-                    Download
-                  </CCardHeader>
-                  <CCardBody>
-                    {migration.pdfUrl && (
-                      <a
-                        href={migration.pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-primary"
-                      >
-                        Download PDF
-                      </a>
-                    )}
-                    {migration.chainZipUrl && (
-                      <a
-                        href={migration.chainZipUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-primary"
-                      >
-                        Download ZIP
-                      </a>
-                    )}
-                  </CCardBody>
-                </CCard>
+                {(migration.pdfUrl || migration.chainZipUrl) && (
+                  <CCard>
+                    <CCardHeader>
+                      <Download className="inline-block mr-2" />
+                      Download
+                    </CCardHeader>
+                    <CCardBody>
+                      {migration.pdfUrl && (
+                        <a
+                          href={migration.pdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-primary"
+                        >
+                          Download PDF
+                        </a>
+                      )}
+                      {migration.chainZipUrl && (
+                        <a
+                          href={migration.chainZipUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-primary"
+                        >
+                          Download ZIP
+                        </a>
+                      )}
+                    </CCardBody>
+                  </CCard>
+                )}
               </CCardGroup>
             </CCardBody>
           </CCard>

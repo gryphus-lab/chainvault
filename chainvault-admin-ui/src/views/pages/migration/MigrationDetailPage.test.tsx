@@ -70,6 +70,9 @@ describe('MigrationDetailPage', () => {
     const errorMsg = await screen.findByText(/failed to load migration details/i)
     expect(errorMsg).toBeInTheDocument()
     expect(screen.getByText(/ERROR-ID/i)).toBeInTheDocument()
+
+    // 5. Verify the API was called with the correct ID
+    expect(vi.mocked(api.getMigrationDetail)).toHaveBeenCalledWith('ERROR-ID')
   })
 
   it('renders full migration details successfully', async () => {
@@ -86,6 +89,9 @@ describe('MigrationDetailPage', () => {
 
     // For numbers, use a regex to ignore potential formatting/whitespace
     expect(screen.getByText(/1,250/)).toBeInTheDocument()
+
+    // Verify the API was called with the correct ID
+    expect(vi.mocked(api.getMigrationDetail)).toHaveBeenCalledWith('MIG-123')
   })
 
   it('renders failure reason when migration failed', async () => {

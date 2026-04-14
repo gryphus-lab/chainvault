@@ -30,6 +30,7 @@ vi.mock('../../../lib/utils', () => ({
 
 // Mock CoreUI
 vi.mock('@coreui/react', () => ({
+  CBadge: ({ children }: any) => <div>{children}</div>,
   CContainer: ({ children }: any) => <div>{children}</div>,
   CRow: ({ children }: any) => <div>{children}</div>,
   CCol: ({ children }: any) => <div>{children}</div>,

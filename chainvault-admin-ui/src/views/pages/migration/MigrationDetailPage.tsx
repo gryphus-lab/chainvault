@@ -9,15 +9,23 @@ import { getMigrationDetail } from '../../../lib/api'
 import type { MigrationDetail } from '../../../types'
 
 import Timeline from '../../../components/Timeline'
-import { Badge } from '../../../components/Badge'
 import { safeFormat } from '../../../lib/utils'
-import { CCard, CCardBody, CCardGroup, CCardHeader, CCol, CContainer, CRow } from '@coreui/react'
+import {
+  CBadge,
+  CCard,
+  CCardBody,
+  CCardGroup,
+  CCardHeader,
+  CCol,
+  CContainer,
+  CRow,
+} from '@coreui/react'
 
 const STATUS_CLASSES: Record<string, string> = {
-  SUCCESS: 'bg-green-100 text-green-800',
-  FAILED: 'bg-red-100 text-red-800',
-  RUNNING: 'bg-blue-100 text-blue-800',
-  PENDING: 'bg-gray-100 text-gray-800',
+  SUCCESS: 'success',
+  FAILED: 'danger',
+  RUNNING: 'warning',
+  PENDING: 'warning',
 }
 
 /**
@@ -70,13 +78,12 @@ export default function MigrationDetailPage() {
     )
   }
 
-  const statusClass = STATUS_CLASSES[migration.status] ?? 'bg-gray-100 text-gray-800'
-  const tempoExploreUrlTemplate =
-    import.meta.env.VITE_TEMPO_EXPLORE_URL ||
-    'http://localhost:3000/explore?schemaVersion=1&panes=%7B%224b3%22:%7B%22datasource%22:%22tempo%22,%22queries%22:%5B%7B%22query%22:%22{traceId}%22,%22queryType%22:%22traceql%22,%22datasource%22:%7B%22type%22:%22tempo%22,%22uid%22:%22tempo%22%7D,%22refId%22:%22A%22,%22limit%22:20,%22tableType%22:%22traces%22,%22metricsQueryType%22:%22range%22,%22serviceMapUseNativeHistograms%22:false%7D%5D,%22range%22:%7B%22from%22:%22now-1h%22,%22to%22:%22now%22%7D,%22panelsState%22:%7B%22trace%22:%7B%22spanFilters%22:%7B%22spanNameOperator%22:%22%3D%22,%22serviceNameOperator%22:%22%3D%22,%22fromOperator%22:%22%3E%22,%22toOperator%22:%22%3C%22,%22tags%22:%5B%7B%22id%22:%229d72bfd7-86e%22,%22operator%22:%22%3D%22%7D%5D%7D%7D%7D,%22compact%22:false%7D%7D&orgId=1'
-  const traceIDUrl = migration.traceId
-    ? tempoExploreUrlTemplate.replace('{traceId}', encodeURIComponent(migration.traceId))
-    : null
+  const textBgColorClass = STATUS_CLASSES[migration.status] ?? 'bg-gray-100 text-gray-800'
+  const tempoExploreUrlTemplate = import.meta.env.VITE_TEMPO_EXPLORE_URL
+  const traceIDUrl =
+    migration.traceId && tempoExploreUrlTemplate?.includes('{traceId}')
+      ? tempoExploreUrlTemplate.replace('{traceId}', encodeURIComponent(migration.traceId))
+      : null
   return (
     <CContainer>
       <CRow className="justify-content-start">
@@ -85,8 +92,10 @@ export default function MigrationDetailPage() {
         </Link>
         <div>
           <h2>Migration: {migration.id}</h2>
+          <CBadge textBgColor={textBgColorClass} shape="rounded-pill">
+            {migration.status}
+          </CBadge>
         </div>
-        <Badge className={statusClass}>{migration.status}</Badge>
       </CRow>
       <CRow className="justify-content-start">
         <CCol md={8}>

@@ -66,11 +66,11 @@ const Dashboard = () => {
   let percentError = 0
   let percentInProgress = 0
 
-  if (migrationStats?.total && migrationStats?.total !== 0) {
+  if (migrationStats?.total) {
     percentTotal = 100
-    percentSuccess = ((migrationStats?.success ?? 0) / migrationStats?.total) * 100
-    percentError = ((migrationStats?.failed ?? 0) / migrationStats?.total) * 100
-    percentInProgress = (inProgress / migrationStats?.total) * 100
+    percentSuccess = ((migrationStats.success ?? 0) / migrationStats.total) * 100
+    percentError = ((migrationStats.failed ?? 0) / migrationStats.total) * 100
+    percentInProgress = (inProgress / migrationStats.total) * 100
   }
 
   return (

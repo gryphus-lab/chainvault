@@ -137,10 +137,12 @@ export default function MigrationDetailPage() {
                   <CCardHeader>Trace Id</CCardHeader>
                   <CCardBody>
                     <div className="font-monospace text-muted mt-1" style={{ fontSize: '0.75rem' }}>
-                      {migration.traceId && traceIDUrl ? (
+                      {migration.traceId && traceIDUrl && isSafeUrl(traceIDUrl) ? (
                         <a href={traceIDUrl} target="_blank" rel="noopener noreferrer">
                           {migration.traceId}
                         </a>
+                      ) : migration.traceId ? (
+                        migration.traceId
                       ) : (
                         'N/A'
                       )}

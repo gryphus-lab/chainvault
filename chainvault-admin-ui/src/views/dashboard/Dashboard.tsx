@@ -24,18 +24,22 @@ import { safeFormat } from '../../lib/utils'
 
 type SortDirection = 'asc' | 'desc' | null
 
-function getBadgeColor(m: any) {
+function getBadgeColor(m: Migration) {
   switch (m.status) {
     case 'SUCCESS':
       return 'bg-success-light text-success'
     case 'FAILED':
       return 'bg-danger-light text-danger'
+    case 'PENDING':
+      return 'bg-warning-light text-warning'
+    case 'RUNNING':
+      return 'bg-info-light text-info'
     default:
       return 'bg-light text-dark'
   }
 }
 
-function getTableRows(currentMigrations: any[] | Migration[]) {
+function getTableRows(currentMigrations: Migration[]) {
   return currentMigrations.length === 0 ? (
     <CTableRow>
       <CTableDataCell colSpan={6} className="text-center py-5 text-muted">
@@ -274,16 +278,63 @@ const Dashboard = () => {
                 Previous
               </CPaginationItem>
 
-              {[...new Array(totalPages)].map((_, i) => (
-                <CPaginationItem
-                  key={i + 1}
-                  active={currentPage === i + 1}
-                  onClick={() => setCurrentPage(i + 1)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {i + 1}
-                </CPaginationItem>
-              ))}
+              {(() => {
+                const maxPagesToShow = 7
+                const pages: (number | string)[] = []
+
+                if (totalPages <= maxPagesToShow) {
+                  // Show all pages if total is small
+                  for (let i = 1; i <= totalPages; i++) {
+                    pages.push(i)
+                  }
+                } else {
+                  // Always show first page
+                  pages.push(1)
+
+                  // Calculate range around current page
+                  const leftBound = Math.max(2, currentPage - 1)
+                  const rightBound = Math.min(totalPages - 1, currentPage + 1)
+
+                  // Add left ellipsis if needed
+                  if (leftBound > 2) {
+                    pages.push('ellipsis-left')
+                  }
+
+                  // Add pages around current page
+                  for (let i = leftBound; i <= rightBound; i++) {
+                    pages.push(i)
+                  }
+
+                  // Add right ellipsis if needed
+                  if (rightBound < totalPages - 1) {
+                    pages.push('ellipsis-right')
+                  }
+
+                  // Always show last page
+                  pages.push(totalPages)
+                }
+
+                return pages.map((page) => {
+                  if (typeof page === 'string') {
+                    // Render ellipsis as non-clickable
+                    return (
+                      <CPaginationItem key={page} disabled>
+                        ...
+                      </CPaginationItem>
+                    )
+                  }
+                  return (
+                    <CPaginationItem
+                      key={page}
+                      active={currentPage === page}
+                      onClick={() => setCurrentPage(page)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {page}
+                    </CPaginationItem>
+                  )
+                })
+              })()}
 
               <CPaginationItem
                 disabled={currentPage === totalPages}

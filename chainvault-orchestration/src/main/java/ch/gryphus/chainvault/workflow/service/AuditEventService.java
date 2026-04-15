@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.engine.delegate.BpmnError;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,6 +37,38 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(noRollbackForClassName = {"org.flowable.engine.delegate.BpmnError"})
 public class AuditEventService {
+
+    private static final Set<String> ALLOWED_SORT_KEYS =
+            Set.of(
+                    "id",
+                    "processInstanceKey",
+                    "processDefinitionKey",
+                    "bpmnProcessId",
+                    "documentId",
+                    "documentExternalId",
+                    "sourceSystem",
+                    "targetSystem",
+                    "status",
+                    "failureReason",
+                    "errorCode",
+                    "attemptCount",
+                    "createdAt",
+                    "startedAt",
+                    "completedAt",
+                    "lastUpdatedAt",
+                    "inputPayloadHash",
+                    "outputFileKey",
+                    "chainOfCustodyZip",
+                    "mergedPdfHash",
+                    "traceId",
+                    "ocrAttempted",
+                    "ocrPageCount",
+                    "ocrTotalTextLength",
+                    "ocrSuccess",
+                    "ocrErrorCode",
+                    "ocrErrorMessage",
+                    "ocrResultReference",
+                    "ocrCompletedAt");
 
     private final MigrationAuditRepository auditRepo;
     private final MigrationEventRepository eventRepo;
@@ -315,14 +348,17 @@ public class AuditEventService {
      * @return a MigrationPage containing the items for the requested page and the total count
      */
     public MigrationPage getMigrations(int limit, int offset, String sortKey, String sortDir) {
-        String resolvedSortKey = (sortKey != null && !sortKey.isBlank()) ? sortKey : "createdAt";
+        String normalizedSortKey =
+                (sortKey != null && !sortKey.isBlank()) ? sortKey.trim() : "createdAt";
+        String resolvedSortKey =
+                ALLOWED_SORT_KEYS.contains(normalizedSortKey) ? normalizedSortKey : "createdAt";
         Sort.Direction direction =
                 "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
 
         int pageNumber = (limit > 0) ? offset / limit : 0;
         Pageable pageable =
-                PageRequest.of(
-                        pageNumber, limit > 0 ? limit : 100, Sort.by(direction, resolvedSortKey));
+                PageRequest.of(pageNumber, limit > 0 ? limit : 100,
+                        Sort.by(direction, resolvedSortKey));
 
         List<MigrationAudit> auditRecords = auditRepo.getAllByCompletedAtIsNotNull(pageable);
         long total = auditRepo.countByCompletedAtIsNotNull();

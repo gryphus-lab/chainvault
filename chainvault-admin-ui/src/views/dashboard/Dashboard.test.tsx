@@ -111,9 +111,44 @@ describe('Dashboard Component', () => {
   })
 
   it('triggers server-side pagination refetch on page change', async () => {
+    // Mock different data for page 2
+    const page2Items: Migration[] = [
+      {
+        id: 'M-011',
+        docId: 'DOC-PAGE2-FIRST',
+        status: 'SUCCESS',
+        createdAt: '2026-01-11T10:00:00Z',
+        updatedAt: '2026-01-11T11:00:00Z',
+        processInstanceKey: '',
+        pageCount: 0,
+        ocrAttempted: false,
+      },
+      {
+        id: 'M-012',
+        docId: 'DOC-PAGE2-SECOND',
+        status: 'PENDING',
+        createdAt: '2026-01-12T10:00:00Z',
+        updatedAt: '2026-01-12T11:00:00Z',
+        processInstanceKey: '',
+        pageCount: 0,
+        ocrAttempted: false,
+      },
+    ]
+
+    const page2Migrations: MigrationPage = {
+      items: page2Items,
+      total: 25,
+    }
+
+    // Set up mock to return page 2 data on second call
+    vi.mocked(api.getMigrations)
+      .mockResolvedValueOnce(mockMigrations)
+      .mockResolvedValueOnce(page2Migrations)
+
     renderDashboard()
 
     await screen.findByText('DOC-ABC')
+    expect(screen.getByText('DOC-XYZ')).toBeInTheDocument()
 
     // Find the pagination item with the text "2"
     const page2 = screen.getByText('2')
@@ -129,9 +164,70 @@ describe('Dashboard Component', () => {
       sortKey: 'createdAt',
       sortDir: 'desc',
     })
+
+    // Assert page 2 content is now visible
+    expect(await screen.findByText('DOC-PAGE2-FIRST')).toBeInTheDocument()
+    expect(screen.getByText('DOC-PAGE2-SECOND')).toBeInTheDocument()
+
+    // Assert page 1 content is no longer visible
+    expect(screen.queryByText('DOC-ABC')).not.toBeInTheDocument()
+    expect(screen.queryByText('DOC-XYZ')).not.toBeInTheDocument()
   })
 
   it('cycles through sort states and updates ARIA attributes', async () => {
+    // Mock different sorted data
+    const sortedAscItems: Migration[] = [
+      {
+        id: 'M-001',
+        docId: 'DOC-ABC',
+        status: 'SUCCESS',
+        createdAt: '2026-01-01T10:00:00Z',
+        updatedAt: '2026-01-01T11:00:00Z',
+        processInstanceKey: '',
+        pageCount: 0,
+        ocrAttempted: false,
+      },
+      {
+        id: 'M-002',
+        docId: 'DOC-XYZ',
+        status: 'FAILED',
+        createdAt: '2026-01-02T10:00:00Z',
+        updatedAt: '2026-01-02T11:00:00Z',
+        processInstanceKey: '',
+        pageCount: 0,
+        ocrAttempted: false,
+      },
+    ]
+
+    const sortedDescItems: Migration[] = [
+      {
+        id: 'M-002',
+        docId: 'DOC-XYZ',
+        status: 'FAILED',
+        createdAt: '2026-01-02T10:00:00Z',
+        updatedAt: '2026-01-02T11:00:00Z',
+        processInstanceKey: '',
+        pageCount: 0,
+        ocrAttempted: false,
+      },
+      {
+        id: 'M-001',
+        docId: 'DOC-ABC',
+        status: 'SUCCESS',
+        createdAt: '2026-01-01T10:00:00Z',
+        updatedAt: '2026-01-01T11:00:00Z',
+        processInstanceKey: '',
+        pageCount: 0,
+        ocrAttempted: false,
+      },
+    ]
+
+    // Set up mock to return different sorted data
+    vi.mocked(api.getMigrations)
+      .mockResolvedValueOnce(mockMigrations) // Initial load (default sort)
+      .mockResolvedValueOnce({ items: sortedAscItems, total: 25 }) // After ascending sort
+      .mockResolvedValueOnce({ items: sortedDescItems, total: 25 }) // After descending sort
+
     renderDashboard()
 
     // Find the header button for Doc ID
@@ -155,6 +251,12 @@ describe('Dashboard Component', () => {
       })
     })
 
+    // Assert ascending order: DOC-ABC should appear before DOC-XYZ
+    const rows = screen.getAllByRole('row')
+    const docIds = rows.map((row) => within(row).queryByText(/^DOC-/)).filter(Boolean)
+    const firstDocId = docIds[0]?.textContent
+    expect(firstDocId).toBe('DOC-ABC')
+
     // 2nd Click: Descending - should trigger server-side sort
     fireEvent.click(sortBtn)
     await waitFor(() => expect(headerCell).toHaveAttribute('aria-sort', 'descending'))
@@ -167,6 +269,16 @@ describe('Dashboard Component', () => {
         sortKey: 'docId',
         sortDir: 'desc',
       })
+    })
+
+    // Assert descending order: DOC-XYZ should now appear before DOC-ABC
+    await waitFor(() => {
+      const updatedRows = screen.getAllByRole('row')
+      const updatedDocIds = updatedRows
+        .map((row) => within(row).queryByText(/^DOC-/))
+        .filter(Boolean)
+      const firstUpdatedDocId = updatedDocIds[0]?.textContent
+      expect(firstUpdatedDocId).toBe('DOC-XYZ')
     })
   })
 

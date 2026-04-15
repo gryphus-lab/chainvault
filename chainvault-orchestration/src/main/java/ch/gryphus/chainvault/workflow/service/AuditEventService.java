@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.engine.delegate.BpmnError;
-import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -364,8 +363,8 @@ public class AuditEventService {
 
         int pageNumber = (limit > 0) ? offset / limit : 0;
         Pageable pageable =
-                PageRequest.of(pageNumber, limit > 0 ? limit : 100,
-                        Sort.by(direction, resolvedSortKey));
+                PageRequest.of(
+                        pageNumber, limit > 0 ? limit : 100, Sort.by(direction, resolvedSortKey));
 
         List<MigrationAudit> auditRecords = auditRepo.getAllByCompletedAtIsNotNull(pageable);
         long total = auditRepo.countByCompletedAtIsNotNull();

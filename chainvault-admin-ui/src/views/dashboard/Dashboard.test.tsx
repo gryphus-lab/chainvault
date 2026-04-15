@@ -143,7 +143,7 @@ describe('Dashboard Component', () => {
 
     // 1st Click: Ascending - should trigger server-side sort
     fireEvent.click(sortBtn)
-    expect(headerCell).toHaveAttribute('aria-sort', 'ascending')
+    await waitFor(() => expect(headerCell).toHaveAttribute('aria-sort', 'ascending'))
 
     // Verify server-side sorting was triggered with docId asc
     await waitFor(() => {
@@ -157,7 +157,7 @@ describe('Dashboard Component', () => {
 
     // 2nd Click: Descending - should trigger server-side sort
     fireEvent.click(sortBtn)
-    expect(headerCell).toHaveAttribute('aria-sort', 'descending')
+    await waitFor(() => expect(headerCell).toHaveAttribute('aria-sort', 'descending'))
 
     // Verify server-side sorting was triggered with docId desc
     await waitFor(() => {

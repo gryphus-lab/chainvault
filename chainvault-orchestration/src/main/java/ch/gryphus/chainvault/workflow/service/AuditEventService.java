@@ -70,6 +70,11 @@ public class AuditEventService {
                     "ocrResultReference",
                     "ocrCompletedAt");
 
+    private static final Map<String, String> SORT_KEY_ALIASES =
+            Map.of(
+                    "docId", "documentId",
+                    "updatedAt", "lastUpdatedAt");
+
     private final MigrationAuditRepository auditRepo;
     private final MigrationEventRepository eventRepo;
 
@@ -351,7 +356,9 @@ public class AuditEventService {
         String normalizedSortKey =
                 (sortKey != null && !sortKey.isBlank()) ? sortKey.trim() : "createdAt";
         String resolvedSortKey =
-                ALLOWED_SORT_KEYS.contains(normalizedSortKey) ? normalizedSortKey : "createdAt";
+                SORT_KEY_ALIASES.getOrDefault(normalizedSortKey, normalizedSortKey);
+        resolvedSortKey =
+                ALLOWED_SORT_KEYS.contains(resolvedSortKey) ? resolvedSortKey : "createdAt";
         Sort.Direction direction =
                 "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
 

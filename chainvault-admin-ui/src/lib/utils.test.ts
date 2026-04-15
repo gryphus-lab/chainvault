@@ -42,12 +42,12 @@ describe('cn (class merging)', () => {
   })
 
   it('handles conditional classes from clsx', () => {
-    expect(cn('flex', false, 'block')).toBe('block')
+    expect(cn('flex', false, 'p-4')).toBe('flex p-4')
   })
 })
 
 describe('safeFormat', () => {
-  const validIso = '2026-04-15T10:00:00Z'
+  const validIso = '2026-04-15T12:00:00Z'
 
   it('formats a valid ISO string with default pattern', () => {
     // Result depends on locale, but checking for a non-fallback string

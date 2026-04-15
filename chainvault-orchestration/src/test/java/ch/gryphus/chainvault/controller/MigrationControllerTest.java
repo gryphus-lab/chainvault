@@ -66,7 +66,8 @@ class MigrationControllerTest {
     void getMigrations_ShouldReturnOk_WhenValid() {
         // Given
         String mockResponse = "{\"data\": []}";
-        when(auditEventService.getMigrations(anyInt(), anyInt(), anyString(), anyString()))
+        when(auditEventService.getMigrations(
+                        anyInt(), anyInt(), nullable(String.class), nullable(String.class)))
                 .thenReturn(new MigrationPage(Collections.emptyList(), 1));
         when(jsonMapper.writeValueAsString(any())).thenReturn(mockResponse);
 

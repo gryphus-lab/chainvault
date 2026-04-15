@@ -140,12 +140,9 @@ public class AuditEventService {
         var event = new MigrationEvent();
         event.setMigrationAuditId(audit.getId());
         event.setEventType(
-                switch (status) {
-                    case FAILED -> MigrationEvent.MigrationEventType.TASK_FAILED;
-                    case SUCCESS -> MigrationEvent.MigrationEventType.TASK_COMPLETED;
-                    case RUNNING -> MigrationEvent.MigrationEventType.TASK_STARTED;
-                    default -> MigrationEvent.MigrationEventType.STATUS_UPDATED;
-                });
+                status == MigrationAudit.MigrationStatus.FAILED
+                        ? MigrationEvent.MigrationEventType.TASK_FAILED
+                        : MigrationEvent.MigrationEventType.TASK_COMPLETED);
         event.setTaskType(taskType);
         event.setMessage(msg);
         event.setErrorCode(code);

@@ -113,6 +113,10 @@ function computePaginationPages(
   return pages
 }
 
+function getTableContent(migrationsError: string | null, currentMigrations: Migration[]) {
+  return migrationsError ? null : getTableRows(currentMigrations)
+}
+
 const Dashboard = () => {
   // Data State
   const [migrations, setMigrations] = useState<MigrationPage | null>(null)
@@ -323,9 +327,9 @@ const Dashboard = () => {
                   Loading migration records...
                 </CTableDataCell>
               </CTableRow>
-            ) : !migrationsError ? (
-              getTableRows(currentMigrations)
-            ) : null}
+            ) : (
+              getTableContent(migrationsError, currentMigrations)
+            )}
           </CTableBody>
         </CTable>
 

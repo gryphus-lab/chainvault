@@ -335,7 +335,6 @@ const Dashboard = () => {
           </div>
         )}
 
-
         <CTable align="middle" responsive hover striped className="mb-0">
           <CTableHead>
             <CTableRow>

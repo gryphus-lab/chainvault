@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import ch.gryphus.chainvault.config.TraceIdFilter;
-import ch.gryphus.chainvault.model.dto.Migration;
 import ch.gryphus.chainvault.model.dto.MigrationDetail;
 import ch.gryphus.chainvault.model.dto.MigrationStats;
 import ch.gryphus.chainvault.model.entity.MigrationEvent;
@@ -20,8 +19,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,61 +58,6 @@ class MigrationControllerTest {
                         })
                 .when(traceIdFilter)
                 .doFilter(any(), any(), any());
-    }
-
-    /**
-     * Test get migrations.
-     */
-    @Test
-    void testGetMigrations() {
-        // Setup
-        // Configure AuditEventService.getMigrations(...).
-        final Migration migration = new Migration();
-        migration.setId("TEST-123");
-        migration.setDocId("DOC-TEST-1234");
-        migration.setTitle("Test Title");
-        migration.setStatus("SUCCESS");
-        migration.setCreatedAt(Instant.now());
-        final List<Migration> migrations = List.of(migration);
-        when(mockAuditEventService.getMigrations(0)).thenReturn(migrations);
-
-        // Run the test and verify the results
-        var result =
-                mockMvcTester.perform(
-                        get("/api/migrations")
-                                .param("limit", "0")
-                                .accept(MediaType.APPLICATION_JSON));
-
-        String expectedResult =
-                """
-                [{"docId":"DOC-TEST-1234", "failureReason":null, "id":"TEST-123",
-                "ocrAttempted":null, "ocrPageCount":null, "ocrSuccess":null, "ocrTotalTextLength":null,
-                "processInstanceKey":null, "status":"SUCCESS", "title":"Test Title", "traceId":null, "updatedAt":null}]
-                """;
-        assertThat(result)
-                .hasStatus(HttpStatus.OK)
-                .hasContentType(MediaType.APPLICATION_JSON)
-                .bodyJson()
-                .isLenientlyEqualTo(expectedResult);
-    }
-
-    /**
-     * Test get migrations audit event service returns no items.
-     */
-    @Test
-    void testGetMigrations_AuditEventServiceReturnsNoItems() {
-        // Setup
-        when(mockAuditEventService.getMigrations(0)).thenReturn(Collections.emptyList());
-
-        // Run the test and verify the results
-        var result =
-                mockMvcTester.perform(get("/api/migrations").accept(MediaType.APPLICATION_JSON));
-
-        assertThat(result)
-                .hasStatus(HttpStatus.OK)
-                .hasContentType(MediaType.APPLICATION_JSON)
-                .bodyJson()
-                .isStrictlyEqualTo("[]");
     }
 
     /**

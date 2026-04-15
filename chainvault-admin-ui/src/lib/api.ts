@@ -2,7 +2,7 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import ky from 'ky'
-import { Migration, MigrationDetail, MigrationPage, MigrationStats } from '../types'
+import { MigrationDetail, MigrationPage, MigrationStats } from '../types'
 
 const api = ky.create({
   prefix: '/api',

@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import ch.gryphus.chainvault.domain.MigrationContext;
-import ch.gryphus.chainvault.model.dto.Migration;
 import ch.gryphus.chainvault.model.dto.MigrationDetail;
 import ch.gryphus.chainvault.model.dto.MigrationStats;
 import ch.gryphus.chainvault.model.entity.*;
@@ -19,7 +18,6 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Limit;
 
 /**
  * The type Audit event service test.
@@ -312,88 +309,6 @@ class AuditEventServiceTest {
                 .isInstanceOf(IllegalStateException.class);
     }
 
-    /**
-     * Test get migrations.
-     */
-    @Test
-    void testGetMigrations() {
-        // Setup
-        final Migration migration = new Migration();
-        migration.setId("0");
-        migration.setDocId("DOC-TEST-123");
-        migration.setStatus("PENDING");
-        migration.setCreatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(ZoneOffset.UTC));
-        migration.setUpdatedAt(LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0).toInstant(ZoneOffset.UTC));
-        migration.setProcessInstanceKey("abcd-1234");
-        migration.setTraceId("abcd-1234");
-        migration.setOcrAttempted(false);
-        migration.setOcrSuccess(false);
-        migration.setOcrPageCount(0);
-        migration.setOcrTotalTextLength(0L);
-        final List<Migration> expectedResult = List.of(migration);
-
-        // Configure MigrationAuditRepository.getAllByCompletedAtIsNotNull(...).
-        final List<MigrationAudit> list =
-                List.of(
-                        MigrationAudit.builder()
-                                .id(0L)
-                                .processInstanceKey("abcd-1234")
-                                .documentId("DOC-TEST-123")
-                                .status(MigrationAudit.MigrationStatus.PENDING)
-                                .failureReason("errorMsg")
-                                .errorCode("errorCode")
-                                .attemptCount(0)
-                                .createdAt(
-                                        LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
-                                                .toInstant(ZoneOffset.UTC))
-                                .startedAt(
-                                        LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
-                                                .toInstant(ZoneOffset.UTC))
-                                .completedAt(
-                                        LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
-                                                .toInstant(ZoneOffset.UTC))
-                                .lastUpdatedAt(
-                                        LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
-                                                .toInstant(ZoneOffset.UTC))
-                                .inputPayloadHash("inputPayloadHash")
-                                .outputFileKey("outputFileKey")
-                                .chainOfCustodyZip("chainOfCustodyZip")
-                                .mergedPdfHash("mergedPdfHash")
-                                .traceId("abcd-1234")
-                                .ocrAttempted(false)
-                                .ocrPageCount(0)
-                                .ocrTotalTextLength(0L)
-                                .ocrSuccess(false)
-                                .ocrErrorCode("ocrErrorCode")
-                                .ocrErrorMessage("errorMsg")
-                                .ocrCompletedAt(
-                                        LocalDateTime.of(2020, 1, 1, 0, 0, 0, 0)
-                                                .toInstant(ZoneOffset.UTC))
-                                .build());
-        when(mockAuditRepo.getAllByCompletedAtIsNotNull(any(Limit.class))).thenReturn(list);
-
-        // Run the test
-        final List<Migration> result = auditEventServiceUnderTest.getMigrations(0);
-
-        // Verify the results
-        assertThat(result).isEqualTo(expectedResult);
-    }
-
-    /**
-     * Test get migrations migration audit repository returns no items.
-     */
-    @Test
-    void testGetMigrations_MigrationAuditRepositoryReturnsNoItems() {
-        // Setup
-        when(mockAuditRepo.getAllByCompletedAtIsNotNull(any(Limit.class)))
-                .thenReturn(Collections.emptyList());
-
-        // Run the test
-        final List<Migration> result = auditEventServiceUnderTest.getMigrations(0);
-
-        // Verify the results
-        assertThat(result).isEqualTo(Collections.emptyList());
-    }
 
     /**
      * Test get stats.

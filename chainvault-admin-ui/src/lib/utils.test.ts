@@ -8,6 +8,7 @@ describe('secureRandomInt', () => {
   it('returns a number within the specified range', () => {
     const max = 10
     const result = secureRandomInt(max)
+    expect(Number.isInteger(result)).toBe(true)
     expect(result).toBeGreaterThanOrEqual(0)
     expect(result).toBeLessThan(max)
   })

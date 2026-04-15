@@ -84,9 +84,11 @@ describe('Dashboard Component', () => {
   it('renders table data with correct status badges', async () => {
     renderDashboard()
 
-    const row = await screen.findByRole('row', { name: /DOC-ABC/i })
-    expect(within(row).getByText('SUCCESS')).toHaveClass('bg-success-light')
-    expect(screen.getByText('DOC-XYZ')).toBeInTheDocument()
+    const successRow = await screen.findByRole('row', { name: /DOC-ABC/i })
+    expect(within(successRow).getByText('SUCCESS')).toHaveClass('bg-success-light')
+
+    const failedRow = screen.getByRole('row', { name: /DOC-XYZ/i })
+    expect(within(failedRow).getByText('FAILED')).toHaveClass('bg-danger-light')
   })
 
   it('handles independent API failures using allSettled logic', async () => {
@@ -307,6 +309,14 @@ describe('Dashboard Component', () => {
 
   it('displays fallback message for empty result sets', async () => {
     vi.mocked(api.getMigrations).mockResolvedValue({ items: [], total: 0 })
+    vi.mocked(api.getMigrationStats).mockResolvedValue({
+      total: 0,
+      success: 0,
+      failed: 0,
+      pending: 0,
+      running: 0,
+      last24h: 0,
+    })
 
     renderDashboard()
 

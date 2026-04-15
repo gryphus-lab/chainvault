@@ -20,9 +20,12 @@ describe('secureRandomInt', () => {
 
   it('uses crypto.getRandomValues', () => {
     const spy = vi.spyOn(crypto, 'getRandomValues')
-    secureRandomInt(100)
-    expect(spy).toHaveBeenCalled()
-    spy.mockRestore()
+    try {
+      secureRandomInt(100)
+      expect(spy).toHaveBeenCalled()
+    } finally {
+      spy.mockRestore()
+    }
   })
 })
 

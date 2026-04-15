@@ -1,4 +1,4 @@
-name: docker-compose-lgtm.yml for chainvault
+name: otel-lgtm-chainvault
 services:
   alloy:
     image: grafana/alloy:latest

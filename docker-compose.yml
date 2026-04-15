@@ -1,4 +1,4 @@
-name: docker-compose.yml for chainvault
+name: chainvault
 services:
   chainvault-app:
     build:

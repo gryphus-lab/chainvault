@@ -85,6 +85,7 @@ function getTableRows(currentMigrations: Migration[]) {
  * @returns `'ascending'` when `sortDir` is `'asc'`, `'descending'` otherwise
  */
 function getSortOrder(sortDir: 'asc' | 'desc' | null) {
+  if (sortDir === null) return 'none'
   return sortDir === 'asc' ? 'ascending' : 'descending'
 }
 
@@ -185,7 +186,12 @@ const Dashboard = () => {
       // Fetch endpoints independently so one failure doesn't discard the other result
       const results = await Promise.allSettled([
         getMigrationStats(),
-        getMigrations({ limit: pageSize, offset: (currentPage - 1) * pageSize }),
+        getMigrations({
+          limit: pageSize,
+          offset: (currentPage - 1) * pageSize,
+          sortKey: sortKey ?? undefined,
+          sortDir: sortDir ?? undefined,
+        }),
       ])
 
       // Handle stats result
@@ -207,7 +213,7 @@ const Dashboard = () => {
       setIsLoading(false)
     }
     fetchData()
-  }, [currentPage, pageSize])
+  }, [currentPage, pageSize, sortKey, sortDir])
 
   const getDisplayValue = (value: number | undefined) => {
     if (isLoading) return '—'
@@ -216,18 +222,9 @@ const Dashboard = () => {
   }
 
   const sortedMigrations = useMemo(() => {
-    if (!migrations) return []
-    if (!sortKey || !sortDir) return migrations
-
-    return [...migrations].sort((a, b) => {
-      const aValue = a[sortKey] ?? ''
-      const bValue = b[sortKey] ?? ''
-
-      if (aValue < bValue) return sortDir === 'asc' ? -1 : 1
-      if (aValue > bValue) return sortDir === 'asc' ? 1 : -1
-      return 0
-    })
-  }, [migrations, sortKey, sortDir])
+    // Server-side sorting: return migrations as-is from the API
+    return migrations ?? []
+  }, [migrations])
 
   const totalMigrations = migrationStats?.total ?? 0
   const totalPages = Math.ceil(totalMigrations / pageSize)
@@ -321,6 +318,7 @@ const Dashboard = () => {
             {migrationsError}
           </div>
         )}
+
 
         <CTable align="middle" responsive hover striped className="mb-0">
           <CTableHead>

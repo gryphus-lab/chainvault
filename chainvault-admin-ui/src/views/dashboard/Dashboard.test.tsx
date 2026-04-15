@@ -72,8 +72,12 @@ describe('Dashboard Component', () => {
     expect(screen.getByText(/loading migration records/i)).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(screen.getAllByText('25')).toHaveLength(2) // Total
-      expect(screen.getAllByText('5')).toHaveLength(2) // In Progress (3+2)
+      // Target specific stat widgets by their labels
+      const totalWidget = screen.getByText('Total Migrations').closest('.mb-4')
+      expect(totalWidget).toHaveTextContent('25')
+
+      const inProgressWidget = screen.getByText('In Progress').closest('.mb-4')
+      expect(inProgressWidget).toHaveTextContent('5') // 3 pending + 2 running
     })
   })
 
@@ -117,24 +121,39 @@ describe('Dashboard Component', () => {
     renderDashboard()
 
     // Find the header button for Doc ID
-    const sortBtn = await screen.findByLabelText(/sort by document id/i)
+    const sortBtn = await screen.findByLabelText(/sort by doc id/i)
     const headerCell = sortBtn.closest('th')
 
     // Initial state (from code: default is createdAt desc, so docId is 'none')
     expect(headerCell).toHaveAttribute('aria-sort', 'none')
 
-    // 1st Click: Ascending
+    // 1st Click: Ascending - should trigger server-side sort
     fireEvent.click(sortBtn)
     expect(headerCell).toHaveAttribute('aria-sort', 'ascending')
 
-    // 2nd Click: Descending
+    // Verify server-side sorting was triggered with docId asc
+    await waitFor(() => {
+      expect(api.getMigrations).toHaveBeenCalledWith({
+        limit: 10,
+        offset: 0,
+        sortKey: 'docId',
+        sortDir: 'asc',
+      })
+    })
+
+    // 2nd Click: Descending - should trigger server-side sort
     fireEvent.click(sortBtn)
     expect(headerCell).toHaveAttribute('aria-sort', 'descending')
 
-    // Check sorting logic: XYZ should now be above ABC
-    const rows = screen.getAllByRole('row')
-    expect(rows[1]).toHaveTextContent('DOC-XYZ')
-    expect(rows[2]).toHaveTextContent('DOC-ABC')
+    // Verify server-side sorting was triggered with docId desc
+    await waitFor(() => {
+      expect(api.getMigrations).toHaveBeenCalledWith({
+        limit: 10,
+        offset: 0,
+        sortKey: 'docId',
+        sortDir: 'desc',
+      })
+    })
   })
 
   it('renders ellipsis in pagination when many pages exist', async () => {

@@ -17,7 +17,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -102,9 +101,17 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
                             });
 
             var status =
-                    Objects.equals(taskType, "handle-error")
-                            ? MigrationAudit.MigrationStatus.FAILED
-                            : MigrationAudit.MigrationStatus.SUCCESS;
+                    switch (taskType) {
+                        case "handle-error" ->
+                                MigrationAudit.MigrationStatus
+                                        .FAILED; // mark audit as failed for handle-error task
+                        case "upload-sftp" ->
+                                MigrationAudit.MigrationStatus
+                                        .SUCCESS; // mark audit as success for upload-sftp task
+                        case null, default ->
+                                MigrationAudit.MigrationStatus
+                                        .RUNNING; // default status for a running workflow
+                    };
 
             sendSseEvent(processInstanceId, span, status);
 

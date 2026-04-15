@@ -7,6 +7,7 @@ import ch.gryphus.chainvault.model.entity.MigrationAudit;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -55,4 +56,19 @@ public interface MigrationAuditRepository extends JpaRepository<MigrationAudit, 
      * @return the all by completed at is not null
      */
     List<MigrationAudit> getAllByCompletedAtIsNotNull(Limit of);
+
+    /**
+     * Gets all by completed at is not null with pageable.
+     *
+     * @param pageable the pageable
+     * @return the all by completed at is not null
+     */
+    List<MigrationAudit> getAllByCompletedAtIsNotNull(Pageable pageable);
+
+    /**
+     * Count all by completed at is not null.
+     *
+     * @return the count
+     */
+    long countByCompletedAtIsNotNull();
 }

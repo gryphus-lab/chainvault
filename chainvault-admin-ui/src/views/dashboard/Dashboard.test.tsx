@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import Dashboard from './Dashboard'
 import * as api from '../../lib/api'
-import { Migration, MigrationStats } from '../../types'
+import { Migration, MigrationPage, MigrationStats } from '../../types'
 
 // Mock API module
 vi.mock('../../lib/api', () => ({
@@ -14,21 +14,16 @@ vi.mock('../../lib/api', () => ({
   getMigrationStats: vi.fn(),
 }))
 
-const mockStats: {
-  total: number
-  success: number
-  failed: number
-  pending: number
-  running: number
-} = {
+const mockStats: MigrationStats = {
   total: 25, // Forces 3 pages with pageSize 10
   success: 15,
   failed: 5,
   pending: 3,
   running: 2,
+  last24h: 0,
 }
 
-const mockMigrations: Migration[] = [
+const mockMigrationItems: Migration[] = [
   {
     id: 'M-001',
     docId: 'DOC-ABC',
@@ -51,11 +46,16 @@ const mockMigrations: Migration[] = [
   },
 ]
 
+const mockMigrations: MigrationPage = {
+  items: mockMigrationItems,
+  total: 25,
+}
+
 describe('Dashboard Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Default successful mocks
-    vi.mocked(api.getMigrationStats).mockResolvedValue(mockStats as MigrationStats)
+    vi.mocked(api.getMigrationStats).mockResolvedValue(mockStats)
     vi.mocked(api.getMigrations).mockResolvedValue(mockMigrations)
   })
 
@@ -163,6 +163,10 @@ describe('Dashboard Component', () => {
       total: 200,
       last24h: 0,
     })
+    vi.mocked(api.getMigrations).mockResolvedValue({
+      items: mockMigrationItems,
+      total: 200,
+    })
 
     renderDashboard()
 
@@ -174,7 +178,7 @@ describe('Dashboard Component', () => {
   })
 
   it('displays fallback message for empty result sets', async () => {
-    vi.mocked(api.getMigrations).mockResolvedValue([])
+    vi.mocked(api.getMigrations).mockResolvedValue({ items: [], total: 0 })
 
     renderDashboard()
 

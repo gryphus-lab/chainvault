@@ -37,13 +37,21 @@ public class MigrationController {
     /**
      * Gets migrations.
      *
-     * @param limit the limit
-     * @return the migrations
+     * @param limit   the page size (default 100)
+     * @param offset  the zero-based record offset (default 0)
+     * @param sortKey the field to sort by (default "createdAt")
+     * @param sortDir the sort direction: "asc" or "desc" (default "desc")
+     * @return a paginated response containing the matching migrations and the total count
      */
     @GetMapping
-    public ResponseEntity<String> getMigrations(@RequestParam(defaultValue = "100") int limit) {
+    public ResponseEntity<String> getMigrations(
+            @RequestParam(defaultValue = "100") int limit,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(required = false) String sortKey,
+            @RequestParam(required = false) String sortDir) {
         return new ResponseEntity<>(
-                objectMapper.writeValueAsString(auditEventService.getMigrations(limit)),
+                objectMapper.writeValueAsString(
+                        auditEventService.getMigrations(limit, offset, sortKey, sortDir)),
                 HttpStatus.OK);
     }
 

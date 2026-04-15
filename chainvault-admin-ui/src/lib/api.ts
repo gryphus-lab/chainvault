@@ -2,7 +2,7 @@
  * Copyright (c) 2026. Gryphus Lab
  */
 import ky from 'ky'
-import { Migration, MigrationDetail, MigrationStats } from '../types'
+import { Migration, MigrationDetail, MigrationPage, MigrationStats } from '../types'
 
 const api = ky.create({
   prefix: '/api',
@@ -22,7 +22,7 @@ export const getMigrations = async (params?: {
   offset?: number
   sortKey?: string
   sortDir?: string
-}): Promise<Migration[]> => {
+}): Promise<MigrationPage> => {
   return api.get('migrations', { searchParams: params }).json()
 }
 

@@ -19,7 +19,7 @@ import {
 } from '@coreui/react'
 import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react'
 import { getMigrations, getMigrationStats } from '../../lib/api'
-import { Migration, MigrationStats } from '../../types'
+import { Migration, MigrationPage, MigrationStats } from '../../types'
 import { safeFormat } from '../../lib/utils'
 
 type SortDirection = 'asc' | 'desc' | null
@@ -115,7 +115,7 @@ function computePaginationPages(
 
 const Dashboard = () => {
   // Data State
-  const [migrations, setMigrations] = useState<Migration[] | null>(null)
+  const [migrations, setMigrations] = useState<MigrationPage | null>(null)
   const [migrationStats, setMigrationStats] = useState<MigrationStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [statsError, setStatsError] = useState<string | null>(null)
@@ -152,10 +152,14 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
+    let isActive = true
+
     const fetchData = async () => {
-      setIsLoading(true)
-      setStatsError(null)
-      setMigrationsError(null)
+      if (isActive) {
+        setIsLoading(true)
+        setStatsError(null)
+        setMigrationsError(null)
+      }
 
       // Fetch endpoints independently so one failure doesn't discard the other result
       const results = await Promise.allSettled([
@@ -167,6 +171,8 @@ const Dashboard = () => {
           sortDir: sortDir ?? undefined,
         }),
       ])
+
+      if (!isActive) return
 
       // Handle stats result
       if (results[0].status === 'fulfilled') {
@@ -187,6 +193,10 @@ const Dashboard = () => {
       setIsLoading(false)
     }
     fetchData()
+
+    return () => {
+      isActive = false
+    }
   }, [currentPage, pageSize, sortKey, sortDir])
 
   const getDisplayValue = (value: number | undefined) => {
@@ -197,10 +207,10 @@ const Dashboard = () => {
 
   const sortedMigrations = useMemo(() => {
     // Server-side sorting: return migrations as-is from the API
-    return migrations ?? []
+    return migrations?.items ?? []
   }, [migrations])
 
-  const totalMigrations = migrationStats?.total ?? 0
+  const totalMigrations = migrations?.total ?? migrationStats?.total ?? sortedMigrations.length
   const totalPages = Math.ceil(totalMigrations / pageSize)
   const currentMigrations = useMemo(() => {
     // Server-side pagination: display the fetched page as-is after client-side sorting

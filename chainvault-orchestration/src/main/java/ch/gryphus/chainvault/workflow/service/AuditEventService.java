@@ -6,6 +6,7 @@ package ch.gryphus.chainvault.workflow.service;
 import ch.gryphus.chainvault.domain.MigrationContext;
 import ch.gryphus.chainvault.model.dto.Migration;
 import ch.gryphus.chainvault.model.dto.MigrationDetail;
+import ch.gryphus.chainvault.model.dto.MigrationPage;
 import ch.gryphus.chainvault.model.dto.MigrationStats;
 import ch.gryphus.chainvault.model.entity.MigrationAudit;
 import ch.gryphus.chainvault.model.entity.MigrationEvent;
@@ -23,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flowable.engine.delegate.BpmnError;
 import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -303,13 +307,28 @@ public class AuditEventService {
     }
 
     /**
-     * Gets migrations.
+     * Gets a paginated and optionally sorted list of migrations.
      *
-     * @param limit the limit
-     * @return the migrations
+     * @param limit   the page size
+     * @param offset  the zero-based offset
+     * @param sortKey the field to sort by (e.g. "createdAt", "docId"); defaults to "createdAt"
+     * @param sortDir "asc" or "desc"; defaults to "desc"
+     * @return a MigrationPage containing the items for the requested page and the total count
      */
-    public List<Migration> getMigrations(int limit) {
-        List<MigrationAudit> auditRecords = auditRepo.getAllByCompletedAtIsNotNull(Limit.of(limit));
+    public MigrationPage getMigrations(int limit, int offset, String sortKey, String sortDir) {
+        String resolvedSortKey =
+                (sortKey != null && !sortKey.isBlank()) ? sortKey : "createdAt";
+        Sort.Direction direction =
+                "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        int pageNumber = (limit > 0) ? offset / limit : 0;
+        Pageable pageable =
+                PageRequest.of(pageNumber, limit > 0 ? limit : 100,
+                        Sort.by(direction, resolvedSortKey));
+
+        List<MigrationAudit> auditRecords = auditRepo.getAllByCompletedAtIsNotNull(pageable);
+        long total = auditRepo.countByCompletedAtIsNotNull();
+
         List<Migration> migrations = new ArrayList<>();
         auditRecords.forEach(
                 audit -> {
@@ -327,7 +346,7 @@ public class AuditEventService {
                     m.setOcrTotalTextLength(audit.getOcrTotalTextLength());
                     migrations.add(m);
                 });
-        return migrations;
+        return new MigrationPage(migrations, total);
     }
 
     /**

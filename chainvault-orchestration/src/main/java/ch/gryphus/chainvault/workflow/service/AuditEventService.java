@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(noRollbackForClassName = {"org.flowable.engine.delegate.BpmnError"})
 public class AuditEventService {
 
+    private static final String DEFAULT_SORT_KEY = "createdAt";
     private static final Set<String> ALLOWED_SORT_KEYS =
             Set.of(
                     "id",
@@ -51,7 +52,7 @@ public class AuditEventService {
                     "failureReason",
                     "errorCode",
                     "attemptCount",
-                    "createdAt",
+                    DEFAULT_SORT_KEY,
                     "startedAt",
                     "completedAt",
                     "lastUpdatedAt",
@@ -74,7 +75,7 @@ public class AuditEventService {
 
     /**
      * Mark the migration audit identified by piKey as started and record a TASK_STARTED event.
-     *
+     * <p>
      * Sets the audit's document id, increments its attempt count, sets status to RUNNING,
      * records the start time and the span's trace id, persists the audit, and creates a TASK_STARTED MigrationEvent.
      *
@@ -105,7 +106,7 @@ public class AuditEventService {
 
     /**
      * Finalize an audit record and record a corresponding migration event.
-     *
+     * <p>
      * Updates the MigrationAudit identified by the given process-instance key with the provided status,
      * completion metadata, and any details derived from varMap, then creates and persists a MigrationEvent
      * describing the task completion or failure.
@@ -348,9 +349,11 @@ public class AuditEventService {
      */
     public MigrationPage getMigrations(int limit, int page, String sortKey, String sortDir) {
         String normalizedSortKey =
-                (sortKey != null && !sortKey.isBlank()) ? sortKey.trim() : "createdAt";
+                (sortKey != null && !sortKey.isBlank()) ? sortKey.trim() : DEFAULT_SORT_KEY;
         String resolvedSortKey =
-                ALLOWED_SORT_KEYS.contains(normalizedSortKey) ? normalizedSortKey : "createdAt";
+                ALLOWED_SORT_KEYS.contains(normalizedSortKey)
+                        ? normalizedSortKey
+                        : DEFAULT_SORT_KEY;
         Sort.Direction direction =
                 "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
 
@@ -397,7 +400,7 @@ public class AuditEventService {
 
     /**
      * Return detailed migration metadata for the audit identified by the given id.
-     *
+     * <p>
      * The returned detail includes audit identifiers and timestamps, migration status,
      * document id, OCR metrics and preview, trace id, associated migration events,
      * chain-of-custody zip URL, and output PDF URL.

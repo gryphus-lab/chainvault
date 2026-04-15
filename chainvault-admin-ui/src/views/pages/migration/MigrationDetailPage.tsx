@@ -141,10 +141,8 @@ export default function MigrationDetailPage() {
                         <a href={traceIDUrl} target="_blank" rel="noopener noreferrer">
                           {migration.traceId}
                         </a>
-                      ) : migration.traceId ? (
-                        migration.traceId
                       ) : (
-                        'N/A'
+                        migration.traceId || 'N/A'
                       )}
                     </div>
                   </CCardBody>

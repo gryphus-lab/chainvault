@@ -94,14 +94,20 @@ describe('Dashboard Component', () => {
     vi.mocked(api.getMigrationStats).mockRejectedValue(new Error('Stats Failed'))
     vi.mocked(api.getMigrations).mockResolvedValue(mockMigrations)
 
-    renderDashboard()
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    // Should see stats error alert
-    expect(await screen.findByText(/failed to load migration statistics/i)).toBeInTheDocument()
-    // Stats widgets should fallback to "Unavailable" per getDisplayValue
-    expect(screen.getAllByText('Unavailable')).toHaveLength(4)
-    // Table should still render successfully
-    expect(screen.getByText('DOC-ABC')).toBeInTheDocument()
+    try {
+      renderDashboard()
+
+      // Should see stats error alert
+      expect(await screen.findByText(/failed to load migration statistics/i)).toBeInTheDocument()
+      // Stats widgets should fallback to "Unavailable" per getDisplayValue
+      expect(screen.getAllByText('Unavailable')).toHaveLength(4)
+      // Table should still render successfully
+      expect(screen.getByText('DOC-ABC')).toBeInTheDocument()
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   it('triggers server-side pagination refetch on page change', async () => {
@@ -113,8 +119,16 @@ describe('Dashboard Component', () => {
     const page2 = screen.getByText('2')
     fireEvent.click(page2)
 
-    // Verify API called with offset 10 (Page 2)
-    expect(api.getMigrations).toHaveBeenCalledWith({ limit: 10, offset: 10 })
+    // Wait for the second API call to complete
+    await waitFor(() => expect(api.getMigrations).toHaveBeenCalledTimes(2))
+
+    // Verify API called with offset 10 (Page 2) and the component's default sort parameters
+    expect(api.getMigrations).toHaveBeenLastCalledWith({
+      limit: 10,
+      offset: 10,
+      sortKey: 'createdAt',
+      sortDir: 'desc',
+    })
   })
 
   it('cycles through sort states and updates ARIA attributes', async () => {

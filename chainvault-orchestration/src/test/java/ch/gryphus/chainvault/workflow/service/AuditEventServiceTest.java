@@ -273,10 +273,10 @@ class AuditEventServiceTest {
         MigrationStats stats = auditEventService.getStats();
 
         assertThat(stats.getTotal()).isEqualTo(100L);
-        assertThat(stats.getSuccess()).isEqualTo(50L);
-        assertThat(stats.getFailed()).isEqualTo(20L);
-        assertThat(stats.getPending()).isEqualTo(15L);
-        assertThat(stats.getRunning()).isEqualTo(15L);
+        assertThat(stats.getSuccess()).isEqualTo(50);
+        assertThat(stats.getFailed()).isEqualTo(20);
+        assertThat(stats.getPending()).isEqualTo(15);
+        assertThat(stats.getRunning()).isEqualTo(15);
         verify(auditRepo, times(4)).countAllByStatus(any());
     }
 

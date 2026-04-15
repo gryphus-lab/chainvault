@@ -1,32 +1,38 @@
-# docker-compose-lgtm.yml for chainvault
+name: chainvault
 services:
-  otel-lgtm:
-    image: 'grafana/otel-lgtm:latest'
-    environment:
-      - ENABLE_OBI=true
-      - OBI_TARGET=java
-    volumes:
-      - ./docker-resources/otel-lgtm/prometheus.yaml:/otel-lgtm/prometheus.yaml
-    ports:
-      - '3000:3000'
-      - '4317:4317'
-      - '4318:4318'
-      - '9090:9090'
   alloy:
     image: grafana/alloy:latest
+    depends_on:
+      otel-lgtm:
+        condition: service_healthy
     volumes:
       - ./config.alloy:/etc/alloy/config.alloy
       - ./logs:/var/log/chainvault:ro
+    environment:
+      - ALLOY_OTLP_UPSTREAM=otel-lgtm:4317
+    ports:
+      - '4319:4317'
+      - '12345:12345'
     command:
       - run
       - /etc/alloy/config.alloy
       - --storage.path=/var/lib/alloy/data
       - --server.http.listen-addr=0.0.0.0:12345
+  otel-lgtm:
+    image: 'grafana/otel-lgtm:latest'
+    volumes:
+      - ./docker-resources/otel-lgtm/prometheus.yaml:/otel-lgtm/prometheus.yaml
     environment:
-      - ALLOY_OTLP_UPSTREAM=otel-lgtm:4317
+      - ENABLE_OBI=true
+      - OBI_TARGET=java
     ports:
-      - "12345:12345"
-      - "4319:4317"
-    depends_on:
-      otel-lgtm:
-        condition: service_healthy
+      - '3000:3000'
+      - '4317:4317'
+      - '4318:4318'
+      - '9090:9090'
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

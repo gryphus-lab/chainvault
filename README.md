@@ -183,10 +183,20 @@ The React frontend is built by `chainvault-admin-ui` (React 19 + CoreUI + Vite +
 statically by Spring Boot via `SpaController`. All SPA routes (`/`, `/migration/**`, `/dashboard`, `/overview`) are
 forwarded to `index.html`.
 
-|       View       |          Route           |                          Description                          |
-|------------------|--------------------------|---------------------------------------------------------------|
-| Overview         | `/`                      | Stats cards, live SSE event feed, filterable migrations table |
-| Migration Detail | `/migration/{id}/detail` | Timeline, OCR breakdown, failure reason, artifact downloads   |
+- Admin UI: <http://localhost:8085>
+
+### Migration Overview
+
+![migration-overview.png](img/migration-overview.png)
+
+### Migration Details
+
+![migration-details.png](img/migration-details.png)
+
+|       View       |       Route       |                          Description                          |
+|------------------|-------------------|---------------------------------------------------------------|
+| Overview         | `/`               | Stats cards, live SSE event feed, filterable migrations table |
+| Migration Detail | `/migration/{id}` | Timeline, OCR breakdown, failure reason, artifact downloads   |
 
 **Live event feed** (`useMigrationEvents` hook): subscribes to `/api/migrations/events` via SSE, buffers up to 100
 events in memory, merges live status updates into the migrations table, and auto-reconnects on disconnect (3 s backoff).

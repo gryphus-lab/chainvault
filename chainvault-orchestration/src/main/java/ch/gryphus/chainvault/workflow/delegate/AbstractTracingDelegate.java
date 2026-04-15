@@ -115,15 +115,16 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
 
             sendSseEvent(processInstanceId, span, status);
 
+            String eventMessage =
+                    switch (status) {
+                        case FAILED -> "Failure";
+                        case SUCCESS -> "Success";
+                        case RUNNING -> "Running";
+                        default -> "In Progress";
+                    };
+
             auditService.updateAuditEventEnd(
-                    processInstanceId,
-                    status,
-                    null,
-                    null,
-                    taskType,
-                    status == MigrationAudit.MigrationStatus.FAILED ? "Failure" : "Success",
-                    outputMap,
-                    span);
+                    processInstanceId, status, null, null, taskType, eventMessage, outputMap, span);
 
             log.info("{} finished", taskType);
         } catch (Exception e) {
@@ -141,9 +142,12 @@ public abstract class AbstractTracingDelegate implements JavaDelegate {
             String piKey, @NonNull Span span, MigrationAudit.MigrationStatus status) {
         log.info("{} sending SSE event", taskType);
         String message =
-                status == MigrationAudit.MigrationStatus.FAILED
-                        ? "%s failed".formatted(taskType)
-                        : "%s completed successfully".formatted(taskType);
+                switch (status) {
+                    case FAILED -> "%s failed".formatted(taskType);
+                    case SUCCESS -> "%s completed successfully".formatted(taskType);
+                    case RUNNING -> "%s is running".formatted(taskType);
+                    default -> "%s is in progress".formatted(taskType);
+                };
         MigrationEventDto event = new MigrationEventDto();
         event.setId(UUID.randomUUID().toString());
         event.setMigrationId(piKey);

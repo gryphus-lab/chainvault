@@ -122,10 +122,10 @@ describe('Dashboard Component', () => {
     // Wait for the second API call to complete
     await waitFor(() => expect(api.getMigrations).toHaveBeenCalledTimes(2))
 
-    // Verify API called with offset 10 (Page 2) and the component's default sort parameters
+    // Verify API called with page 1 (zero-based, Page 2) and the component's default sort parameters
     expect(api.getMigrations).toHaveBeenLastCalledWith({
       limit: 10,
-      offset: 10,
+      page: 1,
       sortKey: 'createdAt',
       sortDir: 'desc',
     })
@@ -149,7 +149,7 @@ describe('Dashboard Component', () => {
     await waitFor(() => {
       expect(api.getMigrations).toHaveBeenCalledWith({
         limit: 10,
-        offset: 0,
+        page: 0,
         sortKey: 'docId',
         sortDir: 'asc',
       })
@@ -163,7 +163,7 @@ describe('Dashboard Component', () => {
     await waitFor(() => {
       expect(api.getMigrations).toHaveBeenCalledWith({
         limit: 10,
-        offset: 0,
+        page: 0,
         sortKey: 'docId',
         sortDir: 'desc',
       })

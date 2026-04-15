@@ -231,7 +231,7 @@ const Dashboard = () => {
       try {
         const data = await getMigrations({
           limit: pageSize,
-          offset: (currentPage - 1) * pageSize,
+          page: currentPage - 1,
           sortKey: sortKey ?? undefined,
           sortDir: sortDir ?? undefined,
         })

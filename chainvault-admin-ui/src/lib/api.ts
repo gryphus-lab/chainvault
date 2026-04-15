@@ -19,7 +19,7 @@ const api = ky.create({
 // Explicitly typed functions
 export const getMigrations = async (params?: {
   limit?: number
-  offset?: number
+  page?: number
   sortKey?: string
   sortDir?: string
 }): Promise<MigrationPage> => {

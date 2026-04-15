@@ -48,11 +48,11 @@ public class MigrationController {
     /**
      * Retrieve a paginated, optionally sorted list of migrations.
      *
-     * If `limit` is less than or equal to 0 or `offset` is negative, the method responds
+     * If `limit` is less than or equal to 0 or `page` is negative, the method responds
      * with HTTP 400 and a JSON error message.
      *
      * @param limit   page size; default 100; must be greater than 0
-     * @param offset  zero-based record offset; default 0; must be greater than or equal to 0
+     * @param page    zero-based page number; default 0; must be greater than or equal to 0
      * @param sortKey optional field to sort by (default "createdAt")
      * @param sortDir optional sort direction, either "asc" or "desc" (default "desc")
      * @return a ResponseEntity containing a JSON string with the matching migrations and the total count,
@@ -61,7 +61,7 @@ public class MigrationController {
     @GetMapping
     public ResponseEntity<String> getMigrations(
             @RequestParam(defaultValue = "100") int limit,
-            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) String sortKey,
             @RequestParam(required = false) String sortDir) {
         if (limit <= 0) {
@@ -70,15 +70,15 @@ public class MigrationController {
                             Map.of("error", "limit must be greater than 0")),
                     HttpStatus.BAD_REQUEST);
         }
-        if (offset < 0) {
+        if (page < 0) {
             return new ResponseEntity<>(
                     objectMapper.writeValueAsString(
-                            Map.of("error", "offset must be greater than or equal to 0")),
+                            Map.of("error", "page must be greater than or equal to 0")),
                     HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(
                 objectMapper.writeValueAsString(
-                        auditEventService.getMigrations(limit, offset, sortKey, sortDir)),
+                        auditEventService.getMigrations(limit, page, sortKey, sortDir)),
                 HttpStatus.OK);
     }
 

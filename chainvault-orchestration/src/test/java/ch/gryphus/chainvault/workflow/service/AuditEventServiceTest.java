@@ -264,13 +264,19 @@ class AuditEventServiceTest {
     @Test
     @DisplayName("getStats: Should aggregate counts from repository")
     void getStatsAggregation() {
-        when(auditRepo.count()).thenReturn(10L);
-        when(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.SUCCESS)).thenReturn(5);
+        when(auditRepo.count()).thenReturn(100L);
+        when(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.SUCCESS)).thenReturn(50);
+        when(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.FAILED)).thenReturn(20);
+        when(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.PENDING)).thenReturn(15);
+        when(auditRepo.countAllByStatus(MigrationAudit.MigrationStatus.RUNNING)).thenReturn(15);
 
         MigrationStats stats = auditEventService.getStats();
 
-        assertThat(stats.getTotal()).isEqualTo(10L);
-        assertThat(stats.getSuccess()).isEqualTo(5L);
+        assertThat(stats.getTotal()).isEqualTo(100L);
+        assertThat(stats.getSuccess()).isEqualTo(50L);
+        assertThat(stats.getFailed()).isEqualTo(20L);
+        assertThat(stats.getPending()).isEqualTo(15L);
+        assertThat(stats.getRunning()).isEqualTo(15L);
         verify(auditRepo, times(4)).countAllByStatus(any());
     }
 

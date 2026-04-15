@@ -156,7 +156,9 @@ export default function MigrationDetailPage() {
                   </CCardHeader>
                   <CCardBody>
                     <div className="font-monospace text-muted mt-1" style={{ fontSize: '0.75rem' }}>
-                      {migration.ocrTextPreview ?? 'No OCR information available.'}
+                      {migration.ocrTextPreview?.trim()
+                        ? migration.ocrTextPreview
+                        : 'No OCR information available.'}
                     </div>
                   </CCardBody>
                 </CCard>

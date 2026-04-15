@@ -3,7 +3,6 @@
  */
 package ch.gryphus.chainvault.controller;
 
-import ch.gryphus.chainvault.service.SseEmitterService;
 import ch.gryphus.chainvault.workflow.service.AuditEventService;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -24,27 +23,23 @@ public class MigrationController {
 
     private final AuditEventService auditEventService;
     private final ObjectMapper objectMapper;
-    private final SseEmitterService sseEmitterService;
 
     /**
      * Instantiates a new Migration controller.
      *
      * @param auditEventService the audit event service
      * @param objectMapper      the object mapper
-     * @param sseEmitterService the sse emitter service
      */
     public MigrationController(
             AuditEventService auditEventService,
-            ObjectMapper objectMapper,
-            SseEmitterService sseEmitterService) {
+            ObjectMapper objectMapper) {
         this.auditEventService = auditEventService;
         this.objectMapper = objectMapper;
-        this.sseEmitterService = sseEmitterService;
     }
 
     /**
      * Retrieve a paginated, optionally sorted list of migrations.
-     *
+     * <p>
      * If `limit` is less than or equal to 0 or `page` is negative, the method responds
      * with HTTP 400 and a JSON error message.
      *

@@ -26,7 +26,9 @@ public class SseEmitterService {
      *
      * @param objectMapper the object mapper
      */
-    @SuppressFBWarnings("EI_EXPOSE_REP2")
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring-injected singleton ObjectMapper is thread-safe and immutable")
     public SseEmitterService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }

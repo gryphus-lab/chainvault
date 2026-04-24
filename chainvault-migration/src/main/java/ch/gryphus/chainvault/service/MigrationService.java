@@ -13,6 +13,7 @@ import ch.gryphus.chainvault.util.HashUtils;
 import ch.gryphus.chainvault.util.MigrationUtils;
 import ch.gryphus.chainvault.util.OcrUtils;
 import ch.gryphus.chainvault.util.SftpUtils;
+import com.github.spotbugs.annotations.SuppressFBWarnings;
 import java.io.*;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -58,8 +59,8 @@ public class MigrationService {
      * @param sftpTargetConfig   the sftp target config
      * @param props              the props
      */
-    @SuppressWarnings(
-            value = "spotbugs:EI_EXPOSE_REP2",
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
             justification = "Spring-injected singleton beans are effectively immutable references")
     public MigrationService(
             RestClient restClient,

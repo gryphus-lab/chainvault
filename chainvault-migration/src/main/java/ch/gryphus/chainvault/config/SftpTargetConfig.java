@@ -3,6 +3,7 @@
  */
 package ch.gryphus.chainvault.config;
 
+import com.github.spotbugs.annotations.SuppressFBWarnings;
 import org.apache.sshd.sftp.client.SftpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,9 @@ public class SftpTargetConfig {
      *
      * @param props the props
      */
-    @SuppressWarnings("spotbugs:EI_EXPOSE_REP2")
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring-injected configuration properties are immutable")
     public SftpTargetConfig(SftpProperties props) {
         this.props = props;
     }

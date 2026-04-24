@@ -44,15 +44,7 @@ public class OcrPage {
         this.name = Objects.requireNonNull(name);
         this.data = Objects.requireNonNull(data).clone();
         this.mimeType = Objects.requireNonNullElse(mimeType, "image/tiff");
-        this.settings =
-                settings != null
-                        ? new OcrSettings(
-                                settings.getLanguage(),
-                                settings.getPageSegMode(),
-                                settings.getOcrEngineMode(),
-                                settings.getDpi(),
-                                settings.isPreprocessEnabled())
-                        : new OcrSettings();
+        this.settings = settings != null ? new OcrSettings(settings) : new OcrSettings();
     }
 
     /**

@@ -4,6 +4,7 @@
 package ch.gryphus.chainvault.service;
 
 import ch.gryphus.chainvault.model.dto.MigrationEventDto;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +26,9 @@ public class SseEmitterService {
      *
      * @param objectMapper the object mapper
      */
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Spring-injected singleton ObjectMapper is thread-safe and immutable")
     public SseEmitterService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }

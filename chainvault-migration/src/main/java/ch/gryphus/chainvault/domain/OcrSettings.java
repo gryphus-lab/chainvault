@@ -22,4 +22,17 @@ public class OcrSettings {
     private int ocrEngineMode = 3; // LSTM + legacy
     private int dpi = 300; // default DPI
     private boolean preprocessEnabled = true; // grayscale + contrast
+
+    /**
+     * Copy constructor.
+     *
+     * @param other the other
+     */
+    public OcrSettings(OcrSettings other) {
+        this.language = other.language;
+        this.pageSegMode = other.pageSegMode;
+        this.ocrEngineMode = other.ocrEngineMode;
+        this.dpi = other.dpi;
+        this.preprocessEnabled = other.preprocessEnabled;
+    }
 }

@@ -42,9 +42,9 @@ public class OcrPage {
      */
     public OcrPage(String name, byte[] data, String mimeType, OcrSettings settings) {
         this.name = Objects.requireNonNull(name);
-        this.data = Objects.requireNonNull(data);
+        this.data = Objects.requireNonNull(data).clone();
         this.mimeType = Objects.requireNonNullElse(mimeType, "image/tiff");
-        this.settings = Objects.requireNonNullElseGet(settings, OcrSettings::new);
+        this.settings = settings != null ? new OcrSettings(settings) : new OcrSettings();
     }
 
     /**

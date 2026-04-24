@@ -13,7 +13,7 @@ import ch.gryphus.chainvault.util.HashUtils;
 import ch.gryphus.chainvault.util.MigrationUtils;
 import ch.gryphus.chainvault.util.OcrUtils;
 import ch.gryphus.chainvault.util.SftpUtils;
-import com.github.spotbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.*;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;

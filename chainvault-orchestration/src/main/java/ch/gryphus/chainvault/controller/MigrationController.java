@@ -4,7 +4,7 @@
 package ch.gryphus.chainvault.controller;
 
 import ch.gryphus.chainvault.workflow.service.AuditEventService;
-import com.github.spotbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

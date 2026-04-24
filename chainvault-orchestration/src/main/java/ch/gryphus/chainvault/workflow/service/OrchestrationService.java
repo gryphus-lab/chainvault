@@ -6,7 +6,7 @@ package ch.gryphus.chainvault.workflow.service;
 import ch.gryphus.chainvault.config.Constants;
 import ch.gryphus.chainvault.model.entity.MigrationAudit;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
-import com.github.spotbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;

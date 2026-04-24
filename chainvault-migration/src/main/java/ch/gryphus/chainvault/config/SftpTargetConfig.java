@@ -3,7 +3,7 @@
  */
 package ch.gryphus.chainvault.config;
 
-import com.github.spotbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.sshd.sftp.client.SftpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

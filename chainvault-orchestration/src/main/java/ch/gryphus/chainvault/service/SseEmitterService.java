@@ -4,7 +4,7 @@
 package ch.gryphus.chainvault.service;
 
 import ch.gryphus.chainvault.model.dto.MigrationEventDto;
-import com.github.spotbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -3,7 +3,6 @@
  */
 package ch.gryphus.chainvault.config;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.sshd.sftp.client.SftpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,17 +24,9 @@ public class SftpTargetConfig {
      *
      * @param props the props
      */
-    @SuppressFBWarnings("EI_EXPOSE_REP2")
+    @SuppressWarnings("spotbugs:EI_EXPOSE_REP2")
     public SftpTargetConfig(SftpProperties props) {
-        this.props = new SftpProperties();
-        this.props.setHost(props.getHost());
-        this.props.setPort(props.getPort());
-        this.props.setUsername(props.getUsername());
-        this.props.setPassword(props.getPassword());
-        this.props.setPrivateKey(props.getPrivateKey());
-        this.props.setKnownHosts(props.getKnownHosts());
-        this.props.setRemoteDirectory(props.getRemoteDirectory());
-        this.props.setAllowUnknownKeys(props.isAllowUnknownKeys());
+        this.props = props;
     }
 
     /**

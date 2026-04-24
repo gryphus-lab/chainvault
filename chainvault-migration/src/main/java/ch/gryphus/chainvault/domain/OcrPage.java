@@ -3,7 +3,6 @@
  */
 package ch.gryphus.chainvault.domain;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.Getter;
@@ -42,7 +41,7 @@ public class OcrPage {
      * @param mimeType the mime type
      * @param settings the settings
      */
-    @SuppressFBWarnings("EI_EXPOSE_REP2")
+    @SuppressWarnings("spotbugs:EI_EXPOSE_REP2")
     public OcrPage(String name, byte[] data, String mimeType, OcrSettings settings) {
         this.name = Objects.requireNonNull(name);
         this.data = Arrays.copyOf(Objects.requireNonNull(data), data.length);

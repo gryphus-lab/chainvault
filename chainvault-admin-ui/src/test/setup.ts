@@ -62,7 +62,7 @@ class ResizeObserverMock {
 }
 globalThis.ResizeObserver = ResizeObserverMock
 
-window.scrollTo = vi.fn() as typeof globalThis.scrollTo
+globalThis.scrollTo = vi.fn() as typeof globalThis.scrollTo
 
 const matchMediaFn = (query: string) => ({
   matches: false,

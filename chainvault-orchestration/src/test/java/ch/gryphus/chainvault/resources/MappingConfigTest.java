@@ -67,6 +67,26 @@ class MappingConfigTest {
         return (Map<String, Object>) config.get("enrichment");
     }
 
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> getMigration() {
+        return (Map<String, Object>) getEnrichment().get("migration");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> getIntegrity() {
+        return (Map<String, Object>) getEnrichment().get("integrity");
+    }
+
+    private static byte[] readMappingConfigBytes() throws Exception {
+        try (InputStream is =
+                MappingConfigTest.class
+                        .getClassLoader()
+                        .getResourceAsStream("mapping-config.yml")) {
+            assertThat(is).isNotNull();
+            return is.readAllBytes();
+        }
+    }
+
     // -----------------------------------------------------------------------
     // mappings[] tests
     // -----------------------------------------------------------------------
@@ -124,24 +144,18 @@ class MappingConfigTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void enrichment_MigrationEventTypeShouldBeMigration() {
-        Map<String, Object> migration = (Map<String, Object>) getEnrichment().get("migration");
-        assertThat(migration).containsEntry("eventType", "Migration");
+        assertThat(getMigration()).containsEntry("eventType", "Migration");
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void enrichment_MigrationToolShouldBeSwissArchiveMigrator() {
-        Map<String, Object> migration = (Map<String, Object>) getEnrichment().get("migration");
-        assertThat(migration).containsEntry("tool", "SwissArchiveMigrator v1.0");
+        assertThat(getMigration()).containsEntry("tool", "SwissArchiveMigrator v1.0");
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void enrichment_MigrationEventDateTimeShouldBeNowPlaceholder() {
-        Map<String, Object> migration = (Map<String, Object>) getEnrichment().get("migration");
-        assertThat(migration).containsEntry("eventDateTime", "${now}");
+        assertThat(getMigration()).containsEntry("eventDateTime", "${now}");
     }
 
     // -----------------------------------------------------------------------
@@ -154,11 +168,9 @@ class MappingConfigTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void enrichment_IntegrityAlgorithmShouldBeSha256() {
         // PR fixed missing newline at EOF; value must remain "SHA-256"
-        Map<String, Object> integrity = (Map<String, Object>) getEnrichment().get("integrity");
-        assertThat(integrity).containsEntry("algorithm", "SHA-256");
+        assertThat(getIntegrity()).containsEntry("algorithm", "SHA-256");
     }
 
     // -----------------------------------------------------------------------
@@ -167,29 +179,17 @@ class MappingConfigTest {
 
     @Test
     void mappingConfigFile_ShouldNotBeEmpty() throws Exception {
-        try (InputStream is =
-                MappingConfigTest.class
-                        .getClassLoader()
-                        .getResourceAsStream("mapping-config.yml")) {
-            assertThat(is).isNotNull();
-            byte[] bytes = is.readAllBytes();
-            assertThat(bytes).isNotEmpty();
-            String content = new String(bytes, StandardCharsets.UTF_8);
-            assertThat(content.strip()).isNotEmpty();
-        }
+        byte[] bytes = readMappingConfigBytes();
+        assertThat(bytes).isNotEmpty();
+        String content = new String(bytes, StandardCharsets.UTF_8);
+        assertThat(content.strip()).isNotEmpty();
     }
 
     @Test
     void mappingConfigFile_ShouldEndWithNewline() throws Exception {
         // PR added a trailing newline to mapping-config.yml
-        try (InputStream is =
-                MappingConfigTest.class
-                        .getClassLoader()
-                        .getResourceAsStream("mapping-config.yml")) {
-            assertThat(is).isNotNull();
-            byte[] bytes = is.readAllBytes();
-            String content = new String(bytes, StandardCharsets.UTF_8);
-            assertThat(content).endsWith("\n");
-        }
+        byte[] bytes = readMappingConfigBytes();
+        String content = new String(bytes, StandardCharsets.UTF_8);
+        assertThat(content).endsWith("\n");
     }
 }

@@ -76,7 +76,7 @@ class TestResourcesStructureTest {
     }
 
     @Test
-    void dbJson_TagsShouldBeInlineArrayWithThreeElements() throws Exception {
+    void dbJson_TagsShouldBeArrayWithThreeElements() throws Exception {
         JsonNode documents = parseDbJson().get("documents");
         for (JsonNode doc : documents) {
             JsonNode tags = doc.get("tags");
@@ -160,7 +160,7 @@ class TestResourcesStructureTest {
                     },
                     {
                       "id": "DOC-ARCH-2025-003",
-                      "docId": "DOC-ARCH-2025-002",
+                      "docId": "DOC-ARCH-2025-003",
                       "title": "Invoice #7923 - Stark Industries",
                       "creationDate": "2025-01-31T20:53:05Z",
                       "clientId": "CHE-738.760.530",
@@ -169,7 +169,7 @@ class TestResourcesStructureTest {
                       "department": "Accounts Payable",
                       "status": "ARCHIVED",
                       "tags": ["finance", "2025", "batch"],
-                      "payloadUrl": "/payloads/invoice_001.zip"
+                      "payloadUrl": "/payloads/invoice_003.zip"
                     }
                   ]
                 }
@@ -224,7 +224,11 @@ class TestResourcesStructureTest {
     @Test
     void indexHtml_ShouldHaveModuleScriptTag() throws Exception {
         String html = readClasspathResource("templates/index.html");
-        assertThat(html).contains("type=\"module\"").contains("src=\"/assets/index.js\"");
+        // Verify both type="module" and src="/assets/index.js" are on the same <script> tag
+        assertThat(html)
+                .containsPattern(
+                        "<script[^>]*\\btype=\"module\"[^>]*\\bsrc=\"/assets/index\\.js\"[^>]*>"
+                                + "|<script[^>]*\\bsrc=\"/assets/index\\.js\"[^>]*\\btype=\"module\"[^>]*>");
     }
 
     @Test

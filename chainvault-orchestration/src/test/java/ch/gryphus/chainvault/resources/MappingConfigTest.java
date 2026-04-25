@@ -5,6 +5,7 @@ package ch.gryphus.chainvault.resources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -80,7 +81,7 @@ class MappingConfigTest {
         return (Map<String, Object>) getEnrichment().get("integrity");
     }
 
-    private static byte[] readMappingConfigBytes() throws Exception {
+    private static byte[] readMappingConfigBytes() throws IOException {
         try (InputStream is =
                 MappingConfigTest.class
                         .getClassLoader()
@@ -181,7 +182,7 @@ class MappingConfigTest {
     // -----------------------------------------------------------------------
 
     @Test
-    void mappingConfigFile_ShouldNotBeEmpty() throws Exception {
+    void mappingConfigFile_ShouldNotBeEmpty() throws IOException {
         byte[] bytes = readMappingConfigBytes();
         assertThat(bytes).isNotEmpty();
         String content = new String(bytes, StandardCharsets.UTF_8);
@@ -189,7 +190,7 @@ class MappingConfigTest {
     }
 
     @Test
-    void mappingConfigFile_ShouldEndWithNewline() throws Exception {
+    void mappingConfigFile_ShouldEndWithNewline() throws IOException {
         // PR added a trailing newline to mapping-config.yml
         byte[] bytes = readMappingConfigBytes();
         String content = new String(bytes, StandardCharsets.UTF_8);

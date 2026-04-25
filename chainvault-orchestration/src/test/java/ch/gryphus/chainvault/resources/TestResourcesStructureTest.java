@@ -11,6 +11,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import tools.jackson.databind.JsonNode;
@@ -67,7 +69,7 @@ class TestResourcesStructureTest {
     void dbJson_AllDocumentsShouldHaveArchivedStatus() throws Exception {
         JsonNode documents = parseDbJson().get("documents");
         for (JsonNode doc : documents) {
-            assertThat(doc.get("status").asText())
+            assertThat(doc.get("status").asString())
                     .as("status should be ARCHIVED")
                     .isEqualTo("ARCHIVED");
         }
@@ -90,7 +92,7 @@ class TestResourcesStructureTest {
             JsonNode tagsNode = doc.get("tags");
             List<String> tags = new ArrayList<>();
             for (JsonNode tag : tagsNode) {
-                tags.add(tag.asText());
+                tags.add(tag.asString());
             }
             assertThat(tags).containsExactlyInAnyOrder("finance", "2025", "batch");
         }
@@ -99,14 +101,14 @@ class TestResourcesStructureTest {
     @Test
     void dbJson_FirstDocumentShouldHaveCorrectId() throws Exception {
         JsonNode first = parseDbJson().get("documents").get(0);
-        assertThat(first.get("id").asText()).isEqualTo("DOC-ARCH-2025-001");
+        assertThat(first.get("id").asString()).isEqualTo("DOC-ARCH-2025-001");
     }
 
     @Test
     void dbJson_FirstDocumentShouldHavePayloadUrl() throws Exception {
         JsonNode first = parseDbJson().get("documents").get(0);
         assertThat(first.has("payloadUrl")).isTrue();
-        assertThat(first.get("payloadUrl").asText()).isEqualTo("/payloads/invoice_001.zip");
+        assertThat(first.get("payloadUrl").asString()).isEqualTo("/payloads/invoice_001.zip");
     }
 
     @Test
@@ -119,7 +121,7 @@ class TestResourcesStructureTest {
     @Test
     void dbJson_ThirdDocumentShouldHaveCorrectId() throws Exception {
         JsonNode third = parseDbJson().get("documents").get(2);
-        assertThat(third.get("id").asText()).isEqualTo("DOC-ARCH-2025-003");
+        assertThat(third.get("id").asString()).isEqualTo("DOC-ARCH-2025-003");
     }
 
     @Test
@@ -179,7 +181,7 @@ class TestResourcesStructureTest {
     void dbJson_DocumentsShouldAllBeInvoiceType() throws Exception {
         JsonNode documents = parseDbJson().get("documents");
         for (JsonNode doc : documents) {
-            assertThat(doc.get("documentType").asText()).isEqualTo("INVOICE");
+            assertThat(doc.get("documentType").asString()).isEqualTo("INVOICE");
         }
     }
 
@@ -197,47 +199,38 @@ class TestResourcesStructureTest {
     void indexHtml_ShouldUseLowercaseDoctype() throws Exception {
         String html = readClasspathResource("templates/index.html");
         // PR changed `<!DOCTYPE html>` → `<!doctype html>` (HTML5 canonical lowercase)
-        assertThat(html).contains("<!doctype html>");
-        assertThat(html).doesNotContain("<!DOCTYPE html>");
+        assertThat(html).contains("<!doctype html>").doesNotContain("<!DOCTYPE html>");
     }
 
-    @Test
-    void indexHtml_ShouldHaveHtmlTagWithLangAttribute() throws Exception {
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "<html lang=\"en\">",
+                "<title>ChainVault Migration Dashboard</title>",
+                "<div id=\"root\"></div>",
+                "adjusted by Vite build"
+            })
+    void indexHtml_ShouldHaveCorrectContent(String testString) throws Exception {
         String html = readClasspathResource("templates/index.html");
-        assertThat(html).contains("<html lang=\"en\">");
+        assertThat(html).contains(testString);
     }
 
     @Test
     void indexHtml_ShouldHaveUtf8MetaCharset() throws Exception {
         String html = readClasspathResource("templates/index.html");
-        // PR changed to self-closing `<meta charset="UTF-8" />`
         assertThat(html).containsIgnoringCase("charset=\"UTF-8\"");
-    }
-
-    @Test
-    void indexHtml_ShouldHaveCorrectTitle() throws Exception {
-        String html = readClasspathResource("templates/index.html");
-        assertThat(html).contains("<title>ChainVault Migration Dashboard</title>");
     }
 
     @Test
     void indexHtml_ShouldHaveModuleScriptTag() throws Exception {
         String html = readClasspathResource("templates/index.html");
-        assertThat(html).contains("type=\"module\"");
-        assertThat(html).contains("src=\"/assets/index.js\"");
+        assertThat(html).contains("type=\"module\"").contains("src=\"/assets/index.js\"");
     }
 
     @Test
     void indexHtml_ShouldHaveFaviconLink() throws Exception {
         String html = readClasspathResource("templates/index.html");
-        assertThat(html).contains("rel=\"icon\"");
-        assertThat(html).contains("href=\"/favicon.svg\"");
-    }
-
-    @Test
-    void indexHtml_ShouldHaveBodyWithRootDiv() throws Exception {
-        String html = readClasspathResource("templates/index.html");
-        assertThat(html).contains("<div id=\"root\"></div>");
+        assertThat(html).contains("rel=\"icon\"").contains("href=\"/favicon.svg\"");
     }
 
     @Test
@@ -249,15 +242,11 @@ class TestResourcesStructureTest {
     @Test
     void indexHtml_ShouldHaveHeadAndBodySections() throws Exception {
         String html = readClasspathResource("templates/index.html");
-        assertThat(html).contains("<head>").contains("</head>");
-        assertThat(html).contains("<body>").contains("</body>");
-    }
-
-    @Test
-    void indexHtml_ShouldHaveViteBuildComment() throws Exception {
-        String html = readClasspathResource("templates/index.html");
-        // PR moved comment to separate line; both old and new contain this text
-        assertThat(html).contains("adjusted by Vite build");
+        assertThat(html)
+                .contains("<head>")
+                .contains("</head>")
+                .contains("<body>")
+                .contains("</body>");
     }
 
     // -----------------------------------------------------------------------

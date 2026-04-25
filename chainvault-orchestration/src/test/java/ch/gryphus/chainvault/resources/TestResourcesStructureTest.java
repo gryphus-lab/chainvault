@@ -229,7 +229,7 @@ class TestResourcesStructureTest {
         assertThat(html)
                 .containsPattern(
                         "<script[^>]*\\btype=\"module\"[^>]*\\bsrc=\"/assets/index\\.js\"[^>]*>"
-                                + "|<script[^>]*\\bsrc=\"/assets/index\\.js\"[^>]*\\btype=\"module\"[^>]*>");
+                            + "|<script[^>]*\\bsrc=\"/assets/index\\.js\"[^>]*\\btype=\"module\"[^>]*>");
     }
 
     @Test
@@ -239,7 +239,7 @@ class TestResourcesStructureTest {
         assertThat(html)
                 .containsPattern(
                         "<link[^>]*\\brel=\"icon\"[^>]*\\bhref=\"/favicon\\.svg\"[^>]*>"
-                                + "|<link[^>]*\\bhref=\"/favicon\\.svg\"[^>]*\\brel=\"icon\"[^>]*>");
+                            + "|<link[^>]*\\bhref=\"/favicon\\.svg\"[^>]*\\brel=\"icon\"[^>]*>");
     }
 
     @Test

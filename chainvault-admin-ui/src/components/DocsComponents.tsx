@@ -27,8 +27,7 @@ const DocsComponents = (props: DocsComponentsProps) => (
         <strong>
           the only open-source React dashboard built on a professional, enterprise-grade UI
           Components Library
-        </strong>{' '}
-        . This component is part of this library, and we present only the basic usage of it here. To
+        </strong>. This component is part of this library, and we present only the basic usage of it here. To
         explore extended examples, detailed API documentation, and customization options, refer to
         our docs.
       </div>

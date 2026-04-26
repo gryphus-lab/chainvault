@@ -5,9 +5,6 @@ WORKDIR /workspace
 # Copy pom first for better layer caching (dependencies layer rarely changes)
 COPY pom.xml .
 
-# Resolve dependencies early to maximize cache reuse
-RUN mvn -T 1C dependency:resolve dependency:resolve-plugins -DskipTests -q 2>/dev/null || true
-
 # Copy source modules
 COPY chainvault-admin-ui ./chainvault-admin-ui
 COPY chainvault-migration ./chainvault-migration
@@ -22,9 +19,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Build application with optimized settings
-RUN mvn -DskipTests -q -T 1C -B \
-    -Dorg.slf4j.simpleLogger.defaultLogLevel=warn \
-    package
+RUN mvn -DskipTests -q -B package
 
 # Runtime Stage
 FROM eclipse-temurin:25-jre-noble AS runtime

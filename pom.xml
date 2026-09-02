@@ -78,7 +78,7 @@
         <doxia-site-renderer.version>2.0.0</doxia-site-renderer.version>
         <spotless.version>3.5.1</spotless.version>
         <spotbugs-maven-plugin.version>4.10.3.0</spotbugs-maven-plugin.version>
-        <spotbugs.version>4.10.2</spotbugs.version>
+        <spotbugs.version>4.10.4</spotbugs.version>
         
         <!-- sonar -->
         <sonar.projectKey>gryphus-lab_chainvault</sonar.projectKey>

@@ -68,7 +68,7 @@
         <!-- plugins -->
         <dependency-versions-check-maven-plugin.version>4.0.1</dependency-versions-check-maven-plugin.version>
         <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
         <liquibase-maven-plugin.version>5.0.4</liquibase-maven-plugin.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>

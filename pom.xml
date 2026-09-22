@@ -39,7 +39,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         
         <!-- spring boot -->
-        <spring-boot.version>4.0.6</spring-boot.version>
+        <spring-boot.version>4.1.1</spring-boot.version>
         
         <!-- flowable -->
         <flowable.version>8.0.0</flowable.version>
@@ -86,7 +86,7 @@
         
         <!-- monitoring -->
         <opentelemetry.version>1.66.0</opentelemetry.version>
-        <opentelemetry-exporter-prometheus.version>1.65.0-alpha</opentelemetry-exporter-prometheus.version>
+        <opentelemetry-exporter-prometheus.version>1.66.0-alpha</opentelemetry-exporter-prometheus.version>
         <opentelemetry-logback-mdc-1.0.version>2.31.1-alpha</opentelemetry-logback-mdc-1.0.version>
         <opentelemetry-logback-appender-1.0.version>2.31.1-alpha</opentelemetry-logback-appender-1.0.version>
         <maven-scm-publish-plugin.version>3.3.0</maven-scm-publish-plugin.version>

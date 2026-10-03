@@ -20,7 +20,7 @@ const Progress = () => {
               few attributes. We don&#39;t use{' '}
               <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress">
                 the HTML5 <code>&lt;progress&gt;</code> element
-              </a>{' '}
+              </a>
               , ensuring you can stack progress bars, animate them, and place text labels over them.
             </p>
             <DocsExample href="components/progress">

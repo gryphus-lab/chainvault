@@ -26,8 +26,9 @@ const DocsComponents = (props: DocsComponentsProps) => (
         Our Admin Panel isn’t just a mix of third-party components. It’s{' '}
         <strong>
           the only open-source React dashboard built on a professional, enterprise-grade UI
-          Components Library
-        </strong>. This component is part of this library, and we present only the basic usage of it here. To
+          Components Library.
+        </strong>{' '}
+        This component is part of this library, and we present only the basic usage of it here. To
         explore extended examples, detailed API documentation, and customization options, refer to
         our docs.
       </div>

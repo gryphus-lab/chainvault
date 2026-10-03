@@ -18,16 +18,12 @@ MAVEN_OPTS = "-Xmx1024m"
 # Install seed packages (pip, setuptools, and wheel) into the virtual environment.
 _.python.venv = { path = ".venv", create = true, uv_create_args = ["--seed"] }
 UV_PROJECT_ENVIRONMENT = ".venv"
-MISE_PYTHON_DEFAULT_PACKAGES_FILE = ".default-python-packages"
 
 # Spring Boot 4 common defaults
 SPRING_PROFILES_ACTIVE = "local"
 
 # Tesseract test data
 TESSDATA_PREFIX = "/opt/homebrew/share/tessdata"
-
-[settings]
-python.default_packages_file = "./default-python-packages"
 
 [tasks]
 bootstrap = { run = "mvn dependency:go-offline", description = "One-time setup after clone / clean machine" }

@@ -17,10 +17,11 @@ const Progress = () => {
           <CCardBody>
             <p className="text-body-secondary small">
               Progress components are built with two HTML elements, some CSS to set the width, and a
-              few attributes. We don&#39;tuse{' '}
+              few attributes. We don&#39;t use{' '}
               <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress">
                 the HTML5 <code>&lt;progress&gt;</code> element
-              </a>, ensuring you can stack progress bars, animate them, and place text labels over them.
+              </a>
+              , ensuring you can stack progress bars, animate them, and place text labels over them.
             </p>
             <DocsExample href="components/progress">
               <CProgress className="mb-3">

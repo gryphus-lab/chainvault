@@ -53,7 +53,7 @@ const Layout = () => {
           </CCardHeader>
           <CCardBody>
             <p className="text-body-secondary small">
-              By adding <a href="https://coreui.io/docs/layout/gutters/">gutter modifier classes</a>,
+              By adding <a href="https://coreui.io/docs/layout/gutters/">gutter modifier classes</a>{' '}
               you can have control over the gutter width in as well the inline as block direction.
             </p>
             <DocsExample href="forms/layout#gutters">

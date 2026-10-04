@@ -123,9 +123,7 @@ public final class MigrationUtils {
             for (var page : pages) {
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(page.getData()));
                 var pdImage = LosslessFactory.createFromImage(doc, img);
-                var pdPage =
-                        new PDPage(
-                                new PDRectangle((float) img.getWidth(), (float) img.getHeight()));
+                var pdPage = new PDPage(new PDRectangle(img.getWidth(), img.getHeight()));
                 doc.addPage(pdPage);
 
                 try (var cs = new PDPageContentStream(doc, pdPage)) {

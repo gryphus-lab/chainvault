@@ -1,7 +1,6 @@
 # chainvault
 
-**Lightweight orchestration & migration engine for secure document processing**  
-Used by Gryphus Lab to coordinate extraction, transformation, signing, merging and secure SFTP delivery of documents.
+Lightweight orchestration and document migration engine for secure processing, auditability, and delivery.
 
 [![Java 25](https://img.shields.io/badge/Java-25-orange?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/)
 [![Spring Boot 4](https://img.shields.io/badge/Spring%20Boot-4.0+-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
@@ -14,105 +13,147 @@ Used by Gryphus Lab to coordinate extraction, transformation, signing, merging a
 [![mise](https://img.shields.io/badge/managed%20with-mise-6f42c1)](https://mise.jdx.dev/)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gryphus-lab_chainvault&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gryphus-lab_chainvault)
 [![GitHub Actions CI](https://github.com/gryphus-lab/chainvault/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gryphus-lab/chainvault/actions/workflows/ci.yml)
-[![Qodana](https://github.com/gryphus-lab/chainvault/actions/workflows/qodana_code_quality.yml/badge.svg)](https://github.com/gryphus-lab/chainvault/actions/workflows/qodana_code_quality.yml)
 
-## At a Glance
+## At a glance
 
-|      Aspect       |              Technology              |
-|-------------------|--------------------------------------|
-| Language          | Java 25, TypeScript 5.9.3            |
-| Framework         | Spring Boot 4, React 19 + Vite       |
-| Orchestration     | Flowable (BPMN 2.0)                  |
-| Database          | PostgreSQL 18 (Docker)               |
-| Schema Migrations | Liquibase (YAML)                     |
-| Developer Tooling | mise                                 |
-| Observability     | Prometheus + Loki + Grafana + Alloy  |
-| CI / Quality      | GitHub Actions + SonarCloud + Qodana |
-| Testing           | JUnit 5 + Testcontainers             |
-| API Documentation | springdoc OpenAPI / Swagger UI       |
+|      Aspect       |                  Stack                   |
+|-------------------|------------------------------------------|
+| Language          | Java 25, TypeScript                      |
+| Framework         | Spring Boot 4, React 19                  |
+| Orchestration     | Flowable BPMN 2.0                        |
+| Database          | PostgreSQL 18                            |
+| Schema migrations | Liquibase                                |
+| Local tooling     | mise                                     |
+| Observability     | Prometheus, Loki, Grafana, OpenTelemetry |
+| CI / quality      | GitHub Actions, SonarCloud, Qodana       |
+| Testing           | JUnit 5, Testcontainers                  |
+| API docs          | springdoc OpenAPI / Swagger UI           |
 
 ## Overview
 
-Chainvault is a **Spring Boot 4 + Java 25** orchestration service that executes BPMN workflows to:
+Chainvault is a Java-first document orchestration service built to process incoming archives through a BPMN workflow. It coordinates document extraction, hashing, metadata transformation, OCR, PDF merging, signing, and secure SFTP delivery while preserving a full audit trail for each migration.
 
-- extract & hash documents
-- transform metadata and prepare files
-- perform OCR on TIFF pages via Tesseract (Tess4J)
-- merge PDFs and apply cryptographic signatures
-- securely upload artifacts to SFTP targets
-- record full audit trails and migration events
+The service is designed for operational transparency and traceability:
 
-It integrates Flowable for process orchestration, uses Liquibase for schema consistency, exposes a REST API, and
-provides observability via Micrometer + Prometheus/Loki.
+- Extracts and validates incoming ZIP archives
+- Computes content hashes and stores chain-of-custody metadata
+- Runs OCR over document pages using Tesseract
+- Transforms and prepares source files for downstream processing
+- Merges PDF output and signs documents before handoff
+- Uploads final artifacts to SFTP endpoints
+- Records timeline events and exposes them through the REST API and live dashboard
 
 ## Features
 
-- Java 25 first-class support (virtual threads, scoped values, ZGC tuning, faster startup)
-- Spring Boot 4.x (Jakarta EE 11 baseline, modular JARs, enhanced observability)
-- Strict multi-module Maven layout
-- Real PostgreSQL for local development (no H2)
-- Liquibase YAML changelogs (repeatable, rollback-capable)
-- Flowable BPMN 2.0 workflows with custom Java delegates
-- SFTP target integration (secure file delivery)
-- Tesseract OCR integration (via Tess4J) for text extraction from TIFF pages
-- Full observability stack (Prometheus metrics, Loki logs, Grafana dashboards)
-- Aggregated JaCoCo coverage across modules (including Docker integration tests)
-- GitHub Actions CI with enforced SonarCloud quality gates and Qodana static analysis
-- Multi-stage Docker builds pushed to GHCR
-- Interactive admin UI (React 19 + CoreUI + Vite) with real-time SSE updates, status/date filtering, and search
-- REST API for migration list, aggregated stats, and per-migration detail
-- SPA routing via `SpaController` (serves the React frontend from Spring Boot)
+- Java 25 support with modern JVM tuning and virtual-thread-friendly runtime defaults
+- Spring Boot 4 baseline with Jakarta EE 11 compatibility
+- Multi-module Maven build with dedicated migration, orchestration, UI, and coverage modules
+- Flowable BPMN 2.0 engine for process orchestration and delegate-based execution
+- PostgreSQL-backed persistence with Liquibase-managed schema evolution
+- OCR via Tesseract/Tess4J for TIFF and page-based document extraction
+- Document transformation, merge, and signing pipeline for migration artifacts
+- Secure SFTP upload integration for downstream delivery
+- Real-time migration status stream via Server-Sent Events (SSE)
+- React 19 dashboard with live metrics, filtering, and per-migration detail views
+- Spring Boot SPA hosting for frontend delivery without a separate web server
+- Aggregated JaCoCo coverage for CI and SonarCloud quality gates
+- Docker-ready local development and compose-based integration workflows
 
-## Project Structure
+## Module structure
 
 ```text
 .
-├── chainvault-migration/           # Core business logic: extraction, transformation, signing, merging, SFTP upload
-├── chainvault-orchestration/       # Flowable BPMN engine, REST API, main application, delegates
-│   └── src/main/java/.../
+├── chainvault-migration/          # Business logic: extraction, hashing, OCR, signing, PDF merge, SFTP
+├── chainvault-orchestration/      # Spring Boot app, REST API, Flowable engine, entities, delegates
+│   └── src/main/java/
 │       ├── controller/
-│       │   ├── MigrationController.java   # REST: /api/migrations (list, stats, detail)
-│       │   └── SpaController.java         # SPA catch-all routing → index.html
-│       ├── model/entity/
-│       │   ├── Migration.java             # Migration DTO
-│       │   ├── MigrationDetail.java       # Extended DTO with events + download URLs
-│       │   └── MigrationStats.java        # Aggregated stats DTO
-│       └── workflow/service/
-│           ├── AuditEventService.java     # getMigrations / getStats / getDetail
-│           └── SseEmitterService.java     # SSE push (events serialised as JSON)
-├── chainvault-admin-ui/            # React 19 + CoreUI admin UI (Maven module, bundled into JAR)
+│       │   ├── MigrationController.java     # /api/migrations endpoints
+│       │   └── SpaController.java           # forwards SPA routes to index.html
+│       ├── model/
+│       │   ├── Migration.java               # basic migration record
+│       │   ├── MigrationDetail.java         # detail payload with timeline + downloads
+│       │   └── MigrationStats.java          # aggregated metrics
+│       └── workflow/
+│           ├── delegate/                    # BPMN delegate implementations
+│           └── service/
+│               ├── AuditEventService.java   # migration stats/detail queries
+│               └── SseEmitterService.java   # SSE push for dashboard updates
+├── chainvault-admin-ui/           # React 19 admin dashboard; bundled into the Spring Boot JAR
 │   └── src/
-│       ├── hooks/useMigrationEvents.ts    # SSE hook with auto-reconnect
+│       ├── hooks/useMigrationEvents.ts
 │       └── views/pages/migration/
-│           ├── Overview.tsx               # Dashboard: stats cards, live feed, table
-│           └── MigrationDetailPage.tsx    # Per-migration timeline, OCR info, downloads
-├── chainvault-report-aggregate/    # JaCoCo aggregated coverage reports for CI & SonarCloud
-├── docker-compose.yml              # Core stack: app + postgres + sftp-test + fake-source-api
-├── docker-compose-lgtm.yml         # Observability: Prometheus, Loki, Alloy, Grafana
+│           ├── Overview.tsx
+│           └── MigrationDetailPage.tsx
+├── chainvault-report-aggregate/   # JaCoCo report aggregation
+├── docker-compose.yml             # app + postgres + fake source + SFTP stack
+├── docker-compose-lgtm.yml        # observability stack (Prometheus, Loki, Alloy, Grafana)
 ├── env/
-│   └── prometheus.yml              # Prometheus scrape configuration
-└── mise.toml                       # Tool versions, environment, developer tasks
+│   └── prometheus.yml             # Prometheus scrape config
+├── mise.toml                      # toolchain + developer tasks
+├── Dockerfile                     # container image definition
+├── pom.xml                        # parent Maven build configuration
+├── start_test.sh                  # smoke/load test orchestration
+├── .github/workflows/ci.yml       # project CI
+└── README.md
 ```
+
+## Architecture
+
+### BPMN workflow
+
+The process defined in `chainvault-orchestration/src/main/resources/processes/chainvault.bpmn` runs in order:
+
+```text
+AsyncInitVariables → ExtractAndHash → TransformMetadata → PrepareFiles →
+PerformOcr → MergePdf → SignDocument → SftpUpload → [End]
+                                                          ↓
+                                                    HandleError → [End Failed]
+```
+
+Each step is implemented as a Flowable delegate, and boundary error events route failures into `HandleError` so problems are captured in the audit timeline.
+
+### REST API
+
+The orchestration service exposes the main migration endpoints:
+
+| Method |             Path              |                         Description                         |
+|--------|-------------------------------|-------------------------------------------------------------|
+| `GET`  | `/api/migrations?limit={n}`   | List recent migrations                                      |
+| `GET`  | `/api/migrations/stats`       | Aggregated migration metrics                                |
+| `GET`  | `/api/migrations/{id}/detail` | Detail payload with events, OCR preview, and artifact links |
+| `GET`  | `/api/migrations/events`      | SSE stream for live dashboard updates                       |
+
+The detail response includes `events`, `ocrTextPreview`, and artifact URLs such as `chainZipUrl` and `pdfUrl`.
+
+### Dashboard and events
+
+The React UI consumes `/api/migrations/events` and updates the dashboard in real time. The `useMigrationEvents` hook automatically reconnects if the stream drops and merges live updates into the migration table.
+
+### Database and migrations
+
+- Database: PostgreSQL 18
+- Schema management: Liquibase YAML changelogs under `chainvault-orchestration/src/main/resources/db/changelog/`
+- Start-up behavior: local profile applies the schema automatically
+- Core entities: migration audit records and migration event timeline rows
 
 ## Prerequisites
 
-- Docker & Docker Compose v2+
-- [mise](https://mise.jdx.dev/) — modern toolchain manager
+- Docker and Docker Compose v2+
+- [mise](https://mise.jdx.dev/) to manage Java, Maven, Node, Yarn, and project tasks
 - Git
-- IDE with Spring Boot / Flowable support (IntelliJ Ultimate recommended)
-- Tesseract OCR (for local development with OCR enabled): `brew install tesseract tesseract-lang`
-  - Set `TESSDATA_PREFIX` to your tessdata path (e.g. `/opt/homebrew/share/tessdata`) — mise sets this automatically
+- Tesseract OCR runtime for local OCR: `brew install tesseract tesseract-lang`
+- Access to the configured SFTP and source API endpoints for your local profile
 
-One-time mise setup:
+One-time environment setup:
 
 ```bash
-# install mise
 curl https://mise.run | sh
-# Add to shell (zsh/bash/fish) as shown during installation
-mise doctor     # should show Java 25 + Maven ready
+mise doctor
 ```
 
-## Quick Start
+`mise` is configured to set `SPRING_PROFILES_ACTIVE=local` and `TESSDATA_PREFIX=/opt/homebrew/share/tessdata` by default for macOS installs.
+
+## Quick start
 
 ```bash
 git clone https://github.com/gryphus-lab/chainvault.git
@@ -120,171 +161,123 @@ cd chainvault
 
 mise install
 mise trust
-
 mise dev
 ```
 
-After startup check:
+After startup, the app is available at:
 
 - Health: <http://localhost:8085/actuator/health>
 - Swagger UI: <http://localhost:8085/swagger-ui.html>
-- Dashboard (SPA): <http://localhost:8085/>
+- Dashboard: <http://localhost:8085/>
 
-## Local Development
+## Local development
 
-### Common mise Commands
+### Common commands
 
 ```bash
-mise dev                    # Start postgres + app (local profile)
-mise test                   # Unit + basic integration tests
-mise test-docker            # Full Docker integration tests (Testcontainers)
-mise verify                 # Full build + tests + JaCoCo aggregate coverage
-mise docker-build           # Build & tag local Docker image
-mise docker-build-versioned # Build & tag Docker image with version from POM
-mise compose-down           # Docker compose down - all services
-mise compose-down-full      # Docker compose down - all services and volumes
-mise compose-up             # Docker compose up - all services
-mise smoke-test             # Run smoke test
-mise load-test              # Run load test (1000 iterations)
-mise check                  # Check formatting via Spotless
-mise format                 # Format source code via Spotless
+mise build                  # mvn clean install -DskipTests
+mise test                  # mvn integration-test
+mise test-docker           # Docker-based integration tests only
+mise verify                # mvn clean verify -Pcoverage
+mise package               # mvn clean package -DskipTests -am
+mise dev                   # start local profile with Postgres + app
+mise compose-up            # docker compose with app + observability stack
+mise compose-down          # stop all compose services
+mise compose-down-full     # stop all services and volumes
+mise docker-build          # build local Docker image
+mise docker-build-versioned # build versioned Docker image from POM
+mise smoke-test            # run smoke test script
+mise load-test             # run load test script (1000 iterations)
+mise check                # yarn lint + prettier + Spotless check
+mise format                # yarn lint-fix + prettier + Spotless apply
 ```
 
-### Observability Stack (optional but recommended)
+### Local profile configuration
+
+The project uses the local Spring profile by default via `mise.toml`:
+
+```text
+SPRING_PROFILES_ACTIVE=local
+TESSDATA_PREFIX=/opt/homebrew/share/tessdata
+```
+
+The corresponding `application-local.yml` is used for local service wiring such as PostgreSQL, SFTP, and the fake source API.
+
+## Observability and local stack
+
+The repository includes a full observability stack for local monitoring and troubleshooting.
 
 ```bash
 docker compose -f docker-compose-lgtm.yml up -d
 ```
 
-Access:
+Access points:
 
-- Grafana: <http://localhost:3000> (admin/admin by default)
+- Grafana: <http://localhost:3000> (admin/admin)
 - Prometheus: <http://localhost:9090>
-- Loki: <http://localhost:3100> (via Grafana datasource)
+- Loki: <http://localhost:3100>
+- App metrics: <http://localhost:8085/actuator/prometheus>
+- OpenTelemetry exporter: `localhost:4317`
 
-## REST API
-
-| Method |             Path              |                              Description                               |
-|--------|-------------------------------|------------------------------------------------------------------------|
-| `GET`  | `/api/migrations?limit={n}`   | List recent migrations (default 100)                                   |
-| `GET`  | `/api/migrations/stats`       | Aggregated stats (total, success, failed, pending, running, last 24 h) |
-| `GET`  | `/api/migrations/{id}/detail` | Full migration detail (events timeline, OCR info, download URLs)       |
-| `GET`  | `/api/migrations/events`      | SSE stream of live migration events                                    |
-
-All responses are JSON. The detail endpoint returns a `MigrationDetail` which extends `Migration` and includes:
-
-- `events` — ordered list of `MigrationEvent` objects for the timeline
-- `ocrTextPreview` — truncated OCR text preview
-- `chainZipUrl` / `pdfUrl` — download links for the chain-of-custody ZIP and merged PDF
-
-## Dashboard
-
-The React frontend is built by `chainvault-admin-ui` (React 19 + CoreUI + Vite + TanStack Query) and served
-statically by Spring Boot via `SpaController`. All SPA routes (`/`, `/migration/**`, `/dashboard`, `/overview`) are
-forwarded to `index.html`.
-
-- Admin UI: <http://localhost:8085>
-
-### Migration Overview
-
-![migration-overview.png](img/migration-overview.png)
-
-### Migration Details
-
-![migration-details.png](img/migration-details.png)
-
-|       View       |       Route       |                          Description                          |
-|------------------|-------------------|---------------------------------------------------------------|
-| Overview         | `/`               | Stats cards, live SSE event feed, filterable migrations table |
-| Migration Detail | `/migration/{id}` | Timeline, OCR breakdown, failure reason, artifact downloads   |
-
-**Live event feed** (`useMigrationEvents` hook): subscribes to `/api/migrations/events` via SSE, buffers up to 100
-events in memory, merges live status updates into the migrations table, and auto-reconnects on disconnect (3 s backoff).
-
-## Configuration
-
-### Secrets note
-
-SFTP credentials, signing keys, API tokens and other sensitive values must be provided via environment variables or
-mounted secrets — never commit them.
-
-## Database & Migrations
-
-- Engine: PostgreSQL 18 (containerized via docker-compose.yml)
-- Host: localhost:5432
-- Database: configured in application.yml / application-local.yml
-- Migrations: Liquibase YAML
-  - Location: chainvault-orchestration/src/main/resources/db/changelog/
-  - Master: db.changelog-master.yaml
-  - Auto-applied on startup in local profile
-
-## Testing & Coverage
+## Docker and compose
 
 ```bash
-# Quick unit & basic integration tests
+# build image
+mise docker-build
+
+# build tagged image using the project version
+mise docker-build-versioned
+
+# start the full stack
+mise compose-up
+
+# stop services
+mise compose-down
+
+# stop services and volumes
+mise compose-down-full
+```
+
+## Testing and coverage
+
+```bash
+# unit + integration tests
 mise test
 
-# Docker integration tests only (Testcontainers)
+# Docker integration tests only
 mise test-docker
 
-# Build + tests + aggregated JaCoCo coverage (for SonarCloud / CI)
+# build + verify + JaCoCo aggregate coverage
 mise verify
 ```
 
-### Docker Integration Tests
-
-The `chainvault-orchestration` module contains integration test classes under `src/test/java/.../docker/` and
-`src/test/java/.../controller/`:
-
-- `DockerServicesIT` — individual service health, connectivity, and port-mapping tests
-- `DockerComposeIT` — full compose-stack tests (service startup, inter-service networking)
-- `MigrationControllerTest` — unit tests for `MigrationController` (stats, list, detail endpoints)
-- `SpaControllerTest` — unit tests for SPA route forwarding
-
-Run a specific class:
+Specific examples:
 
 ```bash
-mvn failsafe:integration-test -Dtest=DockerServicesIT
-mvn failsafe:integration-test -Dtest=DockerComposeIT
+mvn -pl chainvault-orchestration test -Dtest=MigrationControllerTest
+mvn -pl chainvault-orchestration failsafe:integration-test -Dtest=DockerServicesIT
 ```
 
-Coverage report location after `mise verify`:
+Coverage report:
 
 ```text
 chainvault-report-aggregate/target/site/jacoco-aggregate/index.html
 ```
 
-## Docker
+## Configuration and secrets
 
-```bash
-# Build locally
-mise docker-build
+Sensitive configuration should be provided through environment variables or mounted secrets instead of being checked into source control.
 
-# Build with version from POM
-mise docker-build-versioned
+This includes:
 
-# Docker compose up - all services
-mise compose-up
-
-# Docker compose down - all services
-mise compose-down
-
-# Docker compose down - all services and volumes
-mise compose-down-full
-```
-
-## BPMN Workflow
-
-The `chainvault` BPMN process (`chainvault-orchestration/src/main/resources/processes/chainvault.bpmn`) follows this
-execution path:
-
-![Chainvault BPMN Process](img/bpmn_process.png)
-
-Each task has a boundary error event that routes failures to the Handle Error task, terminating with End (Failed).
+- SFTP credentials
+- signing keys
+- API tokens
+- environment-specific service endpoints
 
 ## Contributing
 
-PRs and issues are welcome. Follow the existing code style and add tests for significant changes.
+Contributions are welcome. Please keep changes aligned with the current architecture, run the relevant tests, and follow the repo’s formatting and lint conventions.
 
 ## Maintainers
 
@@ -292,4 +285,4 @@ PRs and issues are welcome. Follow the existing code style and add tests for sig
 
 ---
 
-_Generated README — edit with project-specific operational notes as needed._
+Chainvault is a secure, observable, and workflow-driven document processing system for enterprise migration pipelines.

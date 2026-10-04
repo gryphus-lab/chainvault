@@ -45,8 +45,8 @@ const FloatingLabels = () => {
               </CFormFloating>
             </DocsExample>
             <p className="text-body-secondary small">
-              When there&#39;s a <code>value</code> already defined, <code>&lt;CFormLabel&gt;</code>s
-              will automatically adjust to their floated position.
+              When there&#39;s a <code>value</code> already defined, <code>&lt;CFormLabel&gt;</code>{' '}
+              elements will automatically adjust to their floated position.
             </p>
             <DocsExample href="forms/floating-labels">
               <CFormFloating>
@@ -82,7 +82,7 @@ const FloatingLabels = () => {
               </CFormFloating>
             </DocsExample>
             <p className="text-body-secondary small">
-              To set a custom height on your <code>&lt;CFormTextarea;&gt;</code>, do not use the{' '}
+              To set a custom height on your <code>&lt;CFormTextarea&gt;</code>, do not use the{' '}
               <code>rows</code> attribute. Instead, set an explicit <code>height</code> (either
               inline or via custom CSS).
             </p>

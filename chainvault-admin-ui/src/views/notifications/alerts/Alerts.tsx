@@ -28,7 +28,8 @@ const Alerts = () => {
               React Alert is prepared for any length of text, as well as an optional close button.
               For a styling, use one of the <strong>required</strong> contextual <code>color</code>{' '}
               props (e.g., <code>primary</code>). For inline dismissal, use the{' '}
-              <a href="https://coreui.io/react/docs/components/alert#dismissing">dismissing prop</a>.
+              <a href="https://coreui.io/react/docs/components/alert#dismissing">dismissing prop</a>
+              .
             </p>
             <DocsExample href="components/alert">
               <CAlert color="primary">A simple primary alert—check it out!</CAlert>
@@ -128,13 +129,7 @@ const Alerts = () => {
               Alerts can also be easily dismissed. Just add the <code>dismissible</code> prop.
             </p>
             <DocsExample href="components/alert#dismissing">
-              <CAlert
-                color="warning"
-                dismissible
-                onClose={() => {
-                  alert('👋 Well, hi there! Thanks for dismissing me.')
-                }}
-              >
+              <CAlert color="warning" dismissible onClose={() => undefined}>
                 <strong>Go right ahead</strong> and click that dimiss over there on the right.
               </CAlert>
             </DocsExample>

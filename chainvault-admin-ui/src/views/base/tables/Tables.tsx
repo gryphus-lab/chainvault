@@ -35,11 +35,11 @@ type TableRowData = {
 }
 
 type TableConfig = {
-  head?: TableRendererProps['head']
+  head?: NonNullable<TableRendererProps['head']>
   rows: TableRendererProps['rows']
-  caption?: TableRendererProps['caption']
-  headColor?: TableRendererProps['headColor']
-  props?: TableRendererProps['tableProps']
+  caption?: NonNullable<TableRendererProps['caption']>
+  headColor?: NonNullable<TableRendererProps['headColor']>
+  props?: NonNullable<TableRendererProps['tableProps']>
 }
 
 type TableSectionConfig = {

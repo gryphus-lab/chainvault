@@ -94,10 +94,9 @@ const Typography = () => {
         <CCardHeader>Headings</CCardHeader>
         <CCardBody>
           <p>
-            <code className="highlighter-rouge">.h1</code> through
-            <code className="highlighter-rouge">.h6</code>
-            classes are also available, for when you want to match the font styling of a heading but
-            cannot use the associated HTML element.
+            <code className="highlighter-rouge">.h1</code> through{' '}
+            <code className="highlighter-rouge">.h6</code> classes are also available, for when you
+            want to match the font styling of a heading but cannot use the associated HTML element.
           </p>
           <div className="bd-example">
             <p className="h1">h1. Bootstrap heading</p>
@@ -115,7 +114,7 @@ const Typography = () => {
           <p>
             Traditional heading elements are designed to work best in the meat of your page content.
             When you need a heading to stand out, consider using a <strong>display heading</strong>
-            —a larger, slightly more opinionated heading style.
+            {'—'}a larger, slightly more opinionated heading style.
           </p>
           <div className="bd-example bd-example-type">
             <table className="table">
@@ -156,7 +155,7 @@ const Typography = () => {
           <p>
             Traditional heading elements are designed to work best in the meat of your page content.
             When you need a heading to stand out, consider using a <strong>display heading</strong>
-            —a larger, slightly more opinionated heading style.
+            {'—'}a larger, slightly more opinionated heading style.
           </p>
           <div className="bd-example">
             <p>

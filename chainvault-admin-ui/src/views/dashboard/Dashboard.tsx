@@ -239,7 +239,7 @@ const Dashboard = () => {
       }
     }
 
-    fetchStats()
+    void fetchStats()
 
     return () => {
       isActive = false
@@ -278,7 +278,7 @@ const Dashboard = () => {
       }
     }
 
-    fetchMigrations()
+    void fetchMigrations()
 
     return () => {
       isActive = false

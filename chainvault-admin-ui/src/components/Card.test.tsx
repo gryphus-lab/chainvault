@@ -61,7 +61,7 @@ describe('Card Components', () => {
     // Verify nesting structure
     const card = screen.getByTestId('full-card')
     expect(card.querySelector('.border-b')).toBeInTheDocument() // Header check
-    expect(card.querySelectorAll('.px-6').length).toBe(2) // Header + Content padding
+    expect(card.querySelectorAll('.px-6')).toHaveLength(2) // Header + Content padding
   })
 
   it('forwards attributes to the underlying div', () => {

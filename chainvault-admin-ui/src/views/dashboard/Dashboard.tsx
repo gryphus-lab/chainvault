@@ -278,7 +278,7 @@ const Dashboard = () => {
       }
     }
 
-    void fetchMigrations()
+    fetchMigrations()
 
     return () => {
       isActive = false

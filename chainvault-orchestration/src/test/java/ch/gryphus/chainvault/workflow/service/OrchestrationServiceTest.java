@@ -5,9 +5,11 @@ package ch.gryphus.chainvault.workflow.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ch.gryphus.chainvault.config.Constants;
+import ch.gryphus.chainvault.model.entity.MigrationAudit;
 import ch.gryphus.chainvault.repository.MigrationAuditRepository;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
@@ -20,6 +22,7 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -69,11 +72,39 @@ class OrchestrationServiceTest {
                 Map.ofEntries(Map.entry(Constants.BPMN_PROC_VAR_DOC_ID, "123"));
         when(mockRuntimeService.startProcessInstanceByKey(anyString(), anyMap()))
                 .thenReturn(mockProcessInstance);
+        when(mockProcessInstance.getProcessDefinitionKey()).thenReturn("test-definition");
 
         // Run the test
         String result = orchestrationServiceUnderTest.startProcess(variables);
 
         // Verify the results
         assertThat(result).isEqualTo("test");
+
+        ArgumentCaptor<MigrationAudit> auditCaptor = ArgumentCaptor.forClass(MigrationAudit.class);
+        verify(auditRepository).save(auditCaptor.capture());
+
+        MigrationAudit savedAudit = auditCaptor.getValue();
+        assertThat(savedAudit.getProcessInstanceKey()).isEqualTo("test");
+        assertThat(savedAudit.getProcessDefinitionKey()).isEqualTo("test-definition");
+        assertThat(savedAudit.getBpmnProcessId()).isEqualTo(Constants.BPMN_PROCESS_DEFINITION_KEY);
+        assertThat(savedAudit.getDocumentId()).isEqualTo("123");
+        assertThat(savedAudit.getStatus()).isEqualTo(MigrationAudit.MigrationStatus.PENDING);
+        assertThat(savedAudit.getTraceId()).isNotBlank();
+    }
+
+    @Test
+    void testStartProcessWithoutDocumentId() {
+        Map<String, Object> variables = Map.of();
+        when(mockRuntimeService.startProcessInstanceByKey(anyString(), anyMap()))
+                .thenReturn(mockProcessInstance);
+        when(mockProcessInstance.getProcessDefinitionKey()).thenReturn("fallback-definition");
+
+        String result = orchestrationServiceUnderTest.startProcess(variables);
+
+        assertThat(result).isEqualTo("test");
+
+        ArgumentCaptor<MigrationAudit> auditCaptor = ArgumentCaptor.forClass(MigrationAudit.class);
+        verify(auditRepository).save(auditCaptor.capture());
+        assertThat(auditCaptor.getValue().getDocumentId()).isNull();
     }
 }

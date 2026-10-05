@@ -11,6 +11,26 @@ export default defineConfig(() => {
     base: './',
     build: {
       outDir: 'build',
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'react-vendor',
+                test: /node_modules[\\/]((react|react-dom|react-router|react-router-dom|scheduler))[\\/]/,
+              },
+              {
+                name: 'coreui-vendor',
+                test: /node_modules[\\/]@coreui[\\/]/,
+              },
+              {
+                name: 'vendor',
+                test: /node_modules[\\/]/,
+              },
+            ],
+          },
+        },
+      },
     },
     test: {
       environment: 'happy-dom',

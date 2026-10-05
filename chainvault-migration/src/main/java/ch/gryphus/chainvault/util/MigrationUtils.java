@@ -116,6 +116,7 @@ public final class MigrationUtils {
      * @return the path
      * @throws IOException the io exception
      */
+    @SuppressWarnings("java:S1905")
     public static Path mergePagesToPdf(
             List<? extends OcrPage> pages, String docId, Path workingDirectory) throws IOException {
         Path pdf = Path.of("%s/%s-merged.pdf".formatted(workingDirectory, docId));
@@ -123,7 +124,9 @@ public final class MigrationUtils {
             for (var page : pages) {
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(page.getData()));
                 var pdImage = LosslessFactory.createFromImage(doc, img);
-                var pdPage = new PDPage(new PDRectangle(img.getWidth(), img.getHeight()));
+                var pdPage =
+                        new PDPage(
+                                new PDRectangle((float) img.getWidth(), (float) img.getHeight()));
                 doc.addPage(pdPage);
 
                 try (var cs = new PDPageContentStream(doc, pdPage)) {

@@ -25,7 +25,7 @@ Lightweight orchestration and document migration engine for secure processing, a
 | Schema migrations | Liquibase                                |
 | Local tooling     | mise                                     |
 | Observability     | Prometheus, Loki, Grafana, OpenTelemetry |
-| CI / quality      | GitHub Actions, SonarCloud, Qodana       |
+| CI / quality      | GitHub Actions, SonarCloud               |
 | Testing           | JUnit 5, Testcontainers                  |
 | API docs          | springdoc OpenAPI / Swagger UI           |
 
@@ -175,21 +175,22 @@ After startup, the app is available at:
 ### Common commands
 
 ```bash
-mise build                  # mvn clean install -DskipTests
-mise test                  # mvn integration-test
-mise test-docker           # Docker-based integration tests only
-mise verify                # mvn clean verify -Pcoverage
-mise package               # mvn clean package -DskipTests -am
-mise dev                   # start local profile with Postgres + app
-mise compose-up            # docker compose with app + observability stack
-mise compose-down          # stop all compose services
-mise compose-down-full     # stop all services and volumes
-mise docker-build          # build local Docker image
-mise docker-build-versioned # build versioned Docker image from POM
-mise smoke-test            # run smoke test script
-mise load-test             # run load test script (1000 iterations)
-mise check                # yarn lint + prettier + Spotless check
-mise format                # yarn lint-fix + prettier + Spotless apply
+mise build                    # mvn clean install -DskipTests
+mise test                     # mvn integration-test
+mise test-docker              # Docker-based integration tests only
+mise verify                   # mvn clean verify -Pcoverage
+mise package                  # mvn clean package -DskipTests -am
+mise dev                      # start local profile with Postgres + app
+mise compose-up               # docker compose with app + observability stack
+mise compose-down             # stop all compose services
+mise compose-down-full        # stop all services and volumes
+mise docker-build             # build local Docker image
+mise docker-build-versioned   # build versioned Docker image from POM
+mise smoke-test               # run smoke test script
+mise load-test                # run load test script (1000 iterations)
+mise github-build             # CI build with JaCoCo coverage
+mise check                    # yarn lint + prettier + Spotless check
+mise format                   # yarn lint-fix + prettier + Spotless apply
 ```
 
 ### Local profile configuration
@@ -263,6 +264,10 @@ Coverage report:
 ```text
 chainvault-report-aggregate/target/site/jacoco-aggregate/index.html
 ```
+
+## Continuous integration
+
+GitHub Actions runs the CI workflow for pushes to `main` and pull requests targeting `main`. It builds and tests the project with `mise run github-build` (`mvn clean install -Pcoverage`), publishes JUnit test reports, and runs a SonarCloud analysis.
 
 ## Configuration and secrets
 

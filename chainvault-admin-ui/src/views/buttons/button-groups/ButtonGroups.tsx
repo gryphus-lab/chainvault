@@ -110,7 +110,7 @@ const CheckboxGroup = ({ type = 'checkbox', name }: CheckboxGroupProps) => (
 )
 
 type DropdownGroupProps = {
-  color?: ButtonConfig['color']
+  color?: NonNullable<ButtonConfig['color']>
 }
 
 const DropdownGroup = ({ color = 'primary' }: DropdownGroupProps) => (

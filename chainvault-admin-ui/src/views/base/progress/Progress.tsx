@@ -21,7 +21,9 @@ const Progress = () => {
               <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress">
                 the HTML5 <code>&lt;progress&gt;</code> element
               </a>
-              , ensuring you can stack progress bars, animate them, and place text labels over them.
+              {
+                ', ensuring you can stack progress bars, animate them, and place text labels over them.'
+              }
             </p>
             <DocsExample href="components/progress">
               <CProgress className="mb-3">

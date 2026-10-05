@@ -59,8 +59,7 @@ class OTelUtilsTest {
         SpanContext expectedContext = parentSpan.getSpanContext();
 
         String traceParent =
-                String.format(
-                        "00-%s-%s-01", expectedContext.getTraceId(), expectedContext.getSpanId());
+                "00-" + expectedContext.getTraceId() + "-" + expectedContext.getSpanId() + "-01";
 
         Context extractedContext = OTelUtils.extractContext(otel, traceParent);
         SpanContext actualContext = Span.fromContext(extractedContext).getSpanContext();

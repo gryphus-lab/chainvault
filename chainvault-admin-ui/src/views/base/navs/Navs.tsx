@@ -28,8 +28,8 @@ type NavLinkItem = {
   disabled?: boolean
 }
 
-type NavVariant = 'tabs' | 'pills' | undefined
-type NavLayout = 'fill' | 'justified' | undefined
+type NavVariant = 'tabs' | 'pills'
+type NavLayout = 'fill' | 'justified'
 
 /* -------------------------------------------------------------------------- */
 /*                              REUSABLE COMPONENTS                           */

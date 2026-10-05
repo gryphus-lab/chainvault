@@ -42,7 +42,7 @@ describe('useMigrationEvents', () => {
       firstInstance.onerror?.(new Error('Connection lost'))
     })
 
-    expect(MockEventSource.instances.length).toBe(1)
+    expect(MockEventSource.instances).toHaveLength(1)
 
     // Fast-forward 3 seconds
     act(() => {
@@ -50,7 +50,7 @@ describe('useMigrationEvents', () => {
     })
 
     // A second instance should have been created
-    expect(MockEventSource.instances.length).toBe(2)
+    expect(MockEventSource.instances).toHaveLength(2)
     expect(MockEventSource.instances[1].url).toBe('/api/migrations/events')
   })
 
@@ -81,7 +81,7 @@ describe('useMigrationEvents', () => {
     })
 
     expect(firstInstance.close).toHaveBeenCalled()
-    expect(MockEventSource.instances.length).toBe(2)
+    expect(MockEventSource.instances).toHaveLength(2)
   })
 
   it('ignores events missing required fields (id or createdAt)', () => {
@@ -96,7 +96,7 @@ describe('useMigrationEvents', () => {
       } as MessageEvent)
     })
 
-    expect(result.current.events.length).toBe(0)
+    expect(result.current.events).toHaveLength(0)
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('Received incomplete event'),
       expect.anything(),
@@ -148,7 +148,7 @@ describe('useMigrationEvents', () => {
       }
     })
 
-    expect(result.current.events.length).toBe(100)
+    expect(result.current.events).toHaveLength(100)
     expect(result.current.events.find((e) => e.id === '0')).toBeUndefined()
     expect(result.current.events[0].id).toBe('109')
   })
@@ -161,7 +161,7 @@ describe('useMigrationEvents', () => {
       instance.onmessage?.({ data: '   ' } as MessageEvent)
     })
 
-    expect(result.current.events.length).toBe(0)
+    expect(result.current.events).toHaveLength(0)
   })
 
   it('logs error when JSON parsing fails (catch block)', () => {

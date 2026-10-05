@@ -114,7 +114,7 @@ describe('Overview', () => {
       mockUseMigrationEvents.mockReturnValue({ ...mockDefaults, events: manyEvents })
       render(<Overview />)
       // 12 events exist but only 8 messages should be rendered
-      expect(screen.getAllByText(/^Event \d+$/).length).toBe(8)
+      expect(screen.getAllByText(/^Event \d+$/)).toHaveLength(8)
     })
   })
 })

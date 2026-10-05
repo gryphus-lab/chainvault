@@ -61,7 +61,7 @@ describe('Colors', () => {
 
     // each ThemeColor renders a table
     const tables = screen.getAllByRole('table')
-    expect(tables.length).toBe(8)
+    expect(tables).toHaveLength(8)
   })
 
   it('displays HEX and RGB values', async () => {

@@ -60,10 +60,11 @@ public class OrchestrationService {
 
         try (var _ = parentContext.makeCurrent()) {
             String traceParent =
-                    String.format(
-                            "00-%s-%s-01",
-                            parentSpan.getSpanContext().getTraceId(),
-                            parentSpan.getSpanContext().getSpanId());
+                    "00-"
+                            + parentSpan.getSpanContext().getTraceId()
+                            + "-"
+                            + parentSpan.getSpanContext().getSpanId()
+                            + "-01";
 
             Map<String, Object> map = new HashMap<>(variables);
             map.put("traceParent", traceParent);

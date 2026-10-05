@@ -29,7 +29,7 @@ const Alerts = () => {
               For a styling, use one of the <strong>required</strong> contextual <code>color</code>{' '}
               props (e.g., <code>primary</code>). For inline dismissal, use the{' '}
               <a href="https://coreui.io/react/docs/components/alert#dismissing">dismissing prop</a>
-              .
+              {'.'}
             </p>
             <DocsExample href="components/alert">
               <CAlert color="primary">A simple primary alert—check it out!</CAlert>

@@ -239,7 +239,7 @@ const Dashboard = () => {
       }
     }
 
-    fetchStats()
+    void fetchStats()
 
     return () => {
       isActive = false

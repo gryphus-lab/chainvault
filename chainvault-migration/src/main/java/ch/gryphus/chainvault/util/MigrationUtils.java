@@ -116,6 +116,7 @@ public final class MigrationUtils {
      * @return the path
      * @throws IOException the io exception
      */
+    @SuppressWarnings("java:S1905")
     public static Path mergePagesToPdf(
             List<? extends OcrPage> pages, String docId, Path workingDirectory) throws IOException {
         Path pdf = Path.of("%s/%s-merged.pdf".formatted(workingDirectory, docId));

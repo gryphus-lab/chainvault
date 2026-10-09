@@ -1,5 +1,5 @@
 # Build Stage
-FROM maven:3-eclipse-temurin-26 AS build
+FROM maven:3-eclipse-temurin-27 AS build
 WORKDIR /workspace
 
 # Copy pom first for better layer caching (dependencies layer rarely changes)

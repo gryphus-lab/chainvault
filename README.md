@@ -16,19 +16,19 @@ Lightweight orchestration and document migration engine for secure processing, a
 
 ## At a glance
 
-|      Aspect       |                  Stack                      |
-|-------------------|---------------------------------------------|
-| Language          | Java 25, TypeScript 5.9                      |
-| Framework         | Spring Boot 4.1.1, React 19.2               |
-| Orchestration     | Flowable 8.0.0 (BPMN 2.0)                   |
-| Database          | PostgreSQL 18                               |
-| Schema migrations | Liquibase (Maven plugin 5.0.4)             |
-| Build             | Maven 3.9 (multi-module), Vite 8            |
-| Local tooling     | mise                                        |
+|      Aspect       |                     Stack                     |
+|-------------------|-----------------------------------------------|
+| Language          | Java 25, TypeScript 5.9                       |
+| Framework         | Spring Boot 4.1.1, React 19.2                 |
+| Orchestration     | Flowable 8.0.0 (BPMN 2.0)                     |
+| Database          | PostgreSQL 18                                 |
+| Schema migrations | Liquibase (Maven plugin 5.0.4)                |
+| Build             | Maven 3.9 (multi-module), Vite 8              |
+| Local tooling     | mise                                          |
 | Observability     | Prometheus, Loki, Grafana, OpenTelemetry 1.66 |
-| CI / quality      | GitHub Actions, SonarCloud                  |
-| Testing           | JUnit 5, Testcontainers 2.0, Vitest 5       |
-| API docs          | springdoc OpenAPI 3.1 / Swagger UI          |
+| CI / quality      | GitHub Actions, SonarCloud                    |
+| Testing           | JUnit 5, Testcontainers 2.0, Vitest 5         |
+| API docs          | springdoc OpenAPI 3.1 / Swagger UI            |
 
 ## Overview
 
@@ -149,14 +149,14 @@ The React UI consumes `/api/migrations/events` and updates the dashboard in real
 
 `mise` pins the full toolchain in `mise.toml`, so you do not need these installed globally - `mise install` provisions them:
 
-| Tool   | Version    | Notes                                             |
-|--------|------------|---------------------------------------------------|
-| Java   | temurin 25 | Build + runtime JDK (`-XX:+UseZGC`)               |
-| Maven  | 3.9        | Multi-module reactor build                        |
-| Node   | 25.9.0     | Dev shell (`mise`); the Maven UI build pins Node 26.0.0 via frontend-maven-plugin 2.0.2 |
-| Yarn   | 4.13.0     | Admin-UI package manager                          |
-| Python | 3.14       | Tooling/scripts (`uv`-managed `.venv`)            |
-| jq / trivy / hadolint | latest | CI helpers                             |
+|         Tool          |  Version   |                                          Notes                                          |
+|-----------------------|------------|-----------------------------------------------------------------------------------------|
+| Java                  | temurin 25 | Build + runtime JDK (`-XX:+UseZGC`)                                                     |
+| Maven                 | 3.9        | Multi-module reactor build                                                              |
+| Node                  | 25.9.0     | Dev shell (`mise`); the Maven UI build pins Node 26.0.0 via frontend-maven-plugin 2.0.2 |
+| Yarn                  | 4.13.0     | Admin-UI package manager                                                                |
+| Python                | 3.14       | Tooling/scripts (`uv`-managed `.venv`)                                                  |
+| jq / trivy / hadolint | latest     | CI helpers                                                                              |
 
 The container image is multi-stage: the build stage uses a `maven:3-eclipse-temurin-*` image (tracking the latest JDK via Dependabot) and the runtime stage uses `eclipse-temurin:25-jre-noble` (JRE 25).
 

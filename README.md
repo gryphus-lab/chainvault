@@ -3,31 +3,32 @@
 Lightweight orchestration and document migration engine for secure processing, auditability, and delivery.
 
 [![Java 25](https://img.shields.io/badge/Java-25-orange?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/)
-[![Spring Boot 4](https://img.shields.io/badge/Spring%20Boot-4.0+-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Maven](https://img.shields.io/badge/Maven-3.9+-C71A36?logo=apache-maven&logoColor=white)](https://maven.apache.org/)
-[![React](https://img.shields.io/badge/React-19+-2496ED?logo=react&logoColor=white)](https://react.dev/)
+[![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?logo=apache-maven&logoColor=white)](https://maven.apache.org/)
+[![React](https://img.shields.io/badge/React-19.2-2496ED?logo=react&logoColor=white)](https://react.dev/)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Liquibase](https://img.shields.io/badge/Liquibase-managed-2962FF)](https://www.liquibase.org/)
-[![Flowable](https://img.shields.io/badge/orchestrated%20with-Flowable-0072C6)](https://www.flowable.com/)
+[![Flowable](https://img.shields.io/badge/orchestrated%20with-Flowable%208-0072C6)](https://www.flowable.com/)
 [![mise](https://img.shields.io/badge/managed%20with-mise-6f42c1)](https://mise.jdx.dev/)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gryphus-lab_chainvault&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gryphus-lab_chainvault)
 [![GitHub Actions CI](https://github.com/gryphus-lab/chainvault/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gryphus-lab/chainvault/actions/workflows/ci.yml)
 
 ## At a glance
 
-|      Aspect       |                  Stack                   |
-|-------------------|------------------------------------------|
-| Language          | Java 25, TypeScript                      |
-| Framework         | Spring Boot 4, React 19                  |
-| Orchestration     | Flowable BPMN 2.0                        |
-| Database          | PostgreSQL 18                            |
-| Schema migrations | Liquibase                                |
-| Local tooling     | mise                                     |
-| Observability     | Prometheus, Loki, Grafana, OpenTelemetry |
-| CI / quality      | GitHub Actions, SonarCloud               |
-| Testing           | JUnit 5, Testcontainers                  |
-| API docs          | springdoc OpenAPI / Swagger UI           |
+|      Aspect       |                  Stack                      |
+|-------------------|---------------------------------------------|
+| Language          | Java 25, TypeScript 5.9                      |
+| Framework         | Spring Boot 4.1.1, React 19.2               |
+| Orchestration     | Flowable 8.0.0 (BPMN 2.0)                   |
+| Database          | PostgreSQL 18                               |
+| Schema migrations | Liquibase (Maven plugin 5.0.4)             |
+| Build             | Maven 3.9 (multi-module), Vite 8            |
+| Local tooling     | mise                                        |
+| Observability     | Prometheus, Loki, Grafana, OpenTelemetry 1.66 |
+| CI / quality      | GitHub Actions, SonarCloud                  |
+| Testing           | JUnit 5, Testcontainers 2.0, Vitest 5       |
+| API docs          | springdoc OpenAPI 3.1 / Swagger UI          |
 
 ## Overview
 
@@ -46,15 +47,15 @@ The service is designed for operational transparency and traceability:
 ## Features
 
 - Java 25 support with modern JVM tuning and virtual-thread-friendly runtime defaults
-- Spring Boot 4 baseline with Jakarta EE 11 compatibility
+- Spring Boot 4.1.1 baseline with Jakarta EE 11 compatibility
 - Multi-module Maven build with dedicated migration, orchestration, UI, and coverage modules
-- Flowable BPMN 2.0 engine for process orchestration and delegate-based execution
+- Flowable 8.0.0 BPMN 2.0 engine for process orchestration and delegate-based execution
 - PostgreSQL-backed persistence with Liquibase-managed schema evolution
 - OCR via Tesseract/Tess4J for TIFF and page-based document extraction
 - Document transformation, merge, and signing pipeline for migration artifacts
 - Secure SFTP upload integration for downstream delivery
 - Real-time migration status stream via Server-Sent Events (SSE)
-- React 19 dashboard with live metrics, filtering, and per-migration detail views
+- React 19.2 dashboard (TypeScript 5.9, Vite 8) with live metrics, filtering, and per-migration detail views
 - Spring Boot SPA hosting for frontend delivery without a separate web server
 - Aggregated JaCoCo coverage for CI and SonarCloud quality gates
 - Docker-ready local development and compose-based integration workflows
@@ -139,10 +140,25 @@ The React UI consumes `/api/migrations/events` and updates the dashboard in real
 ## Prerequisites
 
 - Docker and Docker Compose v2+
-- [mise](https://mise.jdx.dev/) to manage Java, Maven, Node, Yarn, and project tasks
+- [mise](https://mise.jdx.dev/) to manage the toolchain (Java, Maven, Node, Yarn, Python) and project tasks
 - Git
 - Tesseract OCR runtime for local OCR: `brew install tesseract tesseract-lang`
 - Access to the configured SFTP and source API endpoints for your local profile
+
+### Toolchain versions
+
+`mise` pins the full toolchain in `mise.toml`, so you do not need these installed globally - `mise install` provisions them:
+
+| Tool   | Version    | Notes                                             |
+|--------|------------|---------------------------------------------------|
+| Java   | temurin 25 | Build + runtime JDK (`-XX:+UseZGC`)               |
+| Maven  | 3.9        | Multi-module reactor build                        |
+| Node   | 25.9.0     | Dev shell (`mise`); the Maven UI build pins Node 26.0.0 via frontend-maven-plugin 2.0.2 |
+| Yarn   | 4.13.0     | Admin-UI package manager                          |
+| Python | 3.14       | Tooling/scripts (`uv`-managed `.venv`)            |
+| jq / trivy / hadolint | latest | CI helpers                             |
+
+The container image is multi-stage: the build stage uses a `maven:3-eclipse-temurin-*` image (tracking the latest JDK via Dependabot) and the runtime stage uses `eclipse-temurin:25-jre-noble` (JRE 25).
 
 One-time environment setup:
 

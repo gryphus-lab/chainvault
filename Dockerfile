@@ -12,10 +12,14 @@ COPY chainvault-orchestration ./chainvault-orchestration
 COPY chainvault-report-aggregate ./chainvault-report-aggregate
 COPY docker-resources/chainvault-app/init-scripts/setup.sh ./
 
-# Install libatomic1 for Node.js 25.x / frontend-maven-plugin compatibility
+# Install libatomic1 for Node.js 25.x / frontend-maven-plugin compatibility.
+# Unpinned on purpose: the exact patch version is tied to the base image's
+# Ubuntu release (the old 14.2.0-4ubuntu2~24.04.1 pin only exists on the
+# temurin-26 image's Ubuntu 24.04 base and breaks on the temurin-27 image's
+# newer base). libatomic1 is a stable runtime library, so track the base distro.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      libatomic1=14.2.0-4ubuntu2~24.04.1 && \
+      libatomic1 && \
     rm -rf /var/lib/apt/lists/*
 
 # Build application with optimized settings

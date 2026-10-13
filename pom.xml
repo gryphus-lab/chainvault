@@ -137,6 +137,21 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!--
+                The stable opentelemetry-bom does NOT manage the alpha/-incubator
+                artifacts. Without the alpha BOM, opentelemetry-api-incubator was
+                pulled in transitively at 1.66.0-alpha while the core API/SDK moved
+                to 1.67.0, causing NoClassDefFoundError on
+                io.opentelemetry.api.internal.ConfigUtil. Import the alpha BOM at
+                the same version so all alpha artifacts track the core version.
+            -->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom-alpha</artifactId>
+                <version>${opentelemetry.version}-alpha</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-exporter-otlp</artifactId>
